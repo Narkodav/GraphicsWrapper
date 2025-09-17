@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{a2befbd1-bb4a-4512-8724-16cd6e4c7dc4}</ProjectGuid>
+    <RootNamespace>GraphicsWrapper</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)Vendor\glfw-3.3.8.bin.WIN64\include;$(ProjectDir)Vendor\Vendor\assimp\include;$(ProjectDir)Vendor\imgui;$(ProjectDir)Vendor;$(ProjectDir);E:\Program Files (x86)\API\Vulkan\Include;$(ProjectDir)Vendor\CommonApi\include;$(ProjectDir)Vendor\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)Vendor\glfw-3.3.8.bin.WIN64\lib-vc2022;E:\Program Files (x86)\API\Vulkan\Lib;$(ProjectDir)Vendor\CommonApi\lib\Debug DLL</AdditionalLibraryDirectories>
+      <AdditionalDependencies>user32.lib;Gdi32.lib;Shell32.lib;vulkan-1.lib;glfw3.lib;CommonApi.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)Vendor\glfw-3.3.8.bin.WIN64\include;$(ProjectDir)Vendor\Vendor\assimp\include;$(ProjectDir)Vendor\imgui;$(ProjectDir)Vendor;$(ProjectDir);E:\Program Files (x86)\API\Vulkan\Include;$(ProjectDir)Vendor\CommonApi\include;$(ProjectDir)Vendor\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)Vendor\glfw-3.3.8.bin.WIN64\lib-vc2022;E:\Program Files (x86)\API\Vulkan\Lib;$(ProjectDir)Vendor\CommonApi\lib\Release DLL</AdditionalLibraryDirectories>
+      <AdditionalDependencies>user32.lib;Gdi32.lib;Shell32.lib;vulkan-1.lib;glfw3.lib;CommonApi.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Graphics\Wrappers\CommandPool.h" />
+    <ClInclude Include="Graphics\Wrappers\CommandBuffer.h" />
+    <ClInclude Include="Graphics\Wrappers\FrameBuffer.h" />
+    <ClInclude Include="Graphics\Wrappers\Buffer.h" />
+    <ClInclude Include="Graphics\Wrappers\Fence.h" />
+    <ClInclude Include="Graphics\StructTraits.h" />
+    <ClInclude Include="Graphics\Wrappers\Device.h" />
+    <ClInclude Include="Graphics\Wrappers\DebugUtilsMessenger.h" />
+    <ClInclude Include="Graphics\BufferDataLayouts.h" />
+    <ClInclude Include="Graphics\Camera.h" />
+    <ClInclude Include="Graphics\Common.h" />
+    <ClInclude Include="Graphics\DeviceFunctionTable.h" />
+    <ClInclude Include="Graphics\Enums.h" />
+    <ClInclude Include="Graphics\FeatureEnum.h" />
+    <ClInclude Include="Graphics\Flags.h" />
+    <ClInclude Include="Graphics\FunctionTable.h" />
+    <ClInclude Include="Graphics\InstanceFunctionTable.h" />
+    <ClInclude Include="Graphics\PlatformManagement\InputStateTracker.h" />
+    <ClInclude Include="Graphics\PlatformManagement\IOEvents.h" />
+    <ClInclude Include="Graphics\PlatformManagement\Keyboard.h" />
+    <ClInclude Include="Graphics\PlatformManagement\Mouse.h" />
+    <ClInclude Include="Graphics\PlatformManagement\PlatformContext.h" />
+    <ClInclude Include="Graphics\PlatformManagement\Window.h" />
+    <ClInclude Include="Graphics\PlatformManagement\WindowEvents.h" />
+    <ClInclude Include="Graphics\PropertyEnum.h" />
+    <ClInclude Include="Graphics\QueuePropertyEnum.h" />
+    <ClInclude Include="Graphics\Wrappers\Utility\Utility.h" />
+    <ClInclude Include="Graphics\Wrappers\Wrappers.h" />
+    <ClInclude Include="Graphics\Wrappers\Instance.h" />
+    <ClInclude Include="Graphics\Wrappers\PhysicalDevice.h" />
+    <ClInclude Include="Graphics\Wrappers\Surface.h" />
+    <ClInclude Include="Graphics\Wrappers\Queue.h" />
+    <ClInclude Include="Graphics\Wrappers\Semaphore.h" />
+    <ClInclude Include="Graphics\Wrappers\PhysicalDeviceCache.h" />
+    <ClInclude Include="Graphics\Wrappers\Image.h" />
+    <ClInclude Include="Graphics\Wrappers\Memory.h" />
+    <ClInclude Include="Graphics\Wrappers\RenderPass.h" />
+    <ClInclude Include="Graphics\Wrappers\SwapChain.h" />
+    <ClInclude Include="Graphics\Wrappers\ShaderModule.h" />
+    <ClInclude Include="Graphics\Wrappers\Sampler.h" />
+    <ClInclude Include="Vendor\stb_image\stb_image.h" />
+    <ClInclude Include="Vendor\stb_image\stb_image_write.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Graphics\Wrappers\CommandPool.cpp" />
+    <ClCompile Include="Graphics\Wrappers\CommandBuffer.cpp" />
+    <ClCompile Include="Graphics\Wrappers\FrameBuffer.cpp" />
+    <ClCompile Include="Graphics\Wrappers\Buffer.cpp" />
+    <ClCompile Include="Graphics\Wrappers\Fence.cpp" />
+    <ClCompile Include="Graphics\Wrappers\Device.cpp" />
+    <ClCompile Include="Graphics\Wrappers\DebugUtilsMessenger.cpp" />
+    <ClCompile Include="Graphics\BufferDataLayouts.cpp" />
+    <ClCompile Include="Graphics\Camera.cpp" />
+    <ClCompile Include="Graphics\Flags.cpp" />
+    <ClCompile Include="Graphics\PlatformManagement\InputStateTracker.cpp" />
+    <ClCompile Include="Graphics\PlatformManagement\IOEvents.cpp" />
+    <ClCompile Include="Graphics\PlatformManagement\Keyboard.cpp" />
+    <ClCompile Include="Graphics\PlatformManagement\Mouse.cpp" />
+    <ClCompile Include="Graphics\PlatformManagement\PlatformContext.cpp" />
+    <ClCompile Include="Graphics\PlatformManagement\Window.cpp" />
+    <ClCompile Include="Graphics\PlatformManagement\WindowEvents.cpp" />
+    <ClCompile Include="Graphics\Wrappers\TaskTables\FeatureTaskTables.cpp" />
+    <ClCompile Include="Graphics\Wrappers\TaskTables\PropertyTaskTables.cpp" />
+    <ClCompile Include="Graphics\Wrappers\TaskTables\QueuePropertyTaskTables.cpp" />
+    <ClCompile Include="Graphics\Wrappers\Utility\Utility.cpp" />
+    <ClCompile Include="Graphics\Wrappers\Wrappers.cpp" />
+    <ClCompile Include="Graphics\Wrappers\Instance.cpp" />
+    <ClCompile Include="Graphics\Wrappers\Image.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Graphics\Wrappers\PhysicalDevice.cpp" />
+    <ClCompile Include="Graphics\Wrappers\Surface.cpp" />
+    <ClCompile Include="Graphics\Wrappers\Queue.cpp" />
+    <ClCompile Include="Graphics\Wrappers\Semaphore.cpp" />
+    <ClCompile Include="Graphics\Wrappers\PhysicalDeviceCache.cpp" />
+    <ClCompile Include="Graphics\Wrappers\Memory.cpp" />
+    <ClCompile Include="Graphics\Wrappers\RenderPass.cpp" />
+    <ClCompile Include="Graphics\Wrappers\SwapChain.cpp" />
+    <ClCompile Include="Graphics\Wrappers\ShaderModule.cpp" />
+    <ClCompile Include="Graphics\Wrappers\Sampler.cpp" />
+    <ClCompile Include="Vendor\stb_image\stb_image.cpp" />
+    <ClCompile Include="Vendor\stb_image\stb_image_write.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
