@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "../DeviceFunctionTable.h"
 #include "Fence.h"
 #include "Semaphore.h"
@@ -10,6 +11,8 @@ namespace Graphics
 {
     class Queue : public BaseComponent<VkQueue, Queue>
     {
+        friend class DeviceRef;
+        friend class Device;
         using Base = BaseComponent<VkQueue, Queue>;
     public:
         using Base::Base;
@@ -21,10 +24,10 @@ namespace Graphics
             using Base::Base;
 
             template<typename SemaphoreT>
-            SubmitInfo(const std::vector<CommandBuffer>& commandBuffers,
-                const std::vector<PipelineStage::Flags>& waitStages = {},
-                const std::vector<SemaphoreT>& waitSenaphores = {},
-                const std::vector<SemaphoreT>& signalSemaphores = {}) requires
+            SubmitInfo(std::span<const CommandBuffer> commandBuffers,
+                std::span<const PipelineStage::Flags> waitStages = {},
+                std::span<const SemaphoreT> waitSenaphores = {},
+                std::span<const SemaphoreT> signalSemaphores = {}) requires
                 std::is_convertible_v<SemaphoreT, Semaphore> ||
                 std::is_convertible_v<SemaphoreT, SemaphoreRef> : Base() {
                 this->commandBufferCount = commandBuffers.size();
@@ -36,11 +39,11 @@ namespace Graphics
                 this->pWaitDstStageMask = reinterpret_cast<const VkPipelineStageFlags*>(waitStages.data());
             }
 
-            template<typename SemaphoreT>
-            SubmitInfo& setWaitStages(const std::vector<PipelineStage::Flags>& waitStages,
-                const std::vector<SemaphoreT>& waitSenaphores) requires
-                std::is_convertible_v<SemaphoreT, Semaphore> ||
-                std::is_convertible_v<SemaphoreT, SemaphoreRef> {
+            template<typename SemaphoreType>
+            SubmitInfo& setWaitStages(std::span<const PipelineStage::Flags> waitStages,
+                std::span<const SemaphoreType> waitSenaphores) requires
+                std::is_convertible_v<SemaphoreType, Semaphore> ||
+                std::is_convertible_v<SemaphoreType, SemaphoreRef> {
                 GRAPHICS_VERIFY(waitStages.size() == waitSenaphores.size(), "Wait stages and wait semaphores must have the same size");
                 this->waitSemaphoreCount = waitSenaphores.size();
                 this->pWaitSemaphores = Semaphore::underlyingCast(waitSenaphores.data());
@@ -48,16 +51,16 @@ namespace Graphics
                 return *this;
             }
 
-            template<typename SemaphoreT>
-            SubmitInfo& setSignalSemaphores(const std::vector<SemaphoreT>& signalSemaphores) requires
-                std::is_convertible_v<SemaphoreT, Semaphore> ||
-                std::is_convertible_v<SemaphoreT, SemaphoreRef> {
+            template<typename SemaphoreType>
+            SubmitInfo& setSignalSemaphores(std::span<const SemaphoreType> signalSemaphores) requires
+                std::is_convertible_v<SemaphoreType, Semaphore> ||
+                std::is_convertible_v<SemaphoreType, SemaphoreRef> {
                 this->signalSemaphoreCount = signalSemaphores.size();
                 Semaphore::underlyingCast(signalSemaphores.data());
                 return *this;
             }
 
-            SubmitInfo& setCommandBuffers(const std::vector<CommandBuffer>& commandBuffers) {
+            SubmitInfo& setCommandBuffers(std::span<const CommandBuffer> commandBuffers) {
                 this->commandBufferCount = commandBuffers.size();
                 this->pCommandBuffers = CommandBuffer::underlyingCast(commandBuffers.data());
                 return *this;
@@ -71,9 +74,9 @@ namespace Graphics
             using Base::Base;
 
             template<typename SemaphoreT, typename SwapChainT>
-            PresentInfo(const std::vector<Semaphore>& waitSemaphores,
-                const std::vector<SwapChain>& swapChains,
-                const std::vector<uint32_t>& imageIndices) requires
+            PresentInfo(std::span<const Semaphore> waitSemaphores,
+                std::span<const SwapChain> swapChains,
+                std::span<const uint32_t> imageIndices) requires
                 std::is_convertible_v<SemaphoreT, Semaphore> ||
                 std::is_convertible_v<SemaphoreT, SemaphoreRef> &&
                 std::is_convertible_v<SwapChainT, SwapChain> ||
@@ -86,7 +89,7 @@ namespace Graphics
             }
 
             template<typename SemaphoreT>
-            PresentInfo& setWaitSemaphores(const std::vector<SemaphoreT>& waitSemaphores) requires
+            PresentInfo& setWaitSemaphores(std::span<const SemaphoreT> waitSemaphores) requires
                 std::is_convertible_v<SemaphoreT, Semaphore> ||
                 std::is_convertible_v<SemaphoreT, SemaphoreRef> {
                 this->waitSemaphoreCount = waitSemaphores.size();
@@ -95,8 +98,8 @@ namespace Graphics
             }
 
             template<typename SwapChainT>
-            PresentInfo& setSwapChains(const std::vector<SwapChainT>& swapChains,
-                const std::vector<uint32_t>& imageIndices) requires
+            PresentInfo& setSwapChains(std::span<const SwapChainT> swapChains,
+                std::span<const uint32_t> imageIndices) requires
                 std::is_convertible_v<SwapChainT, SwapChain> ||
                 std::is_convertible_v<SwapChainT, SwapChainRef> {
                 GRAPHICS_VERIFY(swapChains.size() == imageIndices.size(), "swap chains and image indices must have the same size");
@@ -115,7 +118,7 @@ namespace Graphics
         };
 
         void submit(const DeviceFunctionTable& functions,
-            const std::vector<SubmitInfo>& submitInfos,
+            std::span<const SubmitInfo> submitInfos,
             const FenceRef& fence) const;
 
         void present(const DeviceFunctionTable& functions, const PresentInfo& presentInfo) const;

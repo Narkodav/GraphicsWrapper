@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "../InstanceFunctionTable.h"
 #include "../DeviceFunctionTable.h"
 #include "Instance.h"
@@ -15,7 +16,7 @@ namespace Graphics
     public:
         using Base::Base;
 
-        QueueCreateInfo(uint32_t familyIndex, const std::vector<float>& queuePriorities) : Base()
+        QueueCreateInfo(uint32_t familyIndex, std::span<const float> queuePriorities) : Base()
         {
             this->pQueuePriorities = queuePriorities.data();
             this->queueCount = queuePriorities.size();
@@ -27,7 +28,7 @@ namespace Graphics
             return *this;
         }
 
-        QueueCreateInfo& setQueuePriorities(const std::vector<float>& queuePriorities) {
+        QueueCreateInfo& setQueuePriorities(std::span<const float> queuePriorities) {
             this->pQueuePriorities = queuePriorities.data();
             this->queueCount = queuePriorities.size();
             return *this;
@@ -47,6 +48,7 @@ namespace Graphics
         using Base = BaseComponent<VkDevice, DeviceRef>;
     public:
         using Base::Base;
+        static inline const std::string s_typeName = "Device";
 
         DeviceFunctionTable getFunctionTable(const InstanceFunctionTable& functions) const
         {
@@ -82,9 +84,9 @@ namespace Graphics
             template<typename RequiredFeatures>
             CreateInfo(
                 const RequiredFeatures& features,
-                const std::vector<const char*>& extensions,
-                const std::vector<QueueCreateInfo>& queueCreateInfos,
-                const std::vector<const char*>& enabledLayers) : Base()
+                std::span<const char* const> extensions,
+                std::span<const QueueCreateInfo> queueCreateInfos,
+                std::span<const char* const> enabledLayers) : Base()
             {
                 this->enabledExtensionCount = extensions.size();
                 this->ppEnabledExtensionNames = extensions.data();
@@ -95,19 +97,19 @@ namespace Graphics
                 this->pNext = features.getHead();
             }
 
-            CreateInfo& setEnabledExtensions(const std::vector<const char*>& extensions) {
+            CreateInfo& setEnabledExtensions(std::span<const char* const> extensions) {
                 this->enabledExtensionCount = extensions.size();
                 this->ppEnabledExtensionNames = extensions.data();
                 return *this;
             }
 
-            CreateInfo& setEnabledLayers(const std::vector<const char*>& enabledLayers) {
+            CreateInfo& setEnabledLayers(std::span<const char* const> enabledLayers) {
                 this->enabledLayerCount = enabledLayers.size();
                 this->ppEnabledLayerNames = enabledLayers.data();
                 return *this;
             }
 
-            CreateInfo& setQueueCreateInfos(const std::vector<QueueCreateInfo>& queueCreateInfos) {
+            CreateInfo& setQueueCreateInfos(std::span<const QueueCreateInfo> queueCreateInfos) {
                 this->pQueueCreateInfos = QueueCreateInfo::underlyingCast(queueCreateInfos.data());
                 this->queueCreateInfoCount = queueCreateInfos.size();
                 return *this;
@@ -115,7 +117,7 @@ namespace Graphics
 
             template<typename RequiredFeatures>
             CreateInfo& setEnabledFeatures(const RequiredFeatures& features) {
-                this->pNext = features.getHead();
+                this->pNext = &features.getHead();
                 return *this;
             }
         };

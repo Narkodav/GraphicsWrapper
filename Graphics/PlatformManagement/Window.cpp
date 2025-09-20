@@ -33,7 +33,7 @@ void Window::init(const Graphics::Extent2D& windowExtent, const std::string& win
     glfwWindowHint(GLFW_SRGB_CAPABLE, attr.srgbCapable);
     glfwWindowHint(GLFW_DOUBLEBUFFER, attr.doubleBuffer);
 
-    m_window = glfwCreateWindow(m_windowExtent.width, m_windowExtent.height,
+    m_window = glfwCreateWindow(m_windowExtent.getWidth(), m_windowExtent.getHeight(),
     m_windowText.c_str(), nullptr, nullptr);
 
     GRAPHICS_VERIFY(m_window, "Failed to create GLFW window");
@@ -86,16 +86,14 @@ void Window::destroy()
 
 void Window::static_framebufferResizeCallback(GLFWwindow* window, int width, int height) {
     auto* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
-    self->m_frameBufferExtent.width = width;
-    self->m_frameBufferExtent.height = height;
+    self->m_frameBufferExtent.setWidth(width).setHeight(height);
     self->m_platformEvents.emit<WindowEvents::FrameBufferResized>(width, height);
 }
 
 // Static window callbacks
 void Window::static_windowResizeCallback(GLFWwindow* window, int width, int height) {
     auto* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
-    self->m_windowExtent.width = width;
-    self->m_windowExtent.height = height;
+    self->m_windowExtent.setWidth(width).setHeight(height);
     self->m_platformEvents.emit<WindowEvents::WindowResized>(width, height);
 }
 

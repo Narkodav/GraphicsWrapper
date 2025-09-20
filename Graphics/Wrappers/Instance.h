@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "../InstanceFunctionTable.h"
 #include "DebugUtilsMessenger.h"
 
@@ -72,6 +73,7 @@ namespace Graphics
         using Base = BaseComponent<VkInstance, InstanceRef>;
     public:
         using Base::Base;
+        static inline const std::string s_typeName = "Instance";
 
         std::vector<PhysicalDevice> getPhysicalDevices(const InstanceFunctionTable& functions) const;
         PhysicalDeviceCache cachePhysicalDevices(const InstanceFunctionTable& functions) const;
@@ -91,8 +93,8 @@ namespace Graphics
             using Base::Base;
 
             CreateInfo(const AppInfo& appInfo,
-                const std::vector<const char*>& requiredLayers,
-                const std::vector<const char*>& requiredExtensions,
+                std::span<const char* const> requiredLayers,
+                std::span<const char* const> requiredExtensions,
                 const DebugUtils::Messenger::CreateInfo* debugCreateInfo = nullptr) : Base() {
                 this->pApplicationInfo = AppInfo::underlyingCast(&appInfo);
                 this->enabledLayerCount = requiredLayers.size();
@@ -102,13 +104,13 @@ namespace Graphics
                 this->pNext = debugCreateInfo;
             }
 
-            CreateInfo& setEnabledLayers(const std::vector<const char*>& requiredLayers) {
+            CreateInfo& setEnabledLayers(std::span<const char* const> requiredLayers) {
                 this->enabledLayerCount = requiredLayers.size();
                 this->ppEnabledLayerNames = requiredLayers.data();
                 return *this;
             }
 
-            CreateInfo& setEnabledExtensions(const std::vector<const char*>& requiredExtensions) {
+            CreateInfo& setEnabledExtensions(std::span<const char* const> requiredExtensions) {
                 this->enabledExtensionCount = requiredExtensions.size();
                 this->ppEnabledExtensionNames = requiredExtensions.data();
                 return *this;
@@ -137,21 +139,21 @@ namespace Graphics
         static std::vector<LayerProperties> getAvailableValidationLayers();
 
         static bool validateLayers(
-            const std::vector<LayerProperties>& availible,
-            const std::vector<const char*>& required);
+            std::span<const LayerProperties> availible,
+            std::span<const char* const> required);
 
         static std::vector<const char*> getRequiredExtensions();
 
         static std::vector<ExtensionProperties> getAvailableExtensions();
 
         static bool validateExtensions(
-            const std::vector<ExtensionProperties>& available,
-            const std::vector<const char*>& required);
+            std::span<const ExtensionProperties> available,
+            std::span<const char* const> required);
 
         void create(const std::string& engineName,
             const std::string& appName, Version& engineVersion, Version& appVersion,
-            const std::vector<const char*>& requiredValidationLayers,
-            const std::vector<const char*>& requiredExtensions,
+            std::span<const char* const> requiredValidationLayers,
+            std::span<const char* const> requiredExtensions,
             DebugUtils::Messenger::CreateInfo* debugCreateInfo = nullptr);
 
         void create(const CreateInfo& createInfo);

@@ -7,7 +7,7 @@ namespace Graphics
     {
         GRAPHICS_VERIFY(!isValid(), "Trying to create a valid fence");
 
-        auto result = functions.execute<DeviceFunction::CreateSemaphore>(
+        auto result = functions.execute<DeviceFunction::CreateFence>(
             device.getHandle(), createInfo.getUnderlyingPointer(),
             nullptr, getUnderlyingPointer());
         GRAPHICS_VERIFY(result == VK_SUCCESS,
@@ -24,7 +24,7 @@ namespace Graphics
     void FenceRef::wait(const DeviceRef& device, const DeviceFunctionTable& functions,
         size_t timeout /*= std::numeric_limits<size_t>::max()*/) const
     {
-        wait(device, functions, this, 1, timeout, true);
+        Fence::wait(device, functions, this, 1, timeout, true);
     }
 
     void Fence::reset(const DeviceRef& device, const DeviceFunctionTable& functions)
@@ -32,33 +32,7 @@ namespace Graphics
         reset(device, functions, this, 1);
     }
 
-    void FenceRef::wait(const DeviceRef& device, const DeviceFunctionTable& functions,
-        const std::vector<Fence>& fences, size_t timeout /*= std::numeric_limits<size_t>::max()*/,
-        bool waitAll /*= true*/)
-    {
-        wait(device, functions, reinterpret_cast<const FenceRef*>(fences.data()), fences.size(), timeout, true);
-    }
-
-    void Fence::reset(const DeviceRef& device, const DeviceFunctionTable& functions,
-        const std::vector<Fence>& fences)
-    {
-        reset(device, functions, reinterpret_cast<const FenceRef*>(fences.data()), fences.size());
-    }
-
-    void FenceRef::wait(const DeviceRef& device, const DeviceFunctionTable& functions,
-        const std::vector<FenceRef>& fences, size_t timeout /*= std::numeric_limits<size_t>::max()*/,
-        bool waitAll /*= true*/)
-    {
-        wait(device, functions, fences.data(), fences.size(), timeout, true);
-    }
-
-    void Fence::reset(const DeviceRef& device, const DeviceFunctionTable& functions,
-        const std::vector<FenceRef>& fences)
-    {
-        reset(device, functions, fences.data(), fences.size());
-    }
-
-    void FenceRef::wait(const DeviceRef& device, const DeviceFunctionTable& functions,
+    void Fence::wait(const DeviceRef& device, const DeviceFunctionTable& functions,
         const FenceRef* fences, size_t count, size_t timeout /*= std::numeric_limits<size_t>::max()*/,
         bool waitAll /*= true*/) {
         for (size_t i = 0; i < count; ++i)

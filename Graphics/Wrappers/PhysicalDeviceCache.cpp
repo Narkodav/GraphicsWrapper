@@ -85,13 +85,20 @@ namespace Graphics
 			}
 
 		for (const auto& extension : requirements.extensions)
-			if (std::find(data.second.m_availableExtensions.begin(),
-				data.second.m_availableExtensions.end(), extension)
-				== data.second.m_availableExtensions.end())
+		{
+			bool found = false;
+			for (const auto& availibleExtension : data.second.m_availableExtensions)
+				if (std::strcmp(extension, availibleExtension.getExtensionName().data()) == 0)
+				{
+					found = true;
+					break;
+				}
+			if (!found)
 			{
 				result = SearchResult::unsuitable();
 				return;
 			}
+		}
 
 		std::vector<std::vector<uint32_t>> queueFamilyIndices;
 		const auto& queueFamilies = data.second.m_families;
@@ -117,6 +124,7 @@ namespace Graphics
 			}
 		}
 		result.queueFamilyIndices = std::move(queueFamilyIndices);
+		result.device = data.first;
 	}
 
 	void PhysicalDeviceCache::checkDeviceSuitability(
@@ -140,13 +148,20 @@ namespace Graphics
 			}
 
 		for (const auto& extension : requirements.extensions)
-			if (std::find(data.second.m_availableExtensions.begin(),
-				data.second.m_availableExtensions.end(), extension)
-				== data.second.m_availableExtensions.end())
+		{
+			bool found = false;
+			for (const auto& availibleExtension : data.second.m_availableExtensions)
+				if (std::strcmp(extension, availibleExtension.getExtensionName().data()) == 0)
+				{
+					found = true;
+					break;
+				}
+			if (!found)
 			{
 				result = SearchResult::unsuitable();
 				return;
 			}
+		}
 
 		std::vector<std::vector<uint32_t>> queueFamilyIndices;
 		const auto& queueFamilies = data.second.m_families;
@@ -173,7 +188,7 @@ namespace Graphics
 		size_t familyIndex) const
 	{
 		if (!checkQueueFamilySuitability(props, data, familyIndex)) return false;
-		if (!data.first.getSurfaceSupport(surface, functions, familyIndex))
+		if (!data.first.getSurfaceSupport(functions, surface, familyIndex))
 			return false;
 		return true;
 	}

@@ -1,7 +1,5 @@
 #pragma once
-#include <vulkan/vulkan_core.h>
-#include <vulkan/vulkan.h>
-#include <vulkan/vulkan.hpp>
+#include "../../Common.h"
 
 namespace Graphics {
 
@@ -49,6 +47,7 @@ namespace Graphics {
         ShaderSampledImageArrayNonUniformIndexing,
         RuntimeDescriptorArray,                   // Allow variable-sized descriptor arrays
         DescriptorBindingStorageBufferUpdateAfterBind,
+        DescriptorIndexing,
 
         //Robustness
         NullDescriptor,
@@ -56,10 +55,8 @@ namespace Graphics {
         RobustImageAccess,
 
         // Mesh shading
-        MeshShaderEXT,
-        TaskShaderEXT,
-        MeshShaderNV, // old Nvidia specific
-        TaskShaderNV, // old Nvidia specific
+        MeshShader,
+        TaskShader,
 
         ShaderDrawParameters,
 
@@ -110,12 +107,15 @@ namespace Graphics {
     template<> struct DeviceFeatureTypeTrait<DeviceFeature::ShaderSampledImageArrayNonUniformIndexing> { using Type = bool; };
     template<> struct DeviceFeatureTypeTrait<DeviceFeature::RuntimeDescriptorArray> { using Type = bool; };
     template<> struct DeviceFeatureTypeTrait<DeviceFeature::DescriptorBindingStorageBufferUpdateAfterBind> { using Type = bool; };
+    template<> struct DeviceFeatureTypeTrait<DeviceFeature::DescriptorIndexing> { using Type = bool; };
+    
+    template<> struct DeviceFeatureTypeTrait<DeviceFeature::NullDescriptor> { using Type = bool; };
+    template<> struct DeviceFeatureTypeTrait<DeviceFeature::RobustBufferAccess> { using Type = bool; };
+    template<> struct DeviceFeatureTypeTrait<DeviceFeature::RobustImageAccess> { using Type = bool; };
 
     // Mesh shading
-    template<> struct DeviceFeatureTypeTrait<DeviceFeature::MeshShaderEXT> { using Type = bool; };
-    template<> struct DeviceFeatureTypeTrait<DeviceFeature::TaskShaderEXT> { using Type = bool; };
-    template<> struct DeviceFeatureTypeTrait<DeviceFeature::MeshShaderNV> { using Type = bool; };
-    template<> struct DeviceFeatureTypeTrait<DeviceFeature::TaskShaderNV> { using Type = bool; };
+    template<> struct DeviceFeatureTypeTrait<DeviceFeature::MeshShader> { using Type = bool; };
+    template<> struct DeviceFeatureTypeTrait<DeviceFeature::TaskShader> { using Type = bool; };
 
     template<> struct DeviceFeatureTypeTrait<DeviceFeature::ShaderDrawParameters> { using Type = bool; };
 }

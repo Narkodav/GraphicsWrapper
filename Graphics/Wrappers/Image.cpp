@@ -21,12 +21,13 @@ namespace Graphics
         GRAPHICS_VERIFY(isValid(), "Trying to destroy an invalid image");
         functions.execute<DeviceFunction::DestroyImage>(
             device.getHandle(), getHandle(), nullptr);
+        reset();
     }
 
     MemoryRequirements ImageRef::getMemoryRequirements(const DeviceRef& device,
         const DeviceFunctionTable& functions) const
     {
-        GRAPHICS_VERIFY(!isSet(), "Cannot get memory requirements for an invalid image");
+        GRAPHICS_VERIFY(isSet(), "Cannot get memory requirements for an invalid image");
         MemoryRequirements memRequirements;
         functions.execute<DeviceFunction::GetImageMemoryRequirements>(
             device.getHandle(), getHandle(), memRequirements.getUnderlyingPointer());
@@ -48,5 +49,6 @@ namespace Graphics
         GRAPHICS_VERIFY(isValid(), "Trying to destroy an invalid image view");
         functions.execute<DeviceFunction::DestroyImageView>(
             device.getHandle(), getHandle(), nullptr);
+        reset();
     }
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "../InstanceFunctionTable.h"
 
 namespace Graphics {
@@ -71,6 +72,7 @@ namespace Graphics::DebugUtils
         using Base = BaseComponent<VkDebugUtilsMessengerEXT, MessengerRef>;
     public:        
 		using Base::Base;
+        static inline const std::string s_typeName = "Messenger";
     };
 
     class Messenger : public VerificatorComponent<VkDebugUtilsMessengerEXT, MessengerRef>

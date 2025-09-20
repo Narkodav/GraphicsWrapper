@@ -2,6 +2,11 @@
 
 namespace Graphics {
 
+    template<size_t index, typename T>
+    std::any getCorrectAnyFeature(const T& data) {
+        return std::any(static_cast<typename DeviceFeatureTypeTrait<static_cast<DeviceFeature>(index)>::Type>(data));
+    }
+
 	const std::array<PhysicalDevice::CompleteFeatureChain::FeatureSetFunc,
 		static_cast<size_t>(DeviceFeature::Num)> PhysicalDevice::CompleteFeatureChain::s_featureSet = {
     //GeometryShader,
@@ -86,63 +91,68 @@ namespace Graphics {
         },
     // ShaderBufferInt64Atomics
         [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceShaderAtomicInt64Features>();
+            auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
             props.shaderBufferInt64Atomics = std::any_cast<bool>(data);
         },
     // ShaderSharedInt64Atomics
         [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceShaderAtomicInt64Features>();
+            auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
             props.shaderSharedInt64Atomics = std::any_cast<bool>(data);
         },
     // ShaderInt8
         [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceShaderFloat16Int8Features>();
+            auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
             props.shaderInt8 = std::any_cast<bool>(data);
         },
     // DescriptorBindingPartiallyBound
         [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
+            auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
             props.descriptorBindingPartiallyBound = std::any_cast<bool>(data);
         },
     // DescriptorBindingUpdateUnusedWhilePending
         [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
+            auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
             props.descriptorBindingUpdateUnusedWhilePending = std::any_cast<bool>(data);
         },
     // DescriptorBindingUniformBufferUpdateAfterBind
         [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
+            auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
             props.descriptorBindingUniformBufferUpdateAfterBind = std::any_cast<bool>(data);
         },
     // DescriptorBindingSampledImageUpdateAfterBind
         [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
+            auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
             props.descriptorBindingSampledImageUpdateAfterBind = std::any_cast<bool>(data);
         },
     // DescriptorBindingStorageImageUpdateAfterBind
         [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
+            auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
             props.descriptorBindingStorageImageUpdateAfterBind = std::any_cast<bool>(data);
         },
     // DescriptorBindingVariableDescriptorCount
         [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
+            auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
             props.descriptorBindingVariableDescriptorCount = std::any_cast<bool>(data);
         },
     // ShaderSampledImageArrayNonUniformIndexing
         [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
+            auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
             props.shaderSampledImageArrayNonUniformIndexing = std::any_cast<bool>(data);
         },
     // RuntimeDescriptorArray
         [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
+            auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
             props.runtimeDescriptorArray = std::any_cast<bool>(data);
         },
     // DescriptorBindingStorageBufferUpdateAfterBind
         [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
+            auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
             props.descriptorBindingStorageBufferUpdateAfterBind = std::any_cast<bool>(data);
+        },
+    // DescriptorIndexing
+        [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
+            auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
+            props.descriptorIndexing = std::any_cast<bool>(data);
         },
     // NullDescriptor
         [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
@@ -156,7 +166,7 @@ namespace Graphics {
         },
     // RobustImageAccess
         [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceImageRobustnessFeatures>();
+            auto& props = chain.get<StructureType::PhysicalDeviceVulkan13Features>();
             props.robustImageAccess = std::any_cast<bool>(data);
         },
     // MeshShaderEXT
@@ -169,19 +179,9 @@ namespace Graphics {
             auto& props = chain.get<StructureType::PhysicalDeviceMeshShaderFeaturesEXT>();
             props.taskShader = std::any_cast<bool>(data);
         },
-    // MeshShaderNV
-        [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceMeshShaderFeaturesNV>();
-            props.meshShader = std::any_cast<bool>(data);
-        },
-    // TaskShaderNV
-        [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceMeshShaderFeaturesNV>();
-            props.taskShader = std::any_cast<bool>(data);
-        },
     // ShaderDrawParameters
         [](PhysicalDevice::CompleteFeatureChain& chain, const std::any& data) {
-            auto& props = chain.get<StructureType::PhysicalDeviceShaderDrawParametersFeatures>();
+            auto& props = chain.get<StructureType::PhysicalDeviceVulkan11Features>();
             props.shaderDrawParameters = std::any_cast<bool>(data);
         }
 	};
@@ -189,191 +189,184 @@ namespace Graphics {
 	const std::array<PhysicalDevice::CompleteFeatureChain::GetFeatureFunc,
 		static_cast<size_t>(DeviceFeature::Num)> PhysicalDevice::CompleteFeatureChain::s_featureGet = {
         // GeometryShader
-        [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-            auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-            return std::any(props.features.geometryShader);
-        },
+            [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
+                auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
+                return getCorrectAnyFeature<0>(props.features.geometryShader);
+            },
         // TessellationShader
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.tessellationShader);
+                return getCorrectAnyFeature<1>(props.features.tessellationShader);
             },
         // ShaderFloat64
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.shaderFloat64);
+                return getCorrectAnyFeature<2>(props.features.shaderFloat64);
             },
         // SamplerAnisotropy
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.samplerAnisotropy);
+                return getCorrectAnyFeature<3>(props.features.samplerAnisotropy);
             },
         // FillModeNonSolid
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.fillModeNonSolid);
+                return getCorrectAnyFeature<4>(props.features.fillModeNonSolid);
             },
         // TextureCompressionBc
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.textureCompressionBC);
+                return getCorrectAnyFeature<5>(props.features.textureCompressionBC);
             },
         // TextureCompressionEtc2
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.textureCompressionETC2);
+                return getCorrectAnyFeature<6>(props.features.textureCompressionETC2);
             },
         // MultiDrawIndirect
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.multiDrawIndirect);
+                return getCorrectAnyFeature<7>(props.features.multiDrawIndirect);
             },
         // WideLines
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.wideLines);
+                return getCorrectAnyFeature<8>(props.features.wideLines);
             },
         // LargePoints
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.largePoints);
+                return getCorrectAnyFeature<9>(props.features.largePoints);
             },
         // MultiViewport
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.multiViewport);
+                return getCorrectAnyFeature<10>(props.features.multiViewport);
             },
         // DepthClamp
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.depthClamp);
+                return getCorrectAnyFeature<11>(props.features.depthClamp);
             },
         // DepthBiasClamp
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.depthBiasClamp);
+                return getCorrectAnyFeature<12>(props.features.depthBiasClamp);
             },
         // DualSrcBlend
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.dualSrcBlend);
+                return getCorrectAnyFeature<13>(props.features.dualSrcBlend);
             },
         // VertexPipelineStoresAndAtomics
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.vertexPipelineStoresAndAtomics);
+                return getCorrectAnyFeature<14>(props.features.vertexPipelineStoresAndAtomics);
             },
         // FragmentStoresAndAtomics
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.fragmentStoresAndAtomics);
+                return getCorrectAnyFeature<15>(props.features.fragmentStoresAndAtomics);
             },
         // ShaderBufferInt64Atomics
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceShaderAtomicInt64Features>();
-                return std::any(props.shaderBufferInt64Atomics);
+                auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
+                return getCorrectAnyFeature<16>(props.shaderBufferInt64Atomics);
             },
         // ShaderSharedInt64Atomics
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceShaderAtomicInt64Features>();
-                return std::any(props.shaderSharedInt64Atomics);
+                auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
+                return getCorrectAnyFeature<17>(props.shaderSharedInt64Atomics);
             },
         // ShaderInt8
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceShaderFloat16Int8Features>();
-                return std::any(props.shaderInt8);
+                auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
+                return getCorrectAnyFeature<18>(props.shaderInt8);
             },
         // DescriptorBindingPartiallyBound
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
-                return std::any(props.descriptorBindingPartiallyBound);
+                auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
+                return getCorrectAnyFeature<19>(props.descriptorBindingPartiallyBound);
             },
         // DescriptorBindingUpdateUnusedWhilePending
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
-                return std::any(props.descriptorBindingUpdateUnusedWhilePending);
+                auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
+                return getCorrectAnyFeature<20>(props.descriptorBindingUpdateUnusedWhilePending);
             },
         // DescriptorBindingUniformBufferUpdateAfterBind
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
-                return std::any(props.descriptorBindingUniformBufferUpdateAfterBind);
+                auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
+                return getCorrectAnyFeature<21>(props.descriptorBindingUniformBufferUpdateAfterBind);
             },
         // DescriptorBindingSampledImageUpdateAfterBind
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
-                return std::any(props.descriptorBindingSampledImageUpdateAfterBind);
+                auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
+                return getCorrectAnyFeature<22>(props.descriptorBindingSampledImageUpdateAfterBind);
             },
         // DescriptorBindingStorageImageUpdateAfterBind
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
-                return std::any(props.descriptorBindingStorageImageUpdateAfterBind);
+                auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
+                return getCorrectAnyFeature<23>(props.descriptorBindingStorageImageUpdateAfterBind);
             },
         // DescriptorBindingVariableDescriptorCount
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
-                return std::any(props.descriptorBindingVariableDescriptorCount);
+                auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
+                return getCorrectAnyFeature<24>(props.descriptorBindingVariableDescriptorCount);
             },
         // ShaderSampledImageArrayNonUniformIndexing
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
-                return std::any(props.shaderSampledImageArrayNonUniformIndexing);
+                auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
+                return getCorrectAnyFeature<25>(props.shaderSampledImageArrayNonUniformIndexing);
             },
         // RuntimeDescriptorArray
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
-                return std::any(props.runtimeDescriptorArray);
+                auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
+                return getCorrectAnyFeature<26>(props.runtimeDescriptorArray);
             },
         // DescriptorBindingStorageBufferUpdateAfterBind
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceDescriptorIndexingFeatures>();
-                return std::any(props.descriptorBindingStorageBufferUpdateAfterBind);
+                auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
+                return getCorrectAnyFeature<27>(props.descriptorBindingStorageBufferUpdateAfterBind);
+            },
+        // DescriptorIndexing
+            [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
+                auto& props = chain.get<StructureType::PhysicalDeviceVulkan12Features>();
+                return getCorrectAnyFeature<27>(props.descriptorIndexing);
             },
         // NullDescriptor
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceRobustness2FeaturesEXT>();
-                return std::any(props.nullDescriptor);
+                return getCorrectAnyFeature<28>(props.nullDescriptor);
             },
         // RobustBufferAccess
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceFeatures2>();
-                return std::any(props.features.robustBufferAccess);
+                return getCorrectAnyFeature<29>(props.features.robustBufferAccess);
             },
         // RobustImageAccess
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceImageRobustnessFeatures>();
-                return std::any(props.robustImageAccess);
+                auto& props = chain.get<StructureType::PhysicalDeviceVulkan13Features>();
+                return getCorrectAnyFeature<30>(props.robustImageAccess);
             },
-        // MeshShaderEXT - placeholder
+        // MeshShaderEXT
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceMeshShaderFeaturesEXT>();
-                return std::any(props.meshShader);
+                return getCorrectAnyFeature<31>(props.meshShader);
             },
-        // TaskShaderEXT - placeholder
+        // TaskShaderEXT
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
                 auto& props = chain.get<StructureType::PhysicalDeviceMeshShaderFeaturesEXT>();
-                return std::any(props.taskShader);
-            },
-        // MeshShaderNV - placeholder
-            [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceMeshShaderFeaturesNV>();
-                return std::any(props.meshShader);
-            },
-        // TaskShaderNV - placeholder
-            [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceMeshShaderFeaturesNV>();
-                return std::any(props.taskShader);
+                return getCorrectAnyFeature<32>(props.taskShader);
             },
         // ShaderDrawParameters
             [](const PhysicalDevice::CompleteFeatureChain& chain) -> std::any {
-                auto& props = chain.get<StructureType::PhysicalDeviceShaderDrawParametersFeatures>();
-                return std::any(props.shaderDrawParameters);
+                auto& props = chain.get<StructureType::PhysicalDeviceVulkan11Features>();
+                return getCorrectAnyFeature<33>(props.shaderDrawParameters);
             }
 	};
 
 	const std::array<PhysicalDevice::CompleteFeatureChain::CheckFunc,
 		static_cast<size_t>(DeviceFeature::Num)> PhysicalDevice::CompleteFeatureChain::s_featureCheck = {
-            [](const std::any& required, const std::any& available)
-        { return std::any_cast<bool>(required) == std::any_cast<bool>(available); },
             [](const std::any& required, const std::any& available)
         { return std::any_cast<bool>(required) == std::any_cast<bool>(available); },
             [](const std::any& required, const std::any& available)

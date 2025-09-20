@@ -3,7 +3,7 @@
 namespace Graphics
 {
     void Queue::submit(const DeviceFunctionTable& functions,
-        const std::vector<SubmitInfo>& submitInfos,
+        std::span<const SubmitInfo> submitInfos,
         const FenceRef& fence) const
     {
         GRAPHICS_VERIFY(!isSet(), "Cannot submit to an unset queue");

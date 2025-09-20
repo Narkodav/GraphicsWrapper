@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "../DeviceFunctionTable.h"
 #include "Device.h"
 #include "RenderPass.h"
@@ -12,6 +13,7 @@ namespace Graphics
 		using Base = BaseComponent<VkFramebuffer, FrameBufferRef>;
 	public:
 		using Base::Base;
+		static inline const std::string s_typeName = "FrameBuffer";
 	};
 
     class FrameBuffer : public VerificatorComponent<VkFramebuffer, FrameBufferRef>
@@ -26,7 +28,7 @@ namespace Graphics
 		public:
 			using Base::Base;
 			CreateInfo(const RenderPassRef& renderPass,
-				const std::vector<Image::View>& attachments,
+				std::span<const Image::View> attachments,
 				const Extent2D& extent, uint32_t layers = 1) : Base()
 			{
 				this->renderPass = renderPass.getHandle();
@@ -40,12 +42,12 @@ namespace Graphics
 				this->renderPass = renderPass.getHandle();
 				return *this;
 			}
-			CreateInfo& setAttachments(const std::vector<Image::ViewRef>& attachments) {
+			CreateInfo& setAttachments(std::span<const Image::ViewRef>& attachments) {
 				this->attachmentCount = attachments.size();
 				this->pAttachments = Image::ViewRef::underlyingCast(attachments.data());
 				return *this;
 			}
-			CreateInfo& setAttachments(const std::vector<Image::View>& attachments) {
+			CreateInfo& setAttachments(std::span<const Image::View>& attachments) {
 				this->attachmentCount = attachments.size();
 				this->pAttachments = Image::View::underlyingCast(attachments.data());
 				return *this;

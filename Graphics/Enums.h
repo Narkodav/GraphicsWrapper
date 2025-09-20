@@ -8,6 +8,9 @@ namespace Graphics {
     template<typename T>
     struct EnumVulkanConnect;
 
+    template<typename T>
+    struct EnumCVulkanConnect;
+
     enum class DescriptorType
     {
         UniformBuffer = vk::DescriptorType::eUniformBuffer,
@@ -27,6 +30,16 @@ namespace Graphics {
 
     template<>
     struct EnumVulkanConnect<vk::DescriptorType> {
+        using CorrespondingType = DescriptorType;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<DescriptorType> {
+        using CorrespondingType = VkDescriptorType;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkDescriptorType> {
         using CorrespondingType = DescriptorType;
     };
 
@@ -66,6 +79,16 @@ namespace Graphics {
 
     template<>
     struct EnumVulkanConnect<vk::ImageLayout> {
+        using CorrespondingType = ImageLayout;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<ImageLayout> {
+        using CorrespondingType = VkImageLayout;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkImageLayout> {
         using CorrespondingType = ImageLayout;
     };
 
@@ -326,6 +349,16 @@ namespace Graphics {
         using CorrespondingType = Format;
     };
 
+    template<>
+    struct EnumCVulkanConnect<Format> {
+        using CorrespondingType = VkFormat;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkFormat> {
+        using CorrespondingType = Format;
+    };
+
     enum class Filter
     {
         Linear = vk::Filter::eLinear,
@@ -341,6 +374,16 @@ namespace Graphics {
 
     template<>
     struct EnumVulkanConnect<vk::Filter> {
+        using CorrespondingType = Filter;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<Filter> {
+        using CorrespondingType = VkFilter;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkFilter> {
         using CorrespondingType = Filter;
     };
 
@@ -363,6 +406,16 @@ namespace Graphics {
         using CorrespondingType = SamplerAddressMode;
     };
 
+    template<>
+    struct EnumCVulkanConnect<SamplerAddressMode> {
+        using CorrespondingType = VkSamplerAddressMode;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkSamplerAddressMode> {
+        using CorrespondingType = SamplerAddressMode;
+    };
+
     enum class SamplerMipmapMode
     {
         Linear = vk::SamplerMipmapMode::eLinear,
@@ -376,6 +429,16 @@ namespace Graphics {
 
     template<>
     struct EnumVulkanConnect<vk::SamplerMipmapMode> {
+        using CorrespondingType = SamplerMipmapMode;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<SamplerMipmapMode> {
+        using CorrespondingType = VkSamplerMipmapMode;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkSamplerMipmapMode> {
         using CorrespondingType = SamplerMipmapMode;
     };
 
@@ -395,6 +458,16 @@ namespace Graphics {
         using CorrespondingType = CommandBufferLevel;
     };
 
+    template<>
+    struct EnumCVulkanConnect<CommandBufferLevel> {
+        using CorrespondingType = VkCommandBufferLevel;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkCommandBufferLevel> {
+        using CorrespondingType = CommandBufferLevel;
+    };
+
     enum class ImageTiling
     {
         DrmFormatModifierEXT = vk::ImageTiling::eDrmFormatModifierEXT,
@@ -409,6 +482,16 @@ namespace Graphics {
 
     template<>
     struct EnumVulkanConnect<vk::ImageTiling> {
+        using CorrespondingType = ImageTiling;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<ImageTiling> {
+        using CorrespondingType = VkImageTiling;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkImageTiling> {
         using CorrespondingType = ImageTiling;
     };
         
@@ -433,6 +516,16 @@ namespace Graphics {
         using CorrespondingType = PresentMode;
     };
 
+    template<>
+    struct EnumCVulkanConnect<PresentMode> {
+        using CorrespondingType = VkPresentModeKHR;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkPresentModeKHR> {
+        using CorrespondingType = PresentMode;
+    };
+
     enum class SharingMode
     {
         Concurrent = vk::SharingMode::eConcurrent,
@@ -446,6 +539,16 @@ namespace Graphics {
 
     template<>
     struct EnumVulkanConnect<vk::SharingMode> {
+        using CorrespondingType = SharingMode;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<SharingMode> {
+        using CorrespondingType = VkSharingMode;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkSharingMode> {
         using CorrespondingType = SharingMode;
     };
 
@@ -506,6 +609,16 @@ namespace Graphics {
 
     template<>
     struct EnumVulkanConnect<vk::ObjectType> {
+        using CorrespondingType = ObjectType;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<ObjectType> {
+        using CorrespondingType = VkObjectType;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkObjectType> {
         using CorrespondingType = ObjectType;
     };
 
@@ -640,6 +753,16 @@ namespace Graphics {
         using CorrespondingType = StructureType;
     };
 
+    template<>
+    struct EnumCVulkanConnect<StructureType> {
+        using CorrespondingType = VkStructureType;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkStructureType> {
+        using CorrespondingType = StructureType;
+    };
+
 
     enum class ColorSpace
     {
@@ -671,6 +794,16 @@ namespace Graphics {
         using CorrespondingType = ColorSpace;
     };
 
+    template<>
+    struct EnumCVulkanConnect<ColorSpace> {
+        using CorrespondingType = VkColorSpaceKHR;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkColorSpaceKHR> {
+        using CorrespondingType = ColorSpace;
+    };
+
     enum class ImageType
     {
         T1D = vk::ImageType::e1D,
@@ -685,6 +818,16 @@ namespace Graphics {
 
     template<>
     struct EnumVulkanConnect<vk::ImageType> {
+        using CorrespondingType = ImageType;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<ImageType> {
+        using CorrespondingType = VkImageType;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkImageType> {
         using CorrespondingType = ImageType;
     };
 
@@ -709,6 +852,16 @@ namespace Graphics {
         using CorrespondingType = ImageViewType;
     };
 
+    template<>
+    struct EnumCVulkanConnect<ImageViewType> {
+        using CorrespondingType = VkImageViewType;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkImageViewType> {
+        using CorrespondingType = ImageViewType;
+    };
+
     enum class ComponentSwizzle
     {
         R = vk::ComponentSwizzle::eR,
@@ -727,6 +880,16 @@ namespace Graphics {
 
     template<>
     struct EnumVulkanConnect<vk::ComponentSwizzle> {
+        using CorrespondingType = ComponentSwizzle;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<ComponentSwizzle> {
+        using CorrespondingType = VkComponentSwizzle;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkComponentSwizzle> {
         using CorrespondingType = ComponentSwizzle;
     };
 
@@ -750,6 +913,16 @@ namespace Graphics {
         using CorrespondingType = AttachmentLoadOp;
     };
 
+    template<>
+    struct EnumCVulkanConnect<AttachmentLoadOp> {
+        using CorrespondingType = VkAttachmentLoadOp;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkAttachmentLoadOp> {
+        using CorrespondingType = AttachmentLoadOp;
+    };
+
     enum class AttachmentStoreOp
     {
         None = vk::AttachmentStoreOp::eNone,
@@ -770,6 +943,16 @@ namespace Graphics {
         using CorrespondingType = AttachmentStoreOp;
     };
 
+    template<>
+    struct EnumCVulkanConnect<AttachmentStoreOp> {
+        using CorrespondingType = VkAttachmentStoreOp;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkAttachmentStoreOp> {
+        using CorrespondingType = AttachmentStoreOp;
+    };
+
     enum class PipelineBindPoint
     {
         Graphics = vk::PipelineBindPoint::eGraphics,
@@ -786,6 +969,16 @@ namespace Graphics {
 
     template<>
     struct EnumVulkanConnect<vk::PipelineBindPoint> {
+        using CorrespondingType = PipelineBindPoint;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<PipelineBindPoint> {
+        using CorrespondingType = VkPipelineBindPoint;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkPipelineBindPoint> {
         using CorrespondingType = PipelineBindPoint;
     };
 
@@ -810,29 +1003,520 @@ namespace Graphics {
     struct EnumVulkanConnect<vk::BorderColor> {
         using CorrespondingType = BorderColor;
     };
+
+    template<>
+    struct EnumCVulkanConnect<BorderColor> {
+        using CorrespondingType = VkBorderColor;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkBorderColor> {
+        using CorrespondingType = BorderColor;
+    };
+
+    enum class VertexInputRate
+    {
+        Instance = vk::VertexInputRate::eInstance,
+        Vertex = vk::VertexInputRate::eVertex,
+    };
+
+    template<>
+    struct EnumVulkanConnect<VertexInputRate> {
+        using CorrespondingType = vk::VertexInputRate;
+    };
+
+    template<>
+    struct EnumVulkanConnect<vk::VertexInputRate> {
+        using CorrespondingType = VertexInputRate;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VertexInputRate> {
+        using CorrespondingType = VkVertexInputRate;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkVertexInputRate> {
+        using CorrespondingType = VertexInputRate;
+    };
+
+    enum class PrimitiveTopology
+    {
+        PointList = vk::PrimitiveTopology::ePointList,
+        LineList = vk::PrimitiveTopology::eLineList,
+        LineStrip = vk::PrimitiveTopology::eLineStrip,
+        TriangleList = vk::PrimitiveTopology::eTriangleList,
+        TriangleStrip = vk::PrimitiveTopology::eTriangleStrip,
+        TriangleFan = vk::PrimitiveTopology::eTriangleFan,
+        LineListWithAdjacency = vk::PrimitiveTopology::eLineListWithAdjacency,
+        LineStripWithAdjacency = vk::PrimitiveTopology::eLineStripWithAdjacency,
+        TriangleListWithAdjacency = vk::PrimitiveTopology::eTriangleListWithAdjacency,
+        TriangleStripWithAdjacency = vk::PrimitiveTopology::eTriangleStripWithAdjacency,
+        PatchList = vk::PrimitiveTopology::ePatchList,
+	};
+
+    template<>
+    struct EnumVulkanConnect<PrimitiveTopology> {
+        using CorrespondingType = vk::PrimitiveTopology;
+    };
+
+    template<>
+    struct EnumVulkanConnect<vk::PrimitiveTopology> {
+        using CorrespondingType = PrimitiveTopology;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<PrimitiveTopology> {
+        using CorrespondingType = VkPrimitiveTopology;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkPrimitiveTopology> {
+        using CorrespondingType = PrimitiveTopology;
+    };
+
+    enum class PolygonMode
+    {
+        Fill = vk::PolygonMode::eFill,
+		Line = vk::PolygonMode::eLine,
+		Point = vk::PolygonMode::ePoint,
+		FillRectangleNV = vk::PolygonMode::eFillRectangleNV
+    };
+
+    template<>
+    struct EnumVulkanConnect<PolygonMode> {
+        using CorrespondingType = vk::PolygonMode;
+    };
+
+    template<>
+    struct EnumVulkanConnect<vk::PolygonMode> {
+        using CorrespondingType = PolygonMode;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<PolygonMode> {
+        using CorrespondingType = VkPolygonMode;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkPolygonMode> {
+        using CorrespondingType = PolygonMode;
+    };
+
+    enum class FrontFace
+    {
+        CounterClockwise = vk::FrontFace::eCounterClockwise,
+        Clockwise = vk::FrontFace::eClockwise,
+	};
+
+    template<>
+    struct EnumVulkanConnect<FrontFace> {
+        using CorrespondingType = vk::FrontFace;
+    };
+
+    template<>
+    struct EnumVulkanConnect<vk::FrontFace> {
+        using CorrespondingType = FrontFace;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<FrontFace> {
+        using CorrespondingType = VkFrontFace;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkFrontFace> {
+        using CorrespondingType = FrontFace;
+    };
+
+    enum class CompareOp
+    {
+        Always = vk::CompareOp::eAlways,
+		Equal = vk::CompareOp::eEqual,
+		Greater = vk::CompareOp::eGreater,
+		GreaterOrEqual = vk::CompareOp::eGreaterOrEqual,
+		Less = vk::CompareOp::eLess,
+		LessOrEqual = vk::CompareOp::eLessOrEqual,
+		Never = vk::CompareOp::eNever,
+		NotEqual = vk::CompareOp::eNotEqual
+    };
+
+    template<>
+    struct EnumVulkanConnect<CompareOp> {
+        using CorrespondingType = vk::CompareOp;
+    };
+
+    template<>
+    struct EnumVulkanConnect<vk::CompareOp> {
+        using CorrespondingType = CompareOp;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<CompareOp> {
+        using CorrespondingType = VkCompareOp;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkCompareOp> {
+        using CorrespondingType = CompareOp;
+    };
+
+    enum class StencilOp
+    {
+        DecrementAndClamp = vk::StencilOp::eDecrementAndClamp,
+		DecrementAndWrap = vk::StencilOp::eDecrementAndWrap,
+		Invert = vk::StencilOp::eInvert,
+		IncrementAndClamp = vk::StencilOp::eIncrementAndClamp,
+		IncrementAndWrap = vk::StencilOp::eIncrementAndWrap,
+		Keep = vk::StencilOp::eKeep,
+		Replace = vk::StencilOp::eReplace,
+		Zero = vk::StencilOp::eZero
+    };
+
+    template<>
+    struct EnumVulkanConnect<StencilOp> {
+        using CorrespondingType = vk::StencilOp;
+    };
+
+    template<>
+    struct EnumVulkanConnect<vk::StencilOp> {
+        using CorrespondingType = StencilOp;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<StencilOp> {
+        using CorrespondingType = VkStencilOp;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkStencilOp> {
+        using CorrespondingType = StencilOp;
+    };
+
+    enum class LogicOp
+    {
+        And = vk::LogicOp::eAnd,
+        AndInverted = vk::LogicOp::eAndInverted,
+		AndReverse = vk::LogicOp::eAndReverse,
+		Clear = vk::LogicOp::eClear,
+		Copy = vk::LogicOp::eCopy,
+		CopyInverted = vk::LogicOp::eCopyInverted,
+		Nand = vk::LogicOp::eNand,
+		NoOp = vk::LogicOp::eNoOp,
+		Nor = vk::LogicOp::eNor,
+		Or = vk::LogicOp::eOr,
+		OrInverted = vk::LogicOp::eOrInverted,
+		OrReverse = vk::LogicOp::eOrReverse,
+		Set = vk::LogicOp::eSet,
+		Xor = vk::LogicOp::eXor,
+        Invert = vk::LogicOp::eInvert,
+        Equivalent = vk::LogicOp::eEquivalent,
+    };
+
+    template<>
+    struct EnumVulkanConnect<LogicOp> {
+        using CorrespondingType = vk::LogicOp;
+    };
+
+    template<>
+    struct EnumVulkanConnect<vk::LogicOp> {
+        using CorrespondingType = LogicOp;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<LogicOp> {
+        using CorrespondingType = VkLogicOp;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkLogicOp> {
+        using CorrespondingType = LogicOp;
+    };
+
+    enum class BlendFactor
+    {
+        ConstantAlpha = vk::BlendFactor::eConstantAlpha,
+		ConstantColor = vk::BlendFactor::eConstantColor,
+		DstAlpha = vk::BlendFactor::eDstAlpha,
+		DstColor = vk::BlendFactor::eDstColor,
+		One = vk::BlendFactor::eOne,
+		OneMinusConstantAlpha = vk::BlendFactor::eOneMinusConstantAlpha,
+		OneMinusConstantColor = vk::BlendFactor::eOneMinusConstantColor,
+		OneMinusDstAlpha = vk::BlendFactor::eOneMinusDstAlpha,
+		OneMinusDstColor = vk::BlendFactor::eOneMinusDstColor,
+		OneMinusSrcAlpha = vk::BlendFactor::eOneMinusSrcAlpha,
+		OneMinusSrcColor = vk::BlendFactor::eOneMinusSrcColor,
+		SrcAlpha = vk::BlendFactor::eSrcAlpha,
+		SrcAlphaSaturate = vk::BlendFactor::eSrcAlphaSaturate,
+		SrcColor = vk::BlendFactor::eSrcColor,
+		Zero = vk::BlendFactor::eZero
+    };
+
+    template<>
+    struct EnumVulkanConnect<BlendFactor> {
+        using CorrespondingType = vk::BlendFactor;
+    };
+
+    template<>
+    struct EnumVulkanConnect<vk::BlendFactor> {
+        using CorrespondingType = BlendFactor;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<BlendFactor> {
+        using CorrespondingType = VkBlendFactor;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkBlendFactor> {
+        using CorrespondingType = BlendFactor;
+    };
     
-    enum class ShaderType {
-        Vertex,
-        Fragment,
-        Geometry,
-        TessellationControl,
-        TessellationEvaluation,
-        Compute,
-        TaskNV,
-        MeshNV,
-        Task,
-        Mesh,
-        Unknown
+    enum class BlendOp
+    {
+        Add = vk::BlendOp::eAdd,
+        Subtract = vk::BlendOp::eSubtract,
+        ReverseSubtract = vk::BlendOp::eReverseSubtract,
+        Min = vk::BlendOp::eMin,
+        Max = vk::BlendOp::eMax,
+        ZeroEXT = vk::BlendOp::eZeroEXT,
+        SrcEXT = vk::BlendOp::eSrcEXT,
+        DstEXT = vk::BlendOp::eDstEXT,
+        SrcOverEXT = vk::BlendOp::eSrcOverEXT,
+        DstOverEXT = vk::BlendOp::eDstOverEXT,
+        SrcInEXT = vk::BlendOp::eSrcInEXT,
+        DstInEXT = vk::BlendOp::eDstInEXT,
+        SrcOutEXT = vk::BlendOp::eSrcOutEXT,
+        DstOutEXT = vk::BlendOp::eDstOutEXT,
+        SrcAtopEXT = vk::BlendOp::eSrcAtopEXT,
+        DstAtopEXT = vk::BlendOp::eDstAtopEXT,
+        XorEXT = vk::BlendOp::eXorEXT,
+        MultiplyEXT = vk::BlendOp::eMultiplyEXT,
+        ScreenEXT = vk::BlendOp::eScreenEXT,
+        OverlayEXT = vk::BlendOp::eOverlayEXT,
+        DarkenEXT = vk::BlendOp::eDarkenEXT,
+        LightenEXT = vk::BlendOp::eLightenEXT,
+        ColordodgeEXT = vk::BlendOp::eColordodgeEXT,
+        ColorburnEXT = vk::BlendOp::eColorburnEXT,
+        HardlightEXT = vk::BlendOp::eHardlightEXT,
+        SoftlightEXT = vk::BlendOp::eSoftlightEXT,
+        DifferenceEXT = vk::BlendOp::eDifferenceEXT,
+        ExclusionEXT = vk::BlendOp::eExclusionEXT,
+        InvertEXT = vk::BlendOp::eInvertEXT,
+        InvertRgbEXT = vk::BlendOp::eInvertRgbEXT,
+        LineardodgeEXT = vk::BlendOp::eLineardodgeEXT,
+        LinearburnEXT = vk::BlendOp::eLinearburnEXT,
+        VividlightEXT = vk::BlendOp::eVividlightEXT,
+        LinearlightEXT = vk::BlendOp::eLinearlightEXT,
+        PinlightEXT = vk::BlendOp::ePinlightEXT,
+        HardmixEXT = vk::BlendOp::eHardmixEXT,
+        HslHueEXT = vk::BlendOp::eHslHueEXT,
+        HslSaturationEXT = vk::BlendOp::eHslSaturationEXT,
+        HslColorEXT = vk::BlendOp::eHslColorEXT,
+        HslLuminosityEXT = vk::BlendOp::eHslLuminosityEXT,
+        PlusEXT = vk::BlendOp::ePlusEXT,
+        PlusClampedEXT = vk::BlendOp::ePlusClampedEXT,
+        PlusClampedAlphaEXT = vk::BlendOp::ePlusClampedAlphaEXT,
+        PlusDarkerEXT = vk::BlendOp::ePlusDarkerEXT,
+        MinusEXT = vk::BlendOp::eMinusEXT,
+        MinusClampedEXT = vk::BlendOp::eMinusClampedEXT,
+        ContrastEXT = vk::BlendOp::eContrastEXT,
+        InvertOvgEXT = vk::BlendOp::eInvertOvgEXT,
+        RedEXT = vk::BlendOp::eRedEXT,
+        GreenEXT = vk::BlendOp::eGreenEXT,
+        BlueEXT = vk::BlendOp::eBlueEXT,
+    };
+
+    template<>
+    struct EnumVulkanConnect<BlendOp> {
+        using CorrespondingType = vk::BlendOp;
+    };
+
+    template<>
+    struct EnumVulkanConnect<vk::BlendOp> {
+        using CorrespondingType = BlendOp;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<BlendOp> {
+        using CorrespondingType = VkBlendOp;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkBlendOp> {
+        using CorrespondingType = BlendOp;
+    };
+
+    enum class DynamicState
+    {
+        Viewport = vk::DynamicState::eViewport,
+        Scissor = vk::DynamicState::eScissor,
+        LineWidth = vk::DynamicState::eLineWidth,
+        DepthBias = vk::DynamicState::eDepthBias,
+        BlendConstants = vk::DynamicState::eBlendConstants,
+        DepthBounds = vk::DynamicState::eDepthBounds,
+        StencilCompareMask = vk::DynamicState::eStencilCompareMask,
+        StencilWriteMask = vk::DynamicState::eStencilWriteMask,
+        StencilReference = vk::DynamicState::eStencilReference,
+        CullMode = vk::DynamicState::eCullMode,
+        FrontFace = vk::DynamicState::eFrontFace,
+        PrimitiveTopology = vk::DynamicState::ePrimitiveTopology,
+        ViewportWithCount = vk::DynamicState::eViewportWithCount,
+        ScissorWithCount = vk::DynamicState::eScissorWithCount,
+        VertexInputBindingStride = vk::DynamicState::eVertexInputBindingStride,
+        DepthTestEnable = vk::DynamicState::eDepthTestEnable,
+        DepthWriteEnable = vk::DynamicState::eDepthWriteEnable,
+        DepthCompareOp = vk::DynamicState::eDepthCompareOp,
+        DepthBoundsTestEnable = vk::DynamicState::eDepthBoundsTestEnable,
+        StencilTestEnable = vk::DynamicState::eStencilTestEnable,
+        StencilOp = vk::DynamicState::eStencilOp,
+        RasterizerDiscardEnable = vk::DynamicState::eRasterizerDiscardEnable,
+        DepthBiasEnable = vk::DynamicState::eDepthBiasEnable,
+        PrimitiveRestartEnable = vk::DynamicState::ePrimitiveRestartEnable,
+        ViewportWScalingNV = vk::DynamicState::eViewportWScalingNV,
+        DiscardRectangleEXT = vk::DynamicState::eDiscardRectangleEXT,
+        SampleLocationsEXT = vk::DynamicState::eSampleLocationsEXT,
+        RayTracingPipelineStackSizeKHR = vk::DynamicState::eRayTracingPipelineStackSizeKHR,
+        ViewportShadingRatePaletteNV = vk::DynamicState::eViewportShadingRatePaletteNV,
+        ViewportCoarseSampleOrderNV = vk::DynamicState::eViewportCoarseSampleOrderNV,
+        ExclusiveScissorNV = vk::DynamicState::eExclusiveScissorNV,
+        FragmentShadingRateKHR = vk::DynamicState::eFragmentShadingRateKHR,
+        LineStippleEXT = vk::DynamicState::eLineStippleEXT,
+        VertexInputEXT = vk::DynamicState::eVertexInputEXT,
+        PatchControlPointsEXT = vk::DynamicState::ePatchControlPointsEXT,
+        LogicOpEXT = vk::DynamicState::eLogicOpEXT,
+        ColorWriteEnableEXT = vk::DynamicState::eColorWriteEnableEXT,
+        DepthClampEnableEXT = vk::DynamicState::eDepthClampEnableEXT,
+        PolygonModeEXT = vk::DynamicState::ePolygonModeEXT,
+        RasterizationSamplesEXT = vk::DynamicState::eRasterizationSamplesEXT,
+        SampleMaskEXT = vk::DynamicState::eSampleMaskEXT,
+        AlphaToCoverageEnableEXT = vk::DynamicState::eAlphaToCoverageEnableEXT,
+        AlphaToOneEnableEXT = vk::DynamicState::eAlphaToOneEnableEXT,
+        LogicOpEnableEXT = vk::DynamicState::eLogicOpEnableEXT,
+        ColorBlendEnableEXT = vk::DynamicState::eColorBlendEnableEXT,
+        ColorBlendEquationEXT = vk::DynamicState::eColorBlendEquationEXT,
+        ColorWriteMaskEXT = vk::DynamicState::eColorWriteMaskEXT,
+        TessellationDomainOriginEXT = vk::DynamicState::eTessellationDomainOriginEXT,
+        RasterizationStreamEXT = vk::DynamicState::eRasterizationStreamEXT,
+        ConservativeRasterizationModeEXT = vk::DynamicState::eConservativeRasterizationModeEXT,
+        ExtraPrimitiveOverestimationSizeEXT = vk::DynamicState::eExtraPrimitiveOverestimationSizeEXT,
+        DepthClipEnableEXT = vk::DynamicState::eDepthClipEnableEXT,
+        SampleLocationsEnableEXT = vk::DynamicState::eSampleLocationsEnableEXT,
+        ColorBlendAdvancedEXT = vk::DynamicState::eColorBlendAdvancedEXT,
+        ProvokingVertexModeEXT = vk::DynamicState::eProvokingVertexModeEXT,
+        LineRasterizationModeEXT = vk::DynamicState::eLineRasterizationModeEXT,
+        LineStippleEnableEXT = vk::DynamicState::eLineStippleEnableEXT,
+        DepthClipNegativeOneToOneEXT = vk::DynamicState::eDepthClipNegativeOneToOneEXT,
+        ViewportWScalingEnableNV = vk::DynamicState::eViewportWScalingEnableNV,
+        ViewportSwizzleNV = vk::DynamicState::eViewportSwizzleNV,
+        CoverageToColorEnableNV = vk::DynamicState::eCoverageToColorEnableNV,
+        CoverageToColorLocationNV = vk::DynamicState::eCoverageToColorLocationNV,
+        CoverageModulationModeNV = vk::DynamicState::eCoverageModulationModeNV,
+        CoverageModulationTableEnableNV = vk::DynamicState::eCoverageModulationTableEnableNV,
+        CoverageModulationTableNV = vk::DynamicState::eCoverageModulationTableNV,
+        ShadingRateImageEnableNV = vk::DynamicState::eShadingRateImageEnableNV,
+        RepresentativeFragmentTestEnableNV = vk::DynamicState::eRepresentativeFragmentTestEnableNV,
+        CoverageReductionModeNV = vk::DynamicState::eCoverageReductionModeNV,
+    };
+
+    template<>
+    struct EnumVulkanConnect<DynamicState> {
+        using CorrespondingType = vk::DynamicState;
+    };
+
+    template<>
+    struct EnumVulkanConnect<vk::DynamicState> {
+        using CorrespondingType = DynamicState;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<DynamicState> {
+        using CorrespondingType = VkDynamicState;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkDynamicState> {
+        using CorrespondingType = DynamicState;
+    };
+
+    enum class SubpassContents
+    {
+        Inline = vk::SubpassContents::eInline,
+        SecondaryCommandBuffers = vk::SubpassContents::eSecondaryCommandBuffers,
+        InlineAndSecondaryCommandBuffersEXT = vk::SubpassContents::eInlineAndSecondaryCommandBuffersEXT,
+        InlineAndSecondaryCommandBuffersKHR = vk::SubpassContents::eInlineAndSecondaryCommandBuffersKHR,
+    };
+
+    template<>
+    struct EnumVulkanConnect<SubpassContents> {
+        using CorrespondingType = vk::SubpassContents;
+    };
+
+    template<>
+    struct EnumVulkanConnect<vk::SubpassContents> {
+        using CorrespondingType = SubpassContents;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<SubpassContents> {
+        using CorrespondingType = VkSubpassContents;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkSubpassContents> {
+        using CorrespondingType = SubpassContents;
+    };    
+
+    enum class IndexType
+    {
+        NoneKHR = vk::IndexType::eNoneKHR,
+        NoneNV = vk::IndexType::eNoneNV,
+        Uint16 = vk::IndexType::eUint16,
+        Uint32 = vk::IndexType::eUint32,
+        Uint8 = vk::IndexType::eUint8,
+        Uint8EXT = vk::IndexType::eUint8EXT,
+        Uint8KHR = vk::IndexType::eUint8KHR,
+    };
+
+    template<>
+    struct EnumVulkanConnect<IndexType> {
+        using CorrespondingType = vk::IndexType;
+    };
+
+    template<>
+    struct EnumVulkanConnect<vk::IndexType> {
+        using CorrespondingType = IndexType;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<IndexType> {
+        using CorrespondingType = VkIndexType;
+    };
+
+    template<>
+    struct EnumCVulkanConnect<VkIndexType> {
+        using CorrespondingType = IndexType;
     };
 
     //converts enums to and from vulkan
     template<typename Enum>
-    auto convertEnum(const Enum& val) { return static_cast<EnumVulkanConnect<Enum>::CorrespondingType>(val); };
+    auto convertEnum(const Enum& val) { 
+        return static_cast<typename EnumVulkanConnect<Enum>::CorrespondingType>(val); 
+    };
 
     template<typename Enum>
     auto convertCEnum(const Enum& val) {
-        return static_cast<typename
-            EnumVulkanConnect<Enum>::CorrespondingType::CType>(val);
+        return static_cast<typename EnumCVulkanConnect<Enum>::CorrespondingType>(val);
+    };
+
+    template<typename Enum>
+    auto convertEnum(const Enum* val) {
+        return reinterpret_cast<const typename EnumVulkanConnect<Enum>::CorrespondingType*>(val);
+    };
+
+    template<typename Enum>
+    auto convertCEnum(const Enum* val) {
+        return reinterpret_cast<const typename EnumCVulkanConnect<Enum>::CorrespondingType*>(val);
     };
 
     template<typename Enum>

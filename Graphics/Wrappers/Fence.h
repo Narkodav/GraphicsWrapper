@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "../DeviceFunctionTable.h"
 #include "Device.h"
 
@@ -10,21 +11,10 @@ namespace Graphics
         using Base = BaseComponent<VkFence, FenceRef>;
     public:
         using Base::Base;
+        static inline const std::string s_typeName = "Fence";
 
         void wait(const DeviceRef& device, const DeviceFunctionTable& functions,
-            size_t timeout = std::numeric_limits<size_t>::max()) const;        
-
-        static void wait(const DeviceRef& device, const DeviceFunctionTable& functions,
-            const std::vector<Fence>& fences, size_t timeout = std::numeric_limits<size_t>::max(),
-            bool waitAll = true);
-
-        static void wait(const DeviceRef& device, const DeviceFunctionTable& functions,
-            const std::vector<FenceRef>& fences, size_t timeout = std::numeric_limits<size_t>::max(),
-            bool waitAll = true);
-
-        static void wait(const DeviceRef& device, const DeviceFunctionTable& functions,
-            const FenceRef* fences, size_t count, size_t timeout = std::numeric_limits<size_t>::max(),
-            bool waitAll = true);
+            size_t timeout = std::numeric_limits<size_t>::max()) const;
     };
 
     class Fence : public VerificatorComponent<VkFence, FenceRef>
@@ -59,14 +49,29 @@ namespace Graphics
 
         void reset(const DeviceRef& device, const DeviceFunctionTable& functions);
 
+        template<typename FenceType>
         static void reset(const DeviceRef& device, const DeviceFunctionTable& functions,
-            const std::vector<Fence>& fences);
-
-        static void reset(const DeviceRef& device, const DeviceFunctionTable& functions,
-            const std::vector<FenceRef>& fences);
+            std::span<const FenceType> fences) requires 
+            std::is_base_of_v<Fence, FenceType> || std::is_base_of_v<FenceRef, FenceType>
+        {
+            reset(device, functions, reinterpret_cast<const FenceType*>(fences.data()), fences.size());
+        }
 
         static void reset(const DeviceRef& device, const DeviceFunctionTable& functions,
             const FenceRef* fences, size_t count);
+
+        template<typename FenceType>
+        static void wait(const DeviceRef& device, const DeviceFunctionTable& functions,
+            std::span<const FenceType> fences, size_t timeout = std::numeric_limits<size_t>::max(),
+            bool waitAll = true) requires
+            std::is_base_of_v<Fence, FenceType> || std::is_base_of_v<FenceRef, FenceType>
+        {
+            wait(device, functions, fences.data(), fences.size(), timeout, waitAll);
+        }
+
+        static void wait(const DeviceRef& device, const DeviceFunctionTable& functions,
+            const FenceRef* fences, size_t count, size_t timeout = std::numeric_limits<size_t>::max(),
+            bool waitAll = true);
     };
 }
 

@@ -95,9 +95,10 @@ namespace Graphics::Utility
         return newExtent;
     }
 
-    BasicSwapChainData createBasicSwapChain(const InstanceFunctionTable& instanceFunctions,
-        const DeviceFunctionTable& deviceFunctions,
+    BasicSwapChainData createBasicSwapChain(
+        const InstanceFunctionTable& functions,
         const PhysicalDevice& physicalDevice,
+        const DeviceFunctionTable& deviceFunctions,
         const DeviceRef& device,
         const SurfaceRef& surface,
         const RenderPassRef& renderPass,
@@ -107,7 +108,8 @@ namespace Graphics::Utility
         ColorSpace preferredColorSpace /*= ColorSpace::SrgbNonlinear*/,
         ImageUsage::Flags preferredImageUsage /*= ImageUsage::Bits::ColorAttachment*/,
 		PresentMode preferredPresentMode /*= PresentMode::Mailbox*/,
-        uint32_t desiredImageCount /*= 2*/)
+        uint32_t desiredImageCount /*= 2*/,
+        uint32_t desiredImageArrayLayerCount /*= 1*/)
     {
 		BasicSwapChainData swapChainData;
         swapChainData.swapChainInfo.setClipped(true)
@@ -116,6 +118,7 @@ namespace Graphics::Utility
             .setImageFormat(preferredFormat)
 			.setImageColorSpace(preferredColorSpace)
             .setImageUsage(preferredImageUsage)
+            .setImageArrayLayers(desiredImageArrayLayerCount)
             .setMinImageCount(desiredImageCount)
             .setPresentMode(preferredPresentMode)
             .setPreTransform(SurfaceTransform::Bits::Identity)
@@ -124,7 +127,7 @@ namespace Graphics::Utility
         swapChainData.swapChain;
         swapChainData.swapChainImages = swapChainData.swapChain.create(device, deviceFunctions, swapChainData.swapChainInfo);
 
-        swapChainData.depthImageCreateInfo.setArrayLayers(1)
+        swapChainData.depthImageCreateInfo.setArrayLayers(desiredImageArrayLayerCount)
             .setExtent(Extent3D(preferredExtent))
             .setFormat(preferredDepthFormat)
             .setImageType(ImageType::T2D)
@@ -135,12 +138,19 @@ namespace Graphics::Utility
             .setUsage(ImageUsage::Bits::DepthStencilAttachment);
 
         swapChainData.depthImage.create(device, deviceFunctions, swapChainData.depthImageCreateInfo);
+        auto memRequirements = swapChainData.depthImage.getMemoryRequirements(device, deviceFunctions);
+        swapChainData.depthImageMemoryCreateInfo.setAllocationSize(memRequirements.getSize())
+            .setMemoryTypeIndex(findMemoryType(functions, physicalDevice,
+                memRequirements.getMemoryTypeBits(), MemoryProperty::Bits::DeviceLocal));
+        swapChainData.depthImageMemory.create(device, deviceFunctions,
+            swapChainData.depthImageMemoryCreateInfo);
+        swapChainData.depthImageMemory.bindImage(device, deviceFunctions, swapChainData.depthImage);
 
         swapChainData.depthImageViewCreateInfo.setImage(swapChainData.depthImage)
-            .setViewType(ImageViewType::T2D)
+            .setViewType(desiredImageArrayLayerCount > 1 ? ImageViewType::T2DArray : ImageViewType::T2D)
             .setFormat(preferredDepthFormat)
             .setSubresourceRange(Image::SubresourceRange(
-                ImageAspect::Bits::Depth, 0, 1, 0, 1))
+                ImageAspect::Bits::Depth, 0, 1, 0, desiredImageArrayLayerCount))
             .setComponents(ComponentMapping());
         swapChainData.depthImageView.create(device, deviceFunctions, swapChainData.depthImage, swapChainData.depthImageViewCreateInfo);
 
@@ -156,9 +166,9 @@ namespace Graphics::Utility
             swapChainData.swapChainImageViewCreateInfos.push_back(Image::View::CreateInfo{});
             swapChainData.swapChainImageViewCreateInfos.back().setComponents(ComponentMapping())
                 .setSubresourceRange(Image::SubresourceRange(
-                    ImageAspect::Bits::Color, 0, 1, 0, 1))
+                    ImageAspect::Bits::Color, 0, 1, 0, desiredImageArrayLayerCount))
                 .setFormat(preferredFormat)
-                .setViewType(ImageViewType::T2D)
+                .setViewType(desiredImageArrayLayerCount > 1 ? ImageViewType::T2DArray : ImageViewType::T2D)
                 .setImage(swapChainData.swapChainImages[i]);
 
             swapChainData.swapChainImageViews.push_back(Image::View{});
@@ -171,7 +181,7 @@ namespace Graphics::Utility
             swapChainData.swapChainFrameBufferCreateInfos.back().setRenderPass(renderPass)
                 .setAttachments(swapChainData.attachmentRefs[i])
                 .setExtent(preferredExtent)
-                .setLayers(1);
+                .setLayers(desiredImageArrayLayerCount);
 
             swapChainData.swapChainFrameBuffers.push_back(FrameBuffer{});
             swapChainData.swapChainFrameBuffers.back().create(device, deviceFunctions, swapChainData.swapChainFrameBufferCreateInfos.back());
@@ -191,22 +201,20 @@ namespace Graphics::Utility
         data.swapChainFrameBufferCreateInfos.clear();
         for (auto& imageView : data.swapChainImageViews) {
             imageView.destroy(device, deviceFunctions);
-        }
+        }        
         data.swapChainImageViews.clear();
         data.swapChainImageViewCreateInfos.clear();
         data.attachmentRefs.clear();
         data.depthImageView.destroy(device, deviceFunctions);
         data.depthImage.destroy(device, deviceFunctions);
+        data.depthImageMemory.destroy(device, deviceFunctions);
 		data.swapChain.destroy(device, deviceFunctions, data.swapChainImages);
     }
 
     void recreateBasicSwapChain(BasicSwapChainData& data,
-        const InstanceFunctionTable& instanceFunctions,
         const DeviceFunctionTable& deviceFunctions,
-        const PhysicalDevice& physicalDevice,
         const DeviceRef& device,
         const RenderPassRef& renderPass,
-        const SurfaceRef& surface,
         const Extent2D& preferredExtent)
     {
         data.swapChainInfo.setImageExtent(preferredExtent);
@@ -259,5 +267,71 @@ namespace Graphics::Utility
             data.swapChainFrameBuffers.push_back(FrameBuffer{});
             data.swapChainFrameBuffers.back().create(device, deviceFunctions, data.swapChainFrameBufferCreateInfos.back());
 		}
+    }
+
+    void createBasicGraphicsPipeline(BasicGraphicsPipelineData& data,
+        const DeviceFunctionTable& deviceFunctions,
+        const DeviceRef& device,
+        const RenderPassRef& renderPass,
+        uint32_t subpassIndex,
+        PrimitiveTopology desiredTopology,
+        PolygonMode desiredPolygonMode, CullMode::Flags desiredCullMode,
+        FrontFace desiredFrontFace, CompareOp depthCompareOp,
+        bool depthWriteEnable, bool depthTestEnable)
+    {
+        data.colorBlendAttachmentStates.push_back(Pipeline::ColorBlendAttachmentState(false,
+            BlendFactor::One, BlendFactor::Zero,
+            BlendOp::Add, BlendFactor::One,
+            BlendFactor::Zero, BlendOp::Add,
+            ColorComponent::Bits::R | ColorComponent::Bits::G |
+            ColorComponent::Bits::B | ColorComponent::Bits::A));
+
+        data.graphicsPipelineInfo.setLayout(data.pipelineLayout)
+            .setRenderPass(renderPass)
+            .setSubpass(subpassIndex)
+            .setStages(data.shaderStages)
+            .setVertexInputState(Pipeline::VertexInputStateCreateInfo(data.vertexBindings, data.vertexAttributes))
+            .setInputAssemblyState(Pipeline::InputAssemblyStateCreateInfo(desiredTopology, false))
+            .setDynamicState(Pipeline::DynamicStateCreateInfo(data.dynamicStates))
+            .setViewportState(Pipeline::ViewportStateCreateInfo(data.viewports, data.scissors))
+            .setRasterizationState({ false, false, desiredPolygonMode,
+                desiredCullMode, desiredFrontFace, false, 0.0f, 0.0f, 0.0f, 1.0f })
+            .setMultisampleState(Pipeline::MultisampleStateCreateInfo(
+                false, SampleCount::Bits::SC1, 1.0f, {}, false, false))
+            .setColorBlendState(Pipeline::ColorBlendStateCreateInfo(data.colorBlendAttachmentStates,
+                false, LogicOp::Copy, Color::Empty()))
+            .setDepthStencilState(Pipeline::DepthStencilStateCreateInfo(StencilOpState(), StencilOpState(),
+                depthCompareOp, false, false, depthWriteEnable, depthTestEnable, 0, 1));
+        data.graphicsPipeline.create(deviceFunctions, device, data.graphicsPipelineInfo);        
+    }
+
+    ShaderModuleData createShaderModules(const DeviceFunctionTable& deviceFunctions,
+        const DeviceRef& device, const std::vector<std::string>& shaderFilePaths)
+    {
+        ShaderModuleData data;
+        data.shaderCodes.resize(shaderFilePaths.size());
+        data.shaderModules.resize(shaderFilePaths.size());
+        data.shaderModuleCreateInfos.resize(shaderFilePaths.size());
+        data.shaderStages.resize(shaderFilePaths.size());
+
+        for (size_t i = 0; i < shaderFilePaths.size(); ++i)
+        {
+            data.shaderCodes[i] = ShaderModule::parseShaderCodeSPIRV(shaderFilePaths[i]);
+            data.shaderModuleCreateInfos[i].setShaderCode(data.shaderCodes[i]);
+            data.shaderModules[i].create(deviceFunctions, device, data.shaderModuleCreateInfos[i]);
+            data.shaderStages[i] = ShaderModule::inferShaderStage(data.shaderCodes[i]);
+        }
+
+        return data;
+    }
+
+    std::vector<Pipeline::ShaderStageCreateInfo> createShaderStageInfos(const ShaderModuleData& shaderData)
+    {
+        std::vector<Pipeline::ShaderStageCreateInfo> shaderStageInfos(shaderData.shaderModules.size());
+
+        for (size_t i = 0; i < shaderData.shaderModules.size(); ++i)
+            shaderStageInfos[i].setModule(shaderData.shaderModules[i])
+            .setName("main").setStage(shaderData.shaderStages[i]);
+        return shaderStageInfos;
     }
 }

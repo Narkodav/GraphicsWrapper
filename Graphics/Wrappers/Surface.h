@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "../InstanceFunctionTable.h"
 #include "Instance.h"
 #include "../PlatformManagement/Window.h"
@@ -11,6 +12,7 @@ namespace Graphics
         using Base = BaseComponent<VkSurfaceKHR, SurfaceRef>;
     public:
         using Base::Base;
+        static inline const std::string s_typeName = "Surface";
     };
 
     class Surface : public VerificatorComponent<VkSurfaceKHR, SurfaceRef>
@@ -25,11 +27,11 @@ namespace Graphics
             using Base::Base;
 
             ColorSpace getColorSpace() const {
-                return convertEnum(this->colorSpace);
+                return convertCEnum(this->colorSpace);
             }
 
             Graphics::Format getFormat() const {
-                return convertEnum(this->format);
+                return convertCEnum(this->format);
             }
         };
 

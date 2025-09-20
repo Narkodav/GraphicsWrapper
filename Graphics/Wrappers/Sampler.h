@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "../DeviceFunctionTable.h"
 #include "Device.h"
 
@@ -10,6 +11,7 @@ namespace Graphics
 		using Base = BaseComponent<VkSampler, SamplerRef>;
 	public:
 		using Base::Base;
+		static inline const std::string s_typeName = "Sampler";
 	};
 
 	class Sampler : public VerificatorComponent<VkSampler, SamplerRef>
@@ -28,24 +30,35 @@ namespace Graphics
 				SamplerMipmapMode mipmapMode = SamplerMipmapMode::Linear,
 				SamplerAddressMode modeU = SamplerAddressMode::Repeat,
 				SamplerAddressMode modeV = SamplerAddressMode::Repeat,
-				SamplerAddressMode modeW = SamplerAddressMode::Repeat)
+				SamplerAddressMode modeW = SamplerAddressMode::Repeat,
+				float mipLodBias = 0.0f,
+				bool anisotropyEnable = false,
+				float maxAnisotropy = 1.0f,
+				bool compareEnable = false,
+				CompareOp compareOp = CompareOp::Always,
+				float minLod = 0.0f,
+				float maxLod = VK_LOD_CLAMP_NONE,
+				BorderColor borderColor = BorderColor::IntOpaqueBlack,
+				bool unnormalizedCoordinates = false,
+				SamplerCreate::Flags flags = SamplerCreate::Bits::None)
 				: Base()
 			{
+				this->flags = flags;
 				this->magFilter = static_cast<VkFilter>(magFilter);
 				this->minFilter = static_cast<VkFilter>(minFilter);
 				this->mipmapMode = static_cast<VkSamplerMipmapMode>(mipmapMode);
 				this->addressModeU = static_cast<VkSamplerAddressMode>(modeU);
 				this->addressModeV = static_cast<VkSamplerAddressMode>(modeV);
 				this->addressModeW = static_cast<VkSamplerAddressMode>(modeW);
-				this->mipLodBias = 0.0f;
-				this->anisotropyEnable = VK_FALSE;
-				this->maxAnisotropy = 1.0f;
-				this->compareEnable = VK_FALSE;
-				this->compareOp = VK_COMPARE_OP_ALWAYS;
-				this->minLod = 0.0f;
-				this->maxLod = VK_LOD_CLAMP_NONE;
-				this->borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-				this->unnormalizedCoordinates = VK_FALSE;
+				this->mipLodBias = mipLodBias;
+				this->anisotropyEnable = anisotropyEnable;
+				this->maxAnisotropy = maxAnisotropy;
+				this->compareEnable = compareEnable;
+				this->compareOp = static_cast<VkCompareOp>(compareOp);
+				this->minLod = minLod;
+				this->maxLod = maxLod;
+				this->borderColor = static_cast<VkBorderColor>(borderColor);
+				this->unnormalizedCoordinates = unnormalizedCoordinates;
 			}
 
 			CreateInfo& setMagFilter(Filter magFilter) {
@@ -98,7 +111,7 @@ namespace Graphics
 				return *this;
 			}
 
-			CreateInfo& setCompareOp(vk::CompareOp compareOp) {
+			CreateInfo& setCompareOp(CompareOp compareOp) {
 				this->compareOp = static_cast<VkCompareOp>(compareOp);
 				return *this;
 			}

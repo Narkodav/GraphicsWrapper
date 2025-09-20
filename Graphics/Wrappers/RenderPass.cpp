@@ -18,5 +18,6 @@ namespace Graphics
         GRAPHICS_VERIFY(isValid(), "Trying to destroy an invalid render pass");
         functions.execute<DeviceFunction::DestroyRenderPass>(
             device, getHandle(), nullptr);
+        reset();
     }
 }

@@ -6,21 +6,21 @@ namespace Graphics {
     {
         GRAPHICS_VERIFY(!isValid(), "Trying to create a valid swap chain");
 
-		size_t imageCount = 0;
+		uint32_t imageCount = 0;
 
         auto result = functions.execute<DeviceFunction::CreateSwapchainKHR>(
-            device.getHandle(), &createInfo, nullptr, getUnderlyingPointer());
+            device.getHandle(), createInfo.getUnderlyingPointer(), nullptr, getUnderlyingPointer());
 
         GRAPHICS_VERIFY(result == VK_SUCCESS, "Failed to create swap chain: " +
             s_resultMessages.at(result));
 
-        auto result = functions.execute<DeviceFunction::GetSwapchainImagesKHR>(
+        result = functions.execute<DeviceFunction::GetSwapchainImagesKHR>(
             device.getHandle(), getHandle(), &imageCount, nullptr);
         GRAPHICS_VERIFY(result == VK_SUCCESS, "Failed to get swap chain images: " +
             s_resultMessages.at(result));
 
         std::vector<VkImage> swapChainImages(imageCount);
-        auto result = functions.execute<DeviceFunction::GetSwapchainImagesKHR>(
+        result = functions.execute<DeviceFunction::GetSwapchainImagesKHR>(
             device.getHandle(), getHandle(), &imageCount, swapChainImages.data());
         GRAPHICS_VERIFY(result == VK_SUCCESS, "Failed to get swap chain images: " +
             s_resultMessages.at(result));
@@ -35,6 +35,7 @@ namespace Graphics {
         swapChainImages.clear();
         functions.execute<DeviceFunction::DestroySwapchainKHR>(
             device.getHandle(), getHandle(), nullptr);
+        reset();
     }
 
     bool SwapChain::acquireNextImage(const DeviceRef& device, const DeviceFunctionTable& functions,

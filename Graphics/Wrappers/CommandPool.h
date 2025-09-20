@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "../DeviceFunctionTable.h"
 #include "Device.h"
 #include "CommandBuffer.h"
@@ -11,6 +12,22 @@ namespace Graphics
 		using Base = BaseComponent<VkCommandPool, CommandPoolRef>;
 	public:
 		using Base::Base;
+		static inline const std::string s_typeName = "CommandPool";
+
+		CommandBuffer allocateCommandBuffer(const DeviceRef& device, const DeviceFunctionTable& functions,
+			CommandBufferLevel level = CommandBufferLevel::Primary);
+
+		void freeCommandBuffer(const DeviceRef& deviceRef, const DeviceFunctionTable& functions,
+			CommandBuffer& buffer);
+
+		std::vector<CommandBuffer> allocateCommandBuffers(const DeviceRef& device, const DeviceFunctionTable& functions,
+			size_t count, CommandBufferLevel level = CommandBufferLevel::Primary);
+
+		void freeCommandBuffers(const DeviceRef& device, const DeviceFunctionTable& functions,
+			std::span<const CommandBuffer> buffer);
+
+		void reset(const DeviceRef& device, const DeviceFunctionTable& functions,
+			CommandPoolReset::Flags flags = CommandPoolReset::Bits::ReleaseResources);
 	};
 
 	class CommandPool : public VerificatorComponent<VkCommandPool, CommandPoolRef> {
@@ -42,21 +59,6 @@ namespace Graphics
 
 		void create(const DeviceRef& device, const DeviceFunctionTable& functions, const CreateInfo& createInfo);
 		void destroy(const DeviceRef& device, const DeviceFunctionTable& functions);
-
-		CommandBuffer allocateCommandBuffer(const DeviceRef& device, const DeviceFunctionTable& functions,
-			CommandBufferLevel level = CommandBufferLevel::Primary);
-
-		void freeCommandBuffer(const DeviceRef& deviceRef, const DeviceFunctionTable& functions,
-			CommandBuffer& buffer);
-
-		std::vector<CommandBuffer> allocateCommandBuffers(const DeviceRef& device, const DeviceFunctionTable& functions,
-			size_t count, CommandBufferLevel level = CommandBufferLevel::Primary);
-
-		void freeCommandBuffers(const DeviceRef& device, const DeviceFunctionTable& functions,
-			std::vector<CommandBuffer>& buffer);
-
-		void resetPool(const DeviceRef& device, const DeviceFunctionTable& functions,
-			CommandPoolReset::Flags flags = CommandPoolReset::Bits::ReleaseResources);
 	};
 }
 

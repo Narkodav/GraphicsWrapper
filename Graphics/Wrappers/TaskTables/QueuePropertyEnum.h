@@ -1,7 +1,10 @@
 #pragma once
-#include "Flags.h"
+#include "../../Common.h"
+#include "../../Flags.h"
 
 namespace Graphics {
+
+    class Extent3D;
 
     enum class QueueProperty : size_t {
         QueueFlags,                                // expects std::any containing QueueFlags::Flags

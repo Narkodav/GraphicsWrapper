@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "Image.h"
 #include "Semaphore.h"
 #include "Fence.h"
@@ -10,6 +11,7 @@ namespace Graphics {
         using Base = BaseComponent<VkSwapchainKHR, SwapChainRef>;
     public:
         using Base::Base;
+        static inline const std::string s_typeName = "SwapChain";
     };
 
 
@@ -37,14 +39,14 @@ namespace Graphics {
                 return *reinterpret_cast<const Image*>(&(std::vector<VkImage>::operator[](index)));
             };
 
-            size_t size() const { return size(); };
-			const Image* data() const { return data(); };
+            size_t size() const { return std::vector<VkImage>::size(); };
+            const ImageRef* data() const { return Image::underlyingCast(std::vector<VkImage>::data()); };
 
-            const Image* begin() const { return begin(); }
-            const Image* end() const { return end(); }
+            const ImageRef* begin() const { return Image::underlyingCast(std::vector<VkImage>::data()); }
+            const ImageRef* end() const { return Image::underlyingCast(std::vector<VkImage>::data()) + size(); }
 
-            const Image* cbegin() const { return begin(); }
-            const Image* cend() const { return end(); }
+            const ImageRef* cbegin() const { return Image::underlyingCast(std::vector<VkImage>::data()); }
+            const ImageRef* cend() const { return Image::underlyingCast(std::vector<VkImage>::data()) + size(); }
         };
 
         class CreateInfo : public StructBase<VkSwapchainCreateInfoKHR, CreateInfo>
@@ -55,11 +57,12 @@ namespace Graphics {
             CreateInfo(const Surface& surface,
                 const Extent2D& imageExtent = { 1, 1 },
                 uint32_t minImageCount = 2,
+                uint32_t imageArrayLayers = 1,
                 Format imageFormat = Format::B8G8R8A8Srgb,
 				ColorSpace imageColorSpace = ColorSpace::SrgbNonlinear,
                 ImageUsage::Flags imageUsage = ImageUsage::Bits::ColorAttachment,
                 SharingMode imageSharingMode = SharingMode::Exclusive,
-                const std::vector<uint32_t>& queueFamilyIndices = {},
+                std::span<const uint32_t> queueFamilyIndices = {},
                 SurfaceTransform::Bits preTransform = SurfaceTransform::Bits::Identity,
                 CompositeAlpha::Bits compositeAlpha = CompositeAlpha::Bits::Opaque,
                 PresentMode presentMode = PresentMode::Fifo,
@@ -71,7 +74,7 @@ namespace Graphics {
                 this->imageFormat = convertCEnum(imageFormat);
                 this->imageColorSpace = convertCEnum(imageColorSpace);
                 this->imageExtent = imageExtent.getStruct();
-                this->imageArrayLayers = 1;
+                this->imageArrayLayers = imageArrayLayers;
                 this->imageUsage = imageUsage;
                 this->imageSharingMode = convertCEnum(imageSharingMode);
                 this->queueFamilyIndexCount = queueFamilyIndices.size();
@@ -87,6 +90,7 @@ namespace Graphics {
                 const Surface::Format& surfaceFormat,
                 const Extent2D& imageExtent = { 1, 1 },
                 uint32_t minImageCount = 2,
+                uint32_t imageArrayLayers = 1,
                 ImageUsage::Flags imageUsage = ImageUsage::Bits::ColorAttachment,
                 SharingMode imageSharingMode = SharingMode::Exclusive,
                 const std::vector<uint32_t>& queueFamilyIndices = {},
@@ -101,7 +105,7 @@ namespace Graphics {
                 this->imageFormat = convertCEnum(surfaceFormat.getFormat());
                 this->imageColorSpace = convertCEnum(surfaceFormat.getColorSpace());
                 this->imageExtent = imageExtent.getStruct();
-                this->imageArrayLayers = 1;
+                this->imageArrayLayers = imageArrayLayers;
                 this->imageUsage = imageUsage;
                 this->imageSharingMode = convertCEnum(imageSharingMode);
                 this->queueFamilyIndexCount = queueFamilyIndices.size();
@@ -122,7 +126,7 @@ namespace Graphics {
                 return *this;
             }
             CreateInfo& setImageFormat(const Surface::Format& imageFormat) {
-                this->imageFormat = convertCEnum(imageFormat.getStruct());
+                this->imageFormat = convertCEnum(imageFormat.getFormat());
                 this->imageColorSpace = convertCEnum(imageFormat.getColorSpace());
                 return *this;
             }
@@ -146,7 +150,7 @@ namespace Graphics {
                 this->imageSharingMode = convertCEnum(imageSharingMode);
                 return *this;
             }
-            CreateInfo& setQueueFamilyIndices(const std::vector<uint32_t>& queueFamilyIndices) {
+            CreateInfo& setQueueFamilyIndices(std::span<const uint32_t> queueFamilyIndices) {
                 this->queueFamilyIndexCount = queueFamilyIndices.size();
                 this->pQueueFamilyIndices = queueFamilyIndices.data();
                 return *this;
@@ -169,6 +173,10 @@ namespace Graphics {
             }
             CreateInfo& setOldSwapChain(const SwapChain& oldSwapChain) {
                 this->oldSwapchain = oldSwapChain.getHandle();
+                return *this;
+            }
+            CreateInfo& setImageArrayLayers(uint32_t imageArrayLayers) {
+                this->imageArrayLayers = imageArrayLayers;
                 return *this;
             }
 
@@ -208,6 +216,9 @@ namespace Graphics {
             std::span<const uint32_t> getQueueFamilyIndices() const {
                 return std::span<const uint32_t>(this->pQueueFamilyIndices, this->queueFamilyIndexCount);
             };
+            uint32_t getImageArrayLayers() const {
+                return this->imageArrayLayers;
+            }
 		};
 
         Images create(const DeviceRef& device, const DeviceFunctionTable& functions,

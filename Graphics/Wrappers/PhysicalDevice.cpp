@@ -12,21 +12,21 @@ namespace Graphics
 
     std::vector<ExtensionProperties> PhysicalDevice::getExtensions(const InstanceFunctionTable& functions) const
     {
-        size_t extensionCount = 0;
+        uint32_t propertyCount = 0;
         auto result = functions.execute<InstanceFunction::EnumerateDeviceExtensionProperties>(
-            getHandle(), nullptr, &extensionCount, nullptr);
+            getHandle(), nullptr, &propertyCount, nullptr);
 
         if (result != VK_SUCCESS) throw std::runtime_error("Failed to get physical device extension properties: " +
             s_resultMessages.at(result));
 
-        std::vector<ExtensionProperties> extensions(extensionCount);
+        std::vector<ExtensionProperties> properties(propertyCount);
 
-        auto result = functions.execute<InstanceFunction::EnumerateDeviceExtensionProperties>(
-            getHandle(), nullptr, &extensionCount, ExtensionProperties::underlyingCast(extensions.data()));
+        result = functions.execute<InstanceFunction::EnumerateDeviceExtensionProperties>(
+            getHandle(), nullptr, &propertyCount, ExtensionProperties::underlyingCast(properties.data()));
 
         if (result != VK_SUCCESS) throw std::runtime_error("Failed to get physical device extension properties: " +
             s_resultMessages.at(result));
-        return extensions;
+        return properties;
     }
 
     bool PhysicalDevice::getSurfaceSupport(const InstanceFunctionTable& functions, const SurfaceRef& surface, uint32_t familyIndex) const
@@ -44,7 +44,7 @@ namespace Graphics
     {
         FormatProperties props;
         functions.execute<InstanceFunction::GetPhysicalDeviceFormatProperties>(
-            getHandle(), convertCEnum(format), &props);
+            getHandle(), convertCEnum(format), props.getUnderlyingPointer());
 		return props;
     }
 

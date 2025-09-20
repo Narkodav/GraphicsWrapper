@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "MultiThreading/EventSuperSystem.h"
 #include "WindowEvents.h"
 #include "IOEvents.h"
@@ -92,7 +93,7 @@ private:
     EventManager m_platformEvents;
 
 public:
-    Window() : m_window(nullptr), m_windowExtent({ 0, 0 }), m_windowText("") {};
+    Window() : m_window(nullptr), m_windowExtent(0, 0), m_windowText("") {};
 
     Window(const Graphics::Extent2D& windowExtent, const std::string& windowText, const Attributes& attr);
 
@@ -139,7 +140,7 @@ public:
 
     const Graphics::Extent2D& getWindowExtent() const { return m_windowExtent; };
     const Graphics::Extent2D& getFrameBufferExtent() const { return m_frameBufferExtent; };
-    float getAspectRatio() const { return m_windowExtent.width / (float)m_windowExtent.height; };
+    float getAspectRatio() const { return m_windowExtent.getWidth() / (float)m_windowExtent.getHeight(); };
     const std::string& getWindowText() const { return m_windowText; };
     GLFWwindow* getHandle() const { return m_window; };
     void destroy();

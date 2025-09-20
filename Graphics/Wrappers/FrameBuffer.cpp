@@ -19,5 +19,6 @@ namespace Graphics
         GRAPHICS_VERIFY(isValid(), "Trying to destroy an invalid frame buffer");
         functions.execute<DeviceFunction::DestroyFramebuffer>(
             device.getHandle(), getHandle(), nullptr);
+        reset();
     }
 }

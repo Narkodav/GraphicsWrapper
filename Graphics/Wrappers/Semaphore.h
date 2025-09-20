@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "../DeviceFunctionTable.h"
 #include "Device.h"
 
@@ -10,6 +11,7 @@ namespace Graphics
 		using Base = BaseComponent<VkSemaphore, SemaphoreRef>;
 	public:
 		using Base::Base;
+		static inline const std::string s_typeName = "Semaphore";
 	};
 
     class Semaphore : public VerificatorComponent<VkSemaphore, SemaphoreRef>

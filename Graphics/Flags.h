@@ -15,13 +15,29 @@ namespace Graphics
     public:
         using Bits = Definition::Bits;
         using VulkanFlags = Definition::VulkanFlags;
+        using VulkanBits = Definition::VulkanBits;
+        using VulkanCFlags = Definition::VulkanCFlags;
+        using VulkanCBits = Definition::VulkanCBits;
 
         Flags() : m_flags(0) {};
         Flags(typename Bits bit) : m_flags(static_cast<uint32_t>(bit)) {}
         Flags(uint32_t flags) : m_flags(flags) {}
         Flags(typename VulkanFlags flags) : m_flags(static_cast<uint32_t>(flags)) {};
+        Flags(typename VulkanBits bit) : m_flags(static_cast<uint32_t>(bit)) {};
+
+        template<typename T>
+        Flags(T value) {
+            if constexpr (std::is_same_v<T, VulkanCBits> && !std::is_void_v<VulkanCBits>) {
+                m_flags = static_cast<uint32_t>(value);
+            }
+            else {
+                static_assert(false, "Invalid type for Flags constructor");
+            }
+        }
 
         operator VulkanFlags() const { return VulkanFlags(this->m_flags); }
+        operator VulkanBits() const { return static_cast<VulkanBits>(this->m_flags); }
+
         operator uint32_t() const { return m_flags; }
 
         inline Flags operator|(const Bits& other) const {
@@ -164,6 +180,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::MemoryPropertyFlags;
+        using VulkanBits = vk::MemoryPropertyFlagBits;
+        using VulkanCFlags = VkMemoryPropertyFlags;
+        using VulkanCBits = VkMemoryPropertyFlagBits;
+
         using Flags = Flags<MemoryProperty>;
     };
 
@@ -182,6 +202,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::MemoryHeapFlags;
+        using VulkanBits = vk::MemoryHeapFlagBits;
+        using VulkanCFlags = VkMemoryHeapFlags;
+        using VulkanCBits = VkMemoryHeapFlagBits;
+
         using Flags = Flags<MemoryHeap>;
     };
 
@@ -211,6 +235,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::BufferUsageFlags;
+        using VulkanBits = vk::BufferUsageFlagBits;
+        using VulkanCFlags = VkBufferUsageFlags;
+        using VulkanCBits = VkBufferUsageFlagBits;
+
         using Flags = Flags<BufferUsage>;
     };
 
@@ -232,6 +260,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::CommandBufferUsageFlags;
+        using VulkanBits = vk::CommandBufferUsageFlagBits;
+        using VulkanCFlags = VkCommandBufferUsageFlags;
+        using VulkanCBits = VkCommandBufferUsageFlagBits;
+
         using Flags = Flags<CommandBufferUsage>;
     };
 
@@ -253,6 +285,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::DebugUtilsMessageSeverityFlagsEXT;
+        using VulkanBits = vk::DebugUtilsMessageSeverityFlagBitsEXT;
+        using VulkanCFlags = VkDebugUtilsMessageSeverityFlagsEXT;
+        using VulkanCBits = VkDebugUtilsMessageSeverityFlagBitsEXT;
+
         using Flags = Flags<DebugMessageSeverity>;
     };
 
@@ -275,6 +311,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::DebugUtilsMessageTypeFlagsEXT;
+        using VulkanBits = vk::DebugUtilsMessageTypeFlagBitsEXT;
+        using VulkanCFlags = VkDebugUtilsMessageTypeFlagsEXT;
+        using VulkanCBits = VkDebugUtilsMessageTypeFlagBitsEXT;
+
         using Flags = Flags<DebugMessageType>;
     };
 
@@ -292,6 +332,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::DescriptorSetLayoutCreateFlags;
+        using VulkanBits = vk::DescriptorSetLayoutCreateFlagBits;
+        using VulkanCFlags = VkDescriptorSetLayoutCreateFlags;
+        using VulkanCBits = VkDescriptorSetLayoutCreateFlagBits;
+
         using Flags = Flags<DescriptorSetLayoutCreate>;
     };
 
@@ -315,6 +359,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::QueueFlags;
+        using VulkanBits = vk::QueueFlagBits;
+        using VulkanCFlags = VkQueueFlags;
+        using VulkanCBits = VkQueueFlagBits;
+
         using Flags = Flags<QueueFlags>;
     };
 
@@ -332,6 +380,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::DescriptorPoolCreateFlags;
+        using VulkanBits = vk::DescriptorPoolCreateFlagBits;
+        using VulkanCFlags = VkDescriptorPoolCreateFlags;
+        using VulkanCBits = VkDescriptorPoolCreateFlagBits;
+
         using Flags = Flags<DescriptorPoolCreateFlags>;
     };
 
@@ -366,6 +418,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::PipelineStageFlags;
+        using VulkanBits = vk::PipelineStageFlagBits;
+        using VulkanCFlags = VkPipelineStageFlags;
+        using VulkanCBits = VkPipelineStageFlagBits;
+
         using Flags = Flags<PipelineStage>;
     };
     
@@ -399,6 +455,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::ShaderStageFlags;
+        using VulkanBits = vk::ShaderStageFlagBits;
+        using VulkanCFlags = VkShaderStageFlags;
+        using VulkanCBits = VkShaderStageFlagBits;
+
         using Flags = Flags<ShaderStage>;
     };
 
@@ -442,6 +502,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::AccessFlags;
+        using VulkanBits = vk::AccessFlagBits;
+        using VulkanCFlags = VkAccessFlags;
+        using VulkanCBits = VkAccessFlagBits;
+
         using Flags = Flags<Access>;
     };
 
@@ -475,6 +539,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::ImageUsageFlags;
+        using VulkanBits = vk::ImageUsageFlagBits;
+        using VulkanCFlags = VkImageUsageFlags;
+        using VulkanCBits = VkImageUsageFlagBits;
+
         using Flags = Flags<ImageUsage>;
     };
 
@@ -504,6 +572,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::ImageAspectFlags;
+        using VulkanBits = vk::ImageAspectFlagBits;
+        using VulkanCFlags = VkImageAspectFlags;
+        using VulkanCBits = VkImageAspectFlagBits;
+
         using Flags = Flags<ImageAspect>;
     };
 
@@ -546,6 +618,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::FormatFeatureFlags;
+        using VulkanBits = vk::FormatFeatureFlagBits;
+        using VulkanCFlags = VkFormatFeatureFlags;
+        using VulkanCBits = VkFormatFeatureFlagBits;
+
         using Flags = Flags<FormatFeature>;
     };
 
@@ -562,6 +638,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::FenceCreateFlags;
+        using VulkanBits = vk::FenceCreateFlagBits;
+        using VulkanCFlags = VkFenceCreateFlags;
+        using VulkanCBits = VkFenceCreateFlagBits;
+
         using Flags = Flags<FenceCreate>;
     };
 
@@ -580,6 +660,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::CommandPoolCreateFlags;
+        using VulkanBits = vk::CommandPoolCreateFlagBits;
+        using VulkanCFlags = VkCommandPoolCreateFlags;
+        using VulkanCBits = VkCommandPoolCreateFlagBits;
+
         using Flags = Flags<CommandPoolCreate>;
     };
 
@@ -596,6 +680,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::CommandPoolResetFlags;
+        using VulkanBits = vk::CommandPoolResetFlagBits;
+        using VulkanCFlags = VkCommandPoolResetFlags;
+        using VulkanCBits = VkCommandPoolResetFlagBits;
+
         using Flags = Flags<CommandPoolReset>;
     };
 
@@ -613,6 +701,10 @@ namespace Graphics
             };
 
             using VulkanFlags = vk::DebugUtilsMessengerCallbackDataFlagsEXT;
+            using VulkanBits = vk::DebugUtilsMessengerCallbackDataFlagBitsEXT;
+            using VulkanCFlags = VkDebugUtilsMessengerCallbackDataFlagsEXT;
+            using VulkanCBits = void;
+
             using Flags = Flags<MessengerCallbackData>;
         };
     }
@@ -638,6 +730,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::SurfaceTransformFlagsKHR;
+        using VulkanBits = vk::SurfaceTransformFlagBitsKHR;
+        using VulkanCFlags = VkSurfaceTransformFlagsKHR;
+        using VulkanCBits = VkSurfaceTransformFlagBitsKHR;
+
         using Flags = Flags<SurfaceTransform>;
     };
 
@@ -653,6 +749,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::SemaphoreCreateFlags;
+        using VulkanBits = vk::SemaphoreCreateFlagBits;
+        using VulkanCFlags = VkSemaphoreCreateFlags;
+        using VulkanCBits = void;
+
         using Flags = Flags<SemaphoreCreate>;
     };
 
@@ -676,6 +776,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::SampleCountFlags;
+        using VulkanBits = vk::SampleCountFlagBits;
+        using VulkanCFlags = VkSampleCountFlags;
+        using VulkanCBits = VkSampleCountFlagBits;
+
         using Flags = Flags<SampleCount>;
     };
 
@@ -692,6 +796,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::AttachmentDescriptionFlags;
+        using VulkanBits = vk::AttachmentDescriptionFlagBits;
+        using VulkanCFlags = VkAttachmentDescriptionFlags;
+        using VulkanCBits = VkAttachmentDescriptionFlagBits;
+
         using Flags = Flags<AttachmentCreate>;
     };
 
@@ -714,6 +822,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::DependencyFlags;
+        using VulkanBits = vk::DependencyFlagBits;
+        using VulkanCFlags = VkDependencyFlags;
+        using VulkanCBits = VkDependencyFlagBits;
+
         using Flags = Flags<Dependency>;
     };
 
@@ -733,6 +845,10 @@ namespace Graphics
         };
 
         using VulkanFlags = vk::CompositeAlphaFlagsKHR;
+        using VulkanBits = vk::CompositeAlphaFlagBitsKHR;
+        using VulkanCFlags = VkCompositeAlphaFlagsKHR;
+        using VulkanCBits = VkCompositeAlphaFlagBitsKHR;
+
         using Flags = Flags<CompositeAlpha>;
     };
 
@@ -740,4 +856,494 @@ namespace Graphics
     struct BitTraits<CompositeAlpha::Bits> {
         using ParentType = CompositeAlpha;
     };
+
+    struct PipelineLayoutCreate
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+            IndependentSetsEXT = vk::PipelineLayoutCreateFlagBits::eIndependentSetsEXT,
+        };
+
+        using VulkanFlags = vk::PipelineLayoutCreateFlags;
+        using VulkanBits = vk::PipelineLayoutCreateFlagBits;
+        using VulkanCFlags = VkPipelineLayoutCreateFlags;
+        using VulkanCBits = VkPipelineLayoutCreateFlagBits;
+
+        using Flags = Flags<PipelineLayoutCreate>;
+    };
+
+    template<>
+    struct BitTraits<PipelineLayoutCreate::Bits> {
+        using ParentType = PipelineLayoutCreate;
+    };
+
+    struct PipelineCreate
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+            DisableOptimization = vk::PipelineCreateFlagBits::eDisableOptimization,
+            AllowDerivatives = vk::PipelineCreateFlagBits::eAllowDerivatives,
+			Derivative = vk::PipelineCreateFlagBits::eDerivative,
+            ViewIndexFromDeviceIndex = vk::PipelineCreateFlagBits::eViewIndexFromDeviceIndex,
+            ViewIndexFromDeviceIndexKHR = vk::PipelineCreateFlagBits::eViewIndexFromDeviceIndexKHR,
+            DispatchBase = vk::PipelineCreateFlagBits::eDispatchBase,
+            DispatchBaseKHR = vk::PipelineCreateFlagBits::eDispatchBaseKHR,
+            FailOnPipelineCompileRequired = vk::PipelineCreateFlagBits::eFailOnPipelineCompileRequiredEXT,
+            EarlyReturnOnFailure = vk::PipelineCreateFlagBits::eEarlyReturnOnFailureEXT,
+            NoProtectedAccess = vk::PipelineCreateFlagBits::eNoProtectedAccessEXT,
+            ProtectedAccessOnly = vk::PipelineCreateFlagBits::eProtectedAccessOnlyEXT,
+            RayTracingNoNullAnyHitShadersKHR = vk::PipelineCreateFlagBits::eRayTracingNoNullAnyHitShadersKHR,
+			RayTracingNoNullClosestHitShadersKHR = vk::PipelineCreateFlagBits::eRayTracingNoNullClosestHitShadersKHR,
+			RayTracingNoNullMissShadersKHR = vk::PipelineCreateFlagBits::eRayTracingNoNullMissShadersKHR,
+			RayTracingNoNullIntersectionShadersKHR = vk::PipelineCreateFlagBits::eRayTracingNoNullIntersectionShadersKHR,
+			RayTracingSkipTrianglesKHR = vk::PipelineCreateFlagBits::eRayTracingSkipTrianglesKHR,
+			RayTracingSkipAabbsKHR = vk::PipelineCreateFlagBits::eRayTracingSkipAabbsKHR,
+			RayTracingShaderGroupHandleCaptureReplayKHR = vk::PipelineCreateFlagBits::eRayTracingShaderGroupHandleCaptureReplayKHR,
+            DeferCompileNV = vk::PipelineCreateFlagBits::eDeferCompileNV,
+            RenderingFragmentDensityMapAttachmentEXT = vk::PipelineCreateFlagBits::eRenderingFragmentDensityMapAttachmentEXT,
+            RenderingFragmentShadingRateAttachmentKHR = vk::PipelineCreateFlagBits::eRenderingFragmentShadingRateAttachmentKHR,
+            CaptureStatisticsKHR = vk::PipelineCreateFlagBits::eCaptureStatisticsKHR,
+            CaptureInternalRepresentationsKHR = vk::PipelineCreateFlagBits::eCaptureInternalRepresentationsKHR,
+            IndirectBindableNV = vk::PipelineCreateFlagBits::eIndirectBindableNV,
+			Library = vk::PipelineCreateFlagBits::eLibraryKHR,
+            DescriptorBufferEXT = vk::PipelineCreateFlagBits::eDescriptorBufferEXT,
+            RetainLinkTimeOptimizationInfoEXT = vk::PipelineCreateFlagBits::eRetainLinkTimeOptimizationInfoEXT,
+			LinkTimeOptimization = vk::PipelineCreateFlagBits::eLinkTimeOptimizationEXT,
+            RayTracingAllowMotionNV = vk::PipelineCreateFlagBits::eRayTracingAllowMotionNV,
+            ColorAttachmentFeedbackLoopEXT = vk::PipelineCreateFlagBits::eColorAttachmentFeedbackLoopEXT,
+            DepthStencilAttachmentFeedbackLoopEXT = vk::PipelineCreateFlagBits::eDepthStencilAttachmentFeedbackLoopEXT,
+            RayTracingOpacityMicromapEXT = vk::PipelineCreateFlagBits::eRayTracingOpacityMicromapEXT,
+        };
+
+        using VulkanFlags = vk::PipelineCreateFlags;
+        using VulkanBits = vk::PipelineCreateFlagBits;
+        using VulkanCFlags = VkPipelineCreateFlags;
+        using VulkanCBits = VkPipelineCreateFlagBits;
+
+        using Flags = Flags<PipelineCreate>;
+    };
+
+    template<>
+    struct BitTraits<PipelineCreate::Bits> {
+        using ParentType = PipelineCreate;
+    };
+
+    struct PipelineShaderStageCreate
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+            AllowVaryingSubgroupSize = vk::PipelineShaderStageCreateFlagBits::eAllowVaryingSubgroupSize,
+			RequireFullSubgroups = vk::PipelineShaderStageCreateFlagBits::eRequireFullSubgroups,
+			AllowVaryingSubgroupSizeEXT = vk::PipelineShaderStageCreateFlagBits::eAllowVaryingSubgroupSizeEXT,
+			RequireFullSubgroupsEXT = vk::PipelineShaderStageCreateFlagBits::eRequireFullSubgroupsEXT,
+        };
+
+        using VulkanFlags = vk::PipelineShaderStageCreateFlags;
+        using VulkanBits = vk::PipelineShaderStageCreateFlagBits;
+        using VulkanCFlags = VkPipelineShaderStageCreateFlags;
+        using VulkanCBits = VkPipelineShaderStageCreateFlagBits;
+
+        using Flags = Flags<PipelineShaderStageCreate>;
+    };
+
+    template<>
+    struct BitTraits<PipelineShaderStageCreate::Bits> {
+        using ParentType = PipelineShaderStageCreate;
+    };
+
+    struct PipelineVertexInputStateCreate
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+        };
+
+        using VulkanFlags = vk::PipelineVertexInputStateCreateFlags;
+        using VulkanBits = vk::PipelineVertexInputStateCreateFlagBits;
+        using VulkanCFlags = VkPipelineVertexInputStateCreateFlags;
+        using VulkanCBits = void;
+
+        using Flags = Flags<PipelineVertexInputStateCreate>;
+    };
+
+    template<>
+    struct BitTraits<PipelineVertexInputStateCreate::Bits> {
+        using ParentType = PipelineVertexInputStateCreate;
+    };
+
+    struct PipelineInputAssemblyStateCreate
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+        };
+
+        using VulkanFlags = vk::PipelineInputAssemblyStateCreateFlags;
+        using VulkanBits = vk::PipelineInputAssemblyStateCreateFlagBits;
+        using VulkanCFlags = VkPipelineInputAssemblyStateCreateFlags;
+        using VulkanCBits = void;
+
+        using Flags = Flags<PipelineInputAssemblyStateCreate>;
+    };
+
+    template<>
+    struct BitTraits<PipelineInputAssemblyStateCreate::Bits> {
+        using ParentType = PipelineInputAssemblyStateCreate;
+    };
+    
+    struct PipelineTessellationStateCreate
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+        };
+        using VulkanFlags = vk::PipelineTessellationStateCreateFlags;
+        using VulkanBits = vk::PipelineTessellationStateCreateFlagBits;
+        using VulkanCFlags = VkPipelineTessellationStateCreateFlags;
+        using VulkanCBits = void;
+
+        using Flags = Flags<PipelineTessellationStateCreate>;
+	};
+
+    template<>
+    struct BitTraits<PipelineTessellationStateCreate::Bits> {
+        using ParentType = PipelineTessellationStateCreate;
+    };
+
+    struct PipelineViewportStateCreate
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+        };
+        using VulkanFlags = vk::PipelineViewportStateCreateFlags;
+        using VulkanBits = vk::PipelineViewportStateCreateFlagBits;
+        using VulkanCFlags = VkPipelineViewportStateCreateFlags;
+        using VulkanCBits = void;
+
+        using Flags = Flags<PipelineViewportStateCreate>;
+    };
+
+    template<>
+    struct BitTraits<PipelineViewportStateCreate::Bits> {
+        using ParentType = PipelineViewportStateCreate;
+    };
+
+    struct PipelineRasterizationStateCreate
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+        };
+        using VulkanFlags = vk::PipelineRasterizationStateCreateFlags;
+        using VulkanBits = vk::PipelineRasterizationStateCreateFlagBits;
+        using VulkanCFlags = VkPipelineRasterizationStateCreateFlags;
+        using VulkanCBits = void;
+
+        using Flags = Flags<PipelineRasterizationStateCreate>;
+    };
+
+    template<>
+    struct BitTraits<PipelineRasterizationStateCreate::Bits> {
+        using ParentType = PipelineRasterizationStateCreate;
+    };
+
+    struct CullMode
+    {
+        enum class Bits : uint32_t {
+            None = vk::CullModeFlagBits::eNone,
+			Front = vk::CullModeFlagBits::eFront,
+            Back = vk::CullModeFlagBits::eBack,
+			FrontAndBack = vk::CullModeFlagBits::eFrontAndBack,
+        };
+        using VulkanFlags = vk::CullModeFlags;
+        using VulkanBits = vk::CullModeFlagBits;
+        using VulkanCFlags = VkCullModeFlags;
+        using VulkanCBits = VkCullModeFlagBits;
+
+        using Flags = Flags<CullMode>;
+    };
+
+    template<>
+    struct BitTraits<CullMode::Bits> {
+        using ParentType = CullMode;
+    };
+
+    struct PipelineMultisampleStateCreate
+    {
+        enum class Bits : uint32_t {
+            None = 0
+        };
+        using VulkanFlags = vk::PipelineMultisampleStateCreateFlags;
+        using VulkanBits = vk::PipelineMultisampleStateCreateFlagBits;
+        using VulkanCFlags = VkPipelineMultisampleStateCreateFlags;
+        using VulkanCBits = void;
+
+        using Flags = Flags<PipelineMultisampleStateCreate>;
+    };
+
+    template<>
+    struct BitTraits<PipelineMultisampleStateCreate::Bits> {
+        using ParentType = PipelineMultisampleStateCreate;
+    };
+
+    struct PipelineDepthStencilStateCreate
+    {
+        enum class Bits : uint32_t {
+            None = 0
+        };
+        using VulkanFlags = vk::PipelineDepthStencilStateCreateFlags;
+        using VulkanBits = vk::PipelineDepthStencilStateCreateFlagBits;
+        using VulkanCFlags = VkPipelineDepthStencilStateCreateFlags;
+        using VulkanCBits = VkPipelineDepthStencilStateCreateFlagBits;
+
+        using Flags = Flags<PipelineDepthStencilStateCreate>;
+    };
+
+    template<>
+    struct BitTraits<PipelineDepthStencilStateCreate::Bits> {
+        using ParentType = PipelineDepthStencilStateCreate;
+    };
+    
+    struct PipelineColorBlendStateCreate
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+            RasterizationOrderAttachmentAccessARM = vk::PipelineColorBlendStateCreateFlagBits::eRasterizationOrderAttachmentAccessARM,
+            RasterizationOrderAttachmentAccessEXT = vk::PipelineColorBlendStateCreateFlagBits::eRasterizationOrderAttachmentAccessEXT,
+        };
+        using VulkanFlags = vk::PipelineColorBlendStateCreateFlags;
+        using VulkanBits = vk::PipelineColorBlendStateCreateFlagBits;
+        using VulkanCFlags = VkPipelineColorBlendStateCreateFlags;
+        using VulkanCBits = VkPipelineColorBlendStateCreateFlagBits;
+
+        using Flags = Flags<PipelineColorBlendStateCreate>;
+    };
+
+    template<>
+    struct BitTraits<PipelineColorBlendStateCreate::Bits> {
+        using ParentType = PipelineColorBlendStateCreate;
+    };
+
+    struct PipelineDynamicStateCreate
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+        };
+        using VulkanFlags = vk::PipelineDynamicStateCreateFlags;
+        using VulkanBits = vk::PipelineDynamicStateCreateFlagBits;
+        using VulkanCFlags = VkPipelineDynamicStateCreateFlags;
+        using VulkanCBits = void;
+
+        using Flags = Flags<PipelineDynamicStateCreate>;
+    };
+
+    template<>
+    struct BitTraits<PipelineDynamicStateCreate::Bits> {
+        using ParentType = PipelineDynamicStateCreate;
+    };
+
+    struct ColorComponent
+    {
+        enum class Bits : uint32_t {
+            None = 0,			
+			R = vk::ColorComponentFlagBits::eR,
+			G = vk::ColorComponentFlagBits::eG,
+            B = vk::ColorComponentFlagBits::eB,
+            A = vk::ColorComponentFlagBits::eA,
+        };
+        using VulkanFlags = vk::ColorComponentFlags;
+        using VulkanBits = vk::ColorComponentFlagBits;
+        using VulkanCFlags = VkColorComponentFlags;
+        using VulkanCBits = VkColorComponentFlagBits;
+
+        using Flags = Flags<ColorComponent>;
+    };
+
+    template<>
+    struct BitTraits<ColorComponent::Bits> {
+        using ParentType = ColorComponent;
+    };
+
+    struct DescriptorPoolCreate
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+            FreeDescriptorSet = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
+            UpdateAfterBindEXT = vk::DescriptorPoolCreateFlagBits::eUpdateAfterBindEXT,
+            HostOnlyValve = vk::DescriptorPoolCreateFlagBits::eHostOnlyVALVE,
+            HostOnlyEXT = vk::DescriptorPoolCreateFlagBits::eHostOnlyEXT,
+            AllowOverallocationPoolsNV = vk::DescriptorPoolCreateFlagBits::eAllowOverallocationPoolsNV,
+            AllowOverallocationSetsNV = vk::DescriptorPoolCreateFlagBits::eAllowOverallocationSetsNV,
+            UpdateAfterBind = vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind,
+        };
+
+        using VulkanFlags = vk::DescriptorPoolCreateFlags;
+        using VulkanBits = vk::DescriptorPoolCreateFlagBits;
+        using VulkanCFlags = VkDescriptorPoolCreateFlags;
+        using VulkanCBits = VkDescriptorPoolCreateFlagBits;
+
+        using Flags = Flags<DescriptorPoolCreate>;
+    };
+
+    template<>
+    struct BitTraits<DescriptorPoolCreate::Bits> {
+        using ParentType = DescriptorPoolCreate;
+    };
+    
+    struct DescriptorPoolReset
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+        };
+
+        using VulkanFlags = vk::DescriptorPoolResetFlags;
+        using VulkanBits = vk::DescriptorPoolResetFlagBits;
+        using VulkanCFlags = VkDescriptorPoolResetFlags;
+        using VulkanCBits = void;
+
+        using Flags = Flags<DescriptorPoolReset>;
+    };
+
+    template<>
+    struct BitTraits<DescriptorPoolReset::Bits> {
+        using ParentType = DescriptorPoolReset;
+    };
+
+    struct QueryControl
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+            Precise = vk::QueryControlFlagBits::ePrecise,
+        };
+
+        using VulkanFlags = vk::QueryControlFlags;
+        using VulkanBits = vk::QueryControlFlagBits;
+        using VulkanCFlags = VkQueryControlFlags;
+        using VulkanCBits = VkQueryControlFlagBits;
+
+        using Flags = Flags<QueryControl>;
+    };
+
+    template<>
+    struct BitTraits<QueryControl::Bits> {
+        using ParentType = QueryControl;
+    };
+
+    struct QueryPipelineStatistic
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+            ClippingInvocations = vk::QueryPipelineStatisticFlagBits::eClippingInvocations,
+            ClippingPrimitives = vk::QueryPipelineStatisticFlagBits::eClippingPrimitives,
+            FragmentShaderInvocations = vk::QueryPipelineStatisticFlagBits::eFragmentShaderInvocations,
+            //FragmentShaderInvocationsARM = vk::QueryPipelineStatisticFlagBits::eFragmentShaderInvocationsARM,
+            //FragmentShaderInvocationsEXT = vk::QueryPipelineStatisticFlagBits::eFragmentShaderInvocationsEXT,
+            GeometryShaderInvocations = vk::QueryPipelineStatisticFlagBits::eGeometryShaderInvocations,
+            GeometryShaderPrimitives = vk::QueryPipelineStatisticFlagBits::eGeometryShaderPrimitives,
+            //InstanceCount = vk::QueryPipelineStatisticFlagBits::eInstanceCount,
+            //PrimitiveCount = vk::QueryPipelineStatisticFlagBits::ePrimitiveCount,
+            VertexShaderInvocations = vk::QueryPipelineStatisticFlagBits::eVertexShaderInvocations,
+        };
+
+        using VulkanFlags = vk::QueryPipelineStatisticFlags;
+        using VulkanBits = vk::QueryPipelineStatisticFlagBits;
+        using VulkanCFlags = VkQueryPipelineStatisticFlags;
+        using VulkanCBits = VkQueryPipelineStatisticFlagBits;
+
+        using Flags = Flags<QueryPipelineStatistic>;
+    };
+
+    template<>
+    struct BitTraits<QueryPipelineStatistic::Bits> {
+        using ParentType = QueryPipelineStatistic;
+    };
+
+    struct SamplerCreate
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+            DescriptorBufferCaptureReplayEXT = vk::SamplerCreateFlagBits::eDescriptorBufferCaptureReplayEXT,
+            SubsampledCoarseReconstruction = vk::SamplerCreateFlagBits::eSubsampledCoarseReconstructionEXT,
+            NonSeamlessCubeMap = vk::SamplerCreateFlagBits::eNonSeamlessCubeMapEXT,
+            SubsampledEXT = vk::SamplerCreateFlagBits::eSubsampledEXT,
+            ImageProcessingQCOM = vk::SamplerCreateFlagBits::eImageProcessingQCOM,
+        };
+
+        using VulkanFlags = vk::SamplerCreateFlags;
+        using VulkanBits = vk::SamplerCreateFlagBits;
+        using VulkanCFlags = VkSamplerCreateFlags;
+        using VulkanCBits = VkSamplerCreateFlagBits;
+
+        using Flags = Flags<SamplerCreate>;
+    };
+
+    template<>
+    struct BitTraits<SamplerCreate::Bits> {
+        using ParentType = SamplerCreate;
+    };
+    
+    struct CommandBufferReset
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+            ReleaseResources = vk::CommandBufferResetFlagBits::eReleaseResources
+        };
+
+        using VulkanFlags = vk::CommandBufferResetFlags;
+        using VulkanBits = vk::CommandBufferResetFlagBits;
+        using VulkanCFlags = VkCommandBufferResetFlags;
+        using VulkanCBits = VkCommandBufferResetFlagBits;
+
+        using Flags = Flags<CommandBufferReset>;
+    };
+
+    template<>
+    struct BitTraits<CommandBufferReset::Bits> {
+        using ParentType = CommandBufferReset;
+    };
+
+    struct BufferViewCreate
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+        };
+
+        using VulkanFlags = vk::BufferViewCreateFlags;
+        using VulkanBits = vk::BufferViewCreateFlagBits;
+        using VulkanCFlags = VkBufferViewCreateFlags;
+        using VulkanCBits = void;
+
+        using Flags = Flags<BufferViewCreate>;
+    };
+
+    template<>
+    struct BitTraits<BufferViewCreate::Bits> {
+        using ParentType = BufferViewCreate;
+    };
+
+    struct MemoryMap
+    {
+        enum class Bits : uint32_t {
+            None = 0,
+            PlacedEXT = vk::MemoryMapFlagBits::ePlacedEXT,
+        };
+
+        using VulkanFlags = vk::MemoryMapFlags;
+        using VulkanBits = vk::MemoryMapFlagBits;
+        using VulkanCFlags = VkMemoryMapFlags;
+        using VulkanCBits = VkMemoryMapFlagBits;
+
+        using Flags = Flags<MemoryMap>;
+    };
+
+    template<>
+    struct BitTraits<MemoryMap::Bits> {
+        using ParentType = MemoryMap;
+    };
+    
+    template<typename Bit>
+    typename BitTraits<Bit>::ParentType::VulkanBits convertBit(Bit bit) {
+        return static_cast<BitTraits<Bit>::ParentType::VulkanBits>(bit);
+    }
+
+    template<typename Bit>
+    typename BitTraits<Bit>::ParentType::VulkanCBits convertCBit(Bit bit) {
+        return static_cast<BitTraits<Bit>::ParentType::VulkanCBits>(bit);
+    }
 }

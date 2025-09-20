@@ -215,6 +215,12 @@ namespace Graphics {
         ResetFences,
 
         ResetCommandPool,
+        ResetDescriptorPool,
+
+		CreateGraphicsPipelines,
+        DestroyPipeline,
+
+        UpdateDescriptorSets,
 
         DestroyRenderPass,
         CreateRenderPass,
@@ -236,6 +242,16 @@ namespace Graphics {
         CreateCommandPool,
         DestroySampler,
         CreateSampler,
+        DestroyDescriptorSetLayout,
+        CreateDescriptorSetLayout,
+        FreeDescriptorSets,
+        AllocateDescriptorSets,
+        DestroyPipelineLayout,
+        CreatePipelineLayout,
+        DestroyDescriptorPool,
+        CreateDescriptorPool,
+        DestroyBufferView,
+        CreateBufferView,
         Num
     };
 
@@ -1055,5 +1071,89 @@ namespace Graphics {
         static constexpr const char* name = "vkDestroySampler";
     };
 
+    template <>
+    struct DeviceFunctionTraits<DeviceFunction::CreateDescriptorSetLayout> {
+        using Type = PFN_vkCreateDescriptorSetLayout;
+        static constexpr const char* name = "vkCreateDescriptorSetLayout";
+    };
+
+    template <>
+    struct DeviceFunctionTraits<DeviceFunction::DestroyDescriptorSetLayout> {
+        using Type = PFN_vkDestroyDescriptorSetLayout;
+        static constexpr const char* name = "vkDestroyDescriptorSetLayout";
+    };
+
+    template <>
+    struct DeviceFunctionTraits<DeviceFunction::FreeDescriptorSets> {
+        using Type = PFN_vkFreeDescriptorSets;
+        static constexpr const char* name = "vkFreeDescriptorSets";
+    };
+
+    template <>
+    struct DeviceFunctionTraits<DeviceFunction::AllocateDescriptorSets> {
+        using Type = PFN_vkAllocateDescriptorSets;
+        static constexpr const char* name = "vkAllocateDescriptorSets";
+    };
+
+    template <>
+    struct DeviceFunctionTraits<DeviceFunction::DestroyPipelineLayout> {
+        using Type = PFN_vkDestroyPipelineLayout;
+        static constexpr const char* name = "vkDestroyPipelineLayout";
+    };
+
+    template <>
+    struct DeviceFunctionTraits<DeviceFunction::CreatePipelineLayout> {
+        using Type = PFN_vkCreatePipelineLayout;
+        static constexpr const char* name = "vkCreatePipelineLayout";
+    };
+
+    template <>
+    struct DeviceFunctionTraits<DeviceFunction::DestroyPipeline> {
+        using Type = PFN_vkDestroyPipeline;
+        static constexpr const char* name = "vkDestroyPipeline";
+    };
+
+    template <>
+    struct DeviceFunctionTraits<DeviceFunction::CreateGraphicsPipelines> {
+        using Type = PFN_vkCreateGraphicsPipelines;
+        static constexpr const char* name = "vkCreateGraphicsPipelines";
+    };
+
+    template <>
+    struct DeviceFunctionTraits<DeviceFunction::DestroyDescriptorPool> {
+        using Type = PFN_vkDestroyDescriptorPool;
+        static constexpr const char* name = "vkDestroyDescriptorPool";
+    };
+
+    template <>
+    struct DeviceFunctionTraits<DeviceFunction::CreateDescriptorPool> {
+        using Type = PFN_vkCreateDescriptorPool;
+        static constexpr const char* name = "vkCreateDescriptorPool";
+    };
+
+    template <>
+    struct DeviceFunctionTraits<DeviceFunction::ResetDescriptorPool> {
+        using Type = PFN_vkResetDescriptorPool;
+        static constexpr const char* name = "vkResetDescriptorPool";
+    };
+
+    template <>
+    struct DeviceFunctionTraits<DeviceFunction::CreateBufferView> {
+        using Type = PFN_vkCreateBufferView;
+        static constexpr const char* name = "vkCreateBufferView";
+    };
+
+    template <>
+    struct DeviceFunctionTraits<DeviceFunction::DestroyBufferView> {
+        using Type = PFN_vkDestroyBufferView;
+        static constexpr const char* name = "vkDestroyBufferView";
+    };
+
+    template <>
+    struct DeviceFunctionTraits<DeviceFunction::UpdateDescriptorSets> {
+        using Type = PFN_vkUpdateDescriptorSets;
+        static constexpr const char* name = "vkUpdateDescriptorSets";
+    };
+    
     using DeviceFunctionTable = FunctionTable<DeviceFunction, DeviceFunctionTraits, VkDevice, PFN_vkGetDeviceProcAddr>;
 }

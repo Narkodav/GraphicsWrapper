@@ -30,7 +30,7 @@ namespace Graphics
         GRAPHICS_VERIFY(isSet(), "Trying to get queue from an invalid device");
         Queue queue;
         functions.execute<DeviceFunction::GetDeviceQueue>(
-            getHandle(), familyIndex, queueIndex, std::as_const(queue).getUnderlyingPointer());
+            getHandle(), familyIndex, queueIndex, queue.getUnderlyingPointer());
         return queue;
     }
 }

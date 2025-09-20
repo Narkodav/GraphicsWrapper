@@ -1,7 +1,5 @@
 #pragma once
-#include <vulkan/vulkan_core.h>
-#include <vulkan/vulkan.h>
-#include <vulkan/vulkan.hpp>
+#include "../../Common.h"
 
 namespace Graphics {
 
@@ -75,7 +73,7 @@ namespace Graphics {
     template<> struct DevicePropertyTypeTrait<DeviceProperty::VendorId> { using Type = uint32_t; };
     template<> struct DevicePropertyTypeTrait<DeviceProperty::PhysicalDeviceId> { using Type = uint32_t; };
     template<> struct DevicePropertyTypeTrait<DeviceProperty::PhysicalDeviceType> { using Type = PhysicalDeviceType; };
-    template<> struct DevicePropertyTypeTrait<DeviceProperty::PhysicalDeviceName> { using Type = std::string; };
+    template<> struct DevicePropertyTypeTrait<DeviceProperty::PhysicalDeviceName> { using Type = std::string_view; };
 
     // Core Limits
     template<> struct DevicePropertyTypeTrait<DeviceProperty::MaxImageDimension2d> { using Type = uint32_t; };
@@ -90,15 +88,15 @@ namespace Graphics {
     template<> struct DevicePropertyTypeTrait<DeviceProperty::MaxPerStageDescriptorStorageBuffers> { using Type = uint32_t; };
 
     // Buffer Limits
-    template<> struct DevicePropertyTypeTrait<DeviceProperty::MaxStorageBufferRange> { using Type = uint64_t; };
-    template<> struct DevicePropertyTypeTrait<DeviceProperty::MaxUniformBufferRange> { using Type = uint64_t; };
-    template<> struct DevicePropertyTypeTrait<DeviceProperty::MinUniformBufferOffsetAlignment> { using Type = uint64_t; };
-    template<> struct DevicePropertyTypeTrait<DeviceProperty::MinStorageBufferOffsetAlignment> { using Type = uint64_t; };
+    template<> struct DevicePropertyTypeTrait<DeviceProperty::MaxStorageBufferRange> { using Type = DeviceSize_t; };
+    template<> struct DevicePropertyTypeTrait<DeviceProperty::MaxUniformBufferRange> { using Type = DeviceSize_t; };
+    template<> struct DevicePropertyTypeTrait<DeviceProperty::MinUniformBufferOffsetAlignment> { using Type = DeviceSize_t; };
+    template<> struct DevicePropertyTypeTrait<DeviceProperty::MinStorageBufferOffsetAlignment> { using Type = DeviceSize_t; };
 
     // Viewport/Scissor
-    template<> struct DevicePropertyTypeTrait<DeviceProperty::MaxViewportDimensions> { using Type = std::array<uint32_t, 2>; };
+    template<> struct DevicePropertyTypeTrait<DeviceProperty::MaxViewportDimensions> { using Type = std::span<uint32_t, 2>; };
     template<> struct DevicePropertyTypeTrait<DeviceProperty::MaxViewports> { using Type = uint32_t; };
-    template<> struct DevicePropertyTypeTrait<DeviceProperty::ViewportBoundsRange> { using Type = std::array<float, 2>; };
+    template<> struct DevicePropertyTypeTrait<DeviceProperty::ViewportBoundsRange> { using Type = std::span<float, 2>; };
     template<> struct DevicePropertyTypeTrait<DeviceProperty::ViewportSubPixelBits> { using Type = uint32_t; };
 
     // Sample Limits
@@ -109,8 +107,8 @@ namespace Graphics {
     // Memory Limits
     template<> struct DevicePropertyTypeTrait<DeviceProperty::MaxMemoryAllocationCount> { using Type = uint32_t; };
     template<> struct DevicePropertyTypeTrait<DeviceProperty::MaxSamplerAllocationCount> { using Type = uint32_t; };
-    template<> struct DevicePropertyTypeTrait<DeviceProperty::BufferImageGranularity> { using Type = uint64_t; };
-    template<> struct DevicePropertyTypeTrait<DeviceProperty::SparseAddressSpaceSize> { using Type = uint64_t; };
+    template<> struct DevicePropertyTypeTrait<DeviceProperty::BufferImageGranularity> { using Type = DeviceSize_t; };
+    template<> struct DevicePropertyTypeTrait<DeviceProperty::SparseAddressSpaceSize> { using Type = DeviceSize_t; };
 
     // Quality Settings
     template<> struct DevicePropertyTypeTrait<DeviceProperty::MaxSamplerAnisotropy> { using Type = float; };

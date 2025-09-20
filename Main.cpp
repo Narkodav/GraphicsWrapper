@@ -7,6 +7,7 @@
 #include "Graphics/Wrappers/FrameBuffer.h"
 #include "Graphics/Wrappers/Image.h"
 #include "Graphics/Wrappers/SwapChain.h"
+#include "Graphics/Structs.h"
 
 #include "Graphics/Wrappers/Utility/Utility.h"
 
@@ -100,7 +101,9 @@ int main()
     Gfx::DeviceRequirements requirements;
     requirements.extensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-        /*VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME*/ };
+        VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME 
+    };
+
     requirements.properties = {
         {Gfx::DeviceProperty::PhysicalDeviceType, Gfx::PhysicalDeviceType::DiscreteGpu} };
     requirements.features = {
@@ -111,11 +114,12 @@ int main()
         {Gfx::DeviceFeature::ShaderSampledImageArrayNonUniformIndexing, true},
         {Gfx::DeviceFeature::DescriptorBindingSampledImageUpdateAfterBind, true},
         {Gfx::DeviceFeature::DescriptorBindingVariableDescriptorCount, true},
-        {Gfx::DeviceFeature::MeshShaderEXT, true},
-        {Gfx::DeviceFeature::TaskShaderEXT, true},
+        {Gfx::DeviceFeature::MeshShader, true},
+        {Gfx::DeviceFeature::TaskShader, true},
         {Gfx::DeviceFeature::ShaderDrawParameters, true},
         {Gfx::DeviceFeature::MultiDrawIndirect, true},
         {Gfx::DeviceFeature::DescriptorBindingStorageBufferUpdateAfterBind, true},
+        {Gfx::DeviceFeature::DescriptorIndexing, true},
         {Gfx::DeviceFeature::NullDescriptor, true}, };
 
     requirements.queueProperties.push_back(Gfx::RequiredQueueProperties());
@@ -221,7 +225,7 @@ int main()
 		.setDstStageMask(Gfx::PipelineStage::Bits::ColorAttachmentOutput)
 		.setDstAccessMask(Gfx::Access::Bits::ColorAttachmentWrite);
 
-    std::vector<Gfx::Attachment::Reference> depthAttachmentRefs{};
+    std::vector<Gfx::Attachment::Reference> depthAttachmentRefs;
 
     Gfx::Format depthFormat = Gfx::Utility::findDepthFormat(instanceFunctions, physicalDevice);
 
@@ -236,7 +240,7 @@ int main()
             .setStencilStoreOp(Gfx::AttachmentStoreOp::DontCare)
             .setInitialLayout(Gfx::ImageLayout::Undefined)
             .setFinalLayout(Gfx::ImageLayout::DepthStencilAttachmentOptimal);
-
+        depthAttachmentRefs.resize(1);
         depthAttachmentRefs[0].setAttachment(1)
             .setLayout(Gfx::ImageLayout::DepthStencilAttachmentOptimal);
 
@@ -257,20 +261,70 @@ int main()
 	Gfx::RenderPass renderPass;
 	renderPass.create(device, deviceFunctions, renderPassInfo);
 
-    auto swapChainData = Gfx::Utility::createBasicSwapChain(instanceFunctions, deviceFunctions,
-        device, surface, Gfx::Utility::chooseExtent(capabilities, window.getFrameBufferExtent()),
-        formats[formatIndex].getFormat(),
-        depthFormat,
-        formats[formatIndex].getColorSpace(),
+    auto swapChainData = Gfx::Utility::createBasicSwapChain(instanceFunctions,
+        physicalDevice, deviceFunctions, device, surface, renderPass, 
+        Gfx::Utility::chooseExtent(capabilities, window.getFrameBufferExtent()),
+        formats[formatIndex].getFormat(), depthFormat, formats[formatIndex].getColorSpace(),
         Gfx::ImageUsage::Bits::ColorAttachment,
         presentModes[presentModeIndex], capabilities.getMinImageCount());
 
+    std::vector<Gfx::DescriptorSet::Layout> descriptorLayouts;
+    std::vector<Gfx::DescriptorSet::Layout::CreateInfo> descriptorLayoutCreateInfos;
+    std::vector<Gfx::DescriptorSet::Layout::Binding> bindings;
+
+    bindings.push_back(Gfx::DescriptorSet::Layout::Binding(0, Gfx::DescriptorType::UniformBuffer, 1, Gfx::ShaderStage::Bits::Vertex));
+    bindings.push_back(Gfx::DescriptorSet::Layout::Binding(0, Gfx::DescriptorType::CombinedImageSampler, 1024, Gfx::ShaderStage::Bits::Fragment));
+
+    descriptorLayoutCreateInfos.push_back(Gfx::DescriptorSet::Layout::CreateInfo(std::span(bindings.begin(), bindings.begin() + 1)));
+    descriptorLayoutCreateInfos.push_back(Gfx::DescriptorSet::Layout::CreateInfo(std::span(bindings.begin() + 1, bindings.end())));
+
+    descriptorLayouts.resize(2);
+    descriptorLayouts[0].create(deviceFunctions, device, descriptorLayoutCreateInfos[0]);
+    descriptorLayouts[1].create(deviceFunctions, device, descriptorLayoutCreateInfos[1]);
+
+    Gfx::Pipeline::Layout pipelineLayout;
+    Gfx::Pipeline::Layout::CreateInfo pipelineLayoutCreateInfo;
+
+    pipelineLayoutCreateInfo.setSetLayouts(descriptorLayouts);
+    pipelineLayout.create(deviceFunctions, device, pipelineLayoutCreateInfo);
+
+    Gfx::Utility::ShaderModuleData shaderModuleData = Gfx::Utility::createShaderModules(
+        deviceFunctions, device, { "Shaders/basic.vert.spv", "Shaders/basic.frag.spv" }
+    );
+
+    Gfx::Utility::BasicGraphicsPipelineData pipelineData;
+    pipelineData.pipelineLayout = pipelineLayout;
+    pipelineData.shaderStages = Gfx::Utility::createShaderStageInfos(shaderModuleData);
+    pipelineData.vertexBindings.push_back(Gfx::VertexInputBindingDescription(
+        0, sizeof(glm::vec4), Gfx::VertexInputRate::Vertex));
+    pipelineData.vertexBindings.push_back(Gfx::VertexInputBindingDescription(
+        1, sizeof(uint32_t), Gfx::VertexInputRate::Vertex));
+    pipelineData.vertexAttributes.push_back(Gfx::VertexInputAttributeDescription(
+        0, 0, Gfx::Format::R32G32B32A32Sfloat, 0));
+    pipelineData.vertexAttributes.push_back(Gfx::VertexInputAttributeDescription(
+        1, 1, Gfx::Format::R32Uint, 0));
+    pipelineData.dynamicStates = { Gfx::DynamicState::Viewport, Gfx::DynamicState::Scissor };
+    pipelineData.viewports = { canvas.getViewport()};
+    pipelineData.scissors = { canvas.getScissor() };
+
+    Gfx::Utility::createBasicGraphicsPipeline(pipelineData,
+    deviceFunctions, device, renderPass, 0, Gfx::PrimitiveTopology::TriangleList,
+        Gfx::PolygonMode::Fill, Gfx::CullMode::Bits::Back, Gfx::FrontFace::CounterClockwise,
+        Gfx::CompareOp::Always, true, true);
 
 
 
 
+    pipelineData.graphicsPipeline.destroy(deviceFunctions, device);
+    pipelineLayout.destroy(deviceFunctions, device);
     Gfx::Utility::destroySwapChainDaTa(swapChainData, device, deviceFunctions);
 	renderPass.destroy(device, deviceFunctions);
+    for (auto& shader : shaderModuleData.shaderModules)
+        shader.destroy(deviceFunctions, device);
+
+    for (auto& descriptorLayout : descriptorLayouts)
+        descriptorLayout.destroy(deviceFunctions, device);
+
     device.destroy(deviceFunctions);
     surface.destroy(instance, instanceFunctions);
     debugMessenger.destroy(instance, instanceFunctions);

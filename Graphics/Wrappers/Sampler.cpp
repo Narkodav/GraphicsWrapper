@@ -14,5 +14,6 @@ namespace Graphics
     {
         GRAPHICS_VERIFY(isValid(), "Trying to destroy an invalid sampler");
 		functions.execute<DeviceFunction::DestroySampler>(device.getHandle(), getHandle(), nullptr);
+        reset();
     }
 }

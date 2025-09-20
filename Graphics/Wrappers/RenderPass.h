@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "../DeviceFunctionTable.h"
 #include "Fence.h"
 #include "Semaphore.h"
@@ -37,7 +38,7 @@ namespace Graphics
 			}
 
 			uint32_t getAttachment() const { return this->attachment; };
-			ImageLayout getLayout() const { return convertEnum(this->layout); };
+			ImageLayout getLayout() const { return convertCEnum(this->layout); };
 		};
 
         Attachment(Format format,
@@ -158,11 +159,11 @@ namespace Graphics
 		};
 
         Subpass(PipelineBindPoint bindPoint = PipelineBindPoint::Graphics,
-            const std::vector<Attachment::Reference>& inputAttachments = {},
-            const std::vector<Attachment::Reference>& colorAttachments = {},
-            const std::vector<Attachment::Reference>& resolveAttachments = {},
+            std::span<const Attachment::Reference> inputAttachments = {},
+            std::span<const Attachment::Reference> colorAttachments = {},
+            std::span<const Attachment::Reference> resolveAttachments = {},
             const Attachment::Reference* depthStencilAttachment = nullptr,
-            const std::vector<uint32_t>& preserveAttachments = {}) : Base()
+            std::span<const uint32_t> preserveAttachments = {}) : Base()
         {
             this->pipelineBindPoint = convertCEnum(bindPoint);
             this->inputAttachmentCount = inputAttachments.size();
@@ -179,17 +180,17 @@ namespace Graphics
             this->pipelineBindPoint = convertCEnum(bindPoint);
             return *this;
         }
-        Subpass& setInputAttachments(const std::vector<Attachment::Reference>& inputAttachments) {
+        Subpass& setInputAttachments(std::span<const Attachment::Reference> inputAttachments) {
             this->inputAttachmentCount = inputAttachments.size();
             this->pInputAttachments = Attachment::Reference::underlyingCast(inputAttachments.data());
             return *this;
         }
-        Subpass& setColorAttachments(const std::vector<Attachment::Reference>& colorAttachments) {
+        Subpass& setColorAttachments(std::span<const Attachment::Reference> colorAttachments) {
             this->colorAttachmentCount = colorAttachments.size();
             this->pColorAttachments = Attachment::Reference::underlyingCast(colorAttachments.data());
             return *this;
         }
-        Subpass& setResolveAttachments(const std::vector<Attachment::Reference>& resolveAttachments) {
+        Subpass& setResolveAttachments(std::span<const Attachment::Reference> resolveAttachments) {
             this->pResolveAttachments = Attachment::Reference::underlyingCast(resolveAttachments.data());
             return *this;
         }
@@ -197,7 +198,7 @@ namespace Graphics
             this->pDepthStencilAttachment = Attachment::Reference::underlyingCast(depthStencilAttachment);
             return *this;
         }
-        Subpass& setPreserveAttachments(const std::vector<uint32_t>& preserveAttachments) {
+        Subpass& setPreserveAttachments(std::span<const uint32_t> preserveAttachments) {
             this->preserveAttachmentCount = preserveAttachments.size();
             this->pPreserveAttachments = preserveAttachments.data();
 			return *this;
@@ -209,20 +210,51 @@ namespace Graphics
         using Base = BaseComponent<VkRenderPass, RenderPassRef>;
     public:
         using Base::Base;
+        static inline const std::string s_typeName = "RenderPass";
     };
 
     class RenderPass : public VerificatorComponent<VkRenderPass, RenderPassRef>
     {
         using Base = VerificatorComponent<VkRenderPass, RenderPassRef>;
     public:
+        using Base::Base;
+
+        class BeginInfo : public StructBase<VkRenderPassBeginInfo, BeginInfo>
+        {
+            using Base = StructBase<VkRenderPassBeginInfo, BeginInfo>;
+        public:
+            using Base::Base;
+
+            BeginInfo& setRenderPass(const RenderPassRef& renderPass) {
+                this->renderPass = renderPass;
+                return *this;
+            }
+
+            BeginInfo& setFrameBuffer(const FrameBufferRef& frameBuffer) {
+                this->framebuffer = frameBuffer;
+                return *this;
+            }
+
+            BeginInfo& setClearValues(std::span<const ClearValue> clearValues) {
+                this->clearValueCount = clearValues.size(); 
+                this->pClearValues = ClearValue::underlyingCast(clearValues.data());
+                return *this;
+            }
+
+            BeginInfo& setRenderArea(const Rect2D& renderArea) {
+                this->renderArea = renderArea;
+                return *this;
+            }
+        };
+
         class CreateInfo : public StructBase<VkRenderPassCreateInfo, CreateInfo>
         {
             using Base = StructBase<VkRenderPassCreateInfo, CreateInfo>;
         public:
             using Base::Base;
-            CreateInfo(const std::vector<Attachment>& attachments,
-                const std::vector<Subpass>& subpasses,
-                const std::vector<Subpass::Dependency>& dependencies = {}) : Base()
+            CreateInfo(std::span<const Attachment> attachments,
+                std::span<const Subpass> subpasses,
+                std::span<const Subpass::Dependency> dependencies = {}) : Base()
             {
                 this->attachmentCount = attachments.size();
                 this->pAttachments = Attachment::underlyingCast(attachments.data());
@@ -232,17 +264,17 @@ namespace Graphics
                 this->pDependencies = Subpass::Dependency
                     ::underlyingCast(dependencies.data());
             }
-            CreateInfo& setAttachments(const std::vector<Attachment>& attachments) {
+            CreateInfo& setAttachments(std::span<const Attachment> attachments) {
                 this->attachmentCount = attachments.size();
                 this->pAttachments = Attachment::underlyingCast(attachments.data());
                 return *this;
             }
-            CreateInfo& setSubpasses(const std::vector<Subpass>& subpasses) {
+            CreateInfo& setSubpasses(std::span<const Subpass> subpasses) {
                 this->subpassCount = subpasses.size();
                 this->pSubpasses = Subpass::underlyingCast(subpasses.data());
                 return *this;
             }
-            CreateInfo& setDependencies(const std::vector<Subpass::Dependency>& dependencies) {
+            CreateInfo& setDependencies(std::span<const Subpass::Dependency> dependencies) {
                 this->dependencyCount = dependencies.size();
                 this->pDependencies = Subpass::Dependency
                     ::underlyingCast(dependencies.data());

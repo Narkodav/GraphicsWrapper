@@ -42,12 +42,9 @@
 #include <map>
 #include <unordered_map>
 #include <unordered_set>
+#include <span>
 
-#include "Enums.h"
-#include "Flags.h"
-#include "QueuePropertyEnum.h"
-#include "PropertyEnum.h"
-#include "FeatureEnum.h"
+
 #include "StructTraits.h"
 
 #define GRAPHICS_API_ATTR VKAPI_ATTR
@@ -55,8 +52,31 @@
 #define GRAPHICS_API_PTR  VKAPI_PTR
 #define GRAPHICS_VERIFY(condition, message) Graphics::verify(condition, message, __FILE__, __LINE__, __FUNCTION__)
 
+#ifdef GRAPHICS_NO_VERIFY && GRAPHICS_ALWAYS_VERIFY
+#error "GRAPHICS_NO_VERIFY and GRAPHICS_ALWAYS_VERIFY cannot be defined at the same time
+#endif
+
 namespace Graphics {
 
+    using DeviceSize_t = VkDeviceSize;
+
+    static inline void verify(bool condition,
+        const std::string& message, const char* file, int line, const char* func) {
+#ifdef _DEBUG && !defined(GRAPHICS_NO_VERIFY) || defined(GRAPHICS_ALWAYS_VERIFY)
+        if (!condition) {
+            std::string formatted = "[VERIFY FAILED] " + message +
+                "\n  File: " + file +
+                "\n  Line: " + std::to_string(line) +
+                "\n  Function: " + func;
+            std::cerr << formatted << std::endl;
+            throw std::runtime_error(formatted);
+        }
+#else
+        (void)condition; (void)message; (void)file; (void)line; (void)func;
+#endif
+    }
+
+	using SampleMask = VkSampleMask;
 
     template<typename T>
     concept StructHasNext = requires(T t) { t.pNext; };
@@ -65,7 +85,7 @@ namespace Graphics {
     concept StructHasSType = requires(T t) { t.sType; };
 
     template<typename T, typename Derived>
-    class StructBase : protected T {
+    class StructBase : public T {
     public:
         using T::T;
 
@@ -74,9 +94,9 @@ namespace Graphics {
             if constexpr (StructHasSType<T>) {
                 T::sType = static_cast<typename std::remove_const<decltype(T::sType)>::type>(StructToEnumTraits_v<T>);
             }
-            if constexpr (StructHasNext<T>) {
-                T::pNext = nullptr;
-            }
+            //if constexpr (StructHasNext<T>) {
+            //    T::pNext = nullptr;
+            //}
         };
 
         ~StructBase() = default;
@@ -111,6 +131,68 @@ namespace Graphics {
         };
 
         StructureType getType() const requires StructHasSType<T> { return convertEnum(this->sType); }
+    };
+
+    template<typename T, typename... Ts>
+    struct TupleHasTypeTrait {};
+
+    template<typename T, typename First, typename... Ts>
+    struct TupleHasTypeTrait<T, First, Ts...> {
+        static constexpr bool value = std::is_same_v<T, First> || TupleHasTypeTrait<T, Ts...>::value;
+    };
+
+    template<typename T, typename Last>
+    struct TupleHasTypeTrait<T, Last> {
+        static constexpr bool value = std::is_same_v<T, Last> || false;
+    };
+
+    template<typename T, typename... Ts>
+    static constexpr bool TupleHasTypeTrait_v = TupleHasTypeTrait<T, Ts...>::value;
+
+    template<typename T, typename Derived, typename... Ts>
+    class UnionBase {
+    protected:
+        T m_data;
+
+    public:
+
+        UnionBase() = default;
+        ~UnionBase() = default;
+        UnionBase(const T& other) : m_data(other.m_data) {}
+        UnionBase(T&& other) : m_data(std::move(other.m_data)) {}
+        UnionBase(const UnionBase&) = default;
+        UnionBase(UnionBase&&) = default;
+
+        UnionBase& operator=(const UnionBase&) = default;
+        UnionBase& operator=(UnionBase&&) = default;
+
+        UnionBase& operator=(const T& other) { m_data = other; return *this; };
+        UnionBase& operator=(T&& other) { m_data = std::exchange(other, T()); return *this; };
+
+        operator T& () { return m_data; }
+        operator const T& () const { return m_data; }
+        const T* getUnderlyingPointer() const { return &m_data; };
+        T* getUnderlyingPointer() { return &m_data; };
+        static const T* underlyingCast(const UnionBase* ptr) { return reinterpret_cast<const T*>(ptr); };
+        static T* underlyingCast(UnionBase* ptr) { return reinterpret_cast<T*>(ptr); };
+
+        const T& getUnion() const { return *this; };
+        T& getUnion() { return *this; };
+
+        static const Derived* underlyingCast(const T* ptr) { return reinterpret_cast<const Derived*>(ptr); };
+        static Derived* underlyingCast(T* ptr) { return reinterpret_cast<Derived*>(ptr); };
+
+        template<typename U>
+        const U& get() const { 
+            static_assert(TupleHasTypeTrait_v<U, Ts...>, "Type not found in union");
+            return *reinterpret_cast<const U*>(&m_data); 
+        };
+
+        template<typename U>
+        U& get() {
+            static_assert(TupleHasTypeTrait_v<U, Ts...>, "Type not found in union");
+            return *reinterpret_cast<U*>(&m_data);
+        };
     };
 
     template<typename T, typename Derived>
@@ -169,8 +251,15 @@ namespace Graphics {
         bool isSet() const { return m_handle != nullptr; };
     };
 
-    template<typename T, typename RefType>
-    class VerificatorComponent : public RefType {
+    template <typename T>
+    concept RefType = requires {
+        T::s_typeName;
+        requires std::is_same_v<decltype(T::s_typeName), const std::string> ||
+            std::is_same_v<decltype(T::s_typeName), const char*>;
+    };
+
+    template<typename T, RefType Ref>
+    class VerificatorComponent : public Ref {
     public:
         VerificatorComponent() { this->setHandle(nullptr); };
 
@@ -182,14 +271,14 @@ namespace Graphics {
         VerificatorComponent& operator=(VerificatorComponent&& other) {
             if (this == &other)
                 return *this;
-            GRAPHICS_VERIFY(!isValid(), "Trying to move to valid object");
+            GRAPHICS_VERIFY(!isValid(), std::string("Trying to move to valid object: ") + Ref::s_typeName);
             this->setHandle(other.getHandle());
             other.reset();
             return *this;
         }
 
         ~VerificatorComponent() {
-            GRAPHICS_VERIFY(!isValid(), "Valid object was not destroyed");
+            GRAPHICS_VERIFY(!isValid(), std::string("Valid object was not destroyed: ") + Ref::s_typeName);
         };
 
         VerificatorComponent(T&& other) {
@@ -199,7 +288,7 @@ namespace Graphics {
         VerificatorComponent& operator=(T&& other) {
             if (this == &other)
                 return *this;
-            GRAPHICS_VERIFY(!isValid(), "Trying to move to valid object");
+            GRAPHICS_VERIFY(!isValid(), std::string("Trying to move to valid object: ") + Ref::s_typeName);
             this->setHandle(std::move(other));
             return *this;
         }
@@ -211,484 +300,12 @@ namespace Graphics {
 
         bool isValid() const { return this->isSet(); };
 
-        RefType getReference() const { return RefType(this->getHandle()); };
+        Ref getReference() const { return Ref(this->getHandle()); };
     };
 
     using bool32_t = VkBool32;
 
-    struct Version
-    {
-        uint32_t version;
-
-        operator uint32_t() const
-        {
-            return version;
-        }
-
-        operator const uint32_t&() const
-        {
-            return version;
-        }
-
-        operator uint32_t& ()
-        {
-            return version;
-        }
-
-        Version(uint32_t maj, uint32_t min, uint32_t pat)
-            : version(VK_MAKE_VERSION(maj, min, pat)) {
-        }
-
-        Version(uint32_t version)
-            : version(version) {
-        };
-
-        uint32_t getVersion() const
-        {
-            return version;
-        }
-
-        uint32_t major() const
-        {
-            return VK_VERSION_MAJOR(version);
-        }
-
-        uint32_t minor() const
-        {
-            return VK_VERSION_MINOR(version);
-        }
-
-        uint32_t patch() const
-        {
-            return VK_VERSION_PATCH(version);
-        }
-    };
-
-    struct Extent2D : public StructBase<VkExtent2D, Extent2D> {
-		using Base = StructBase<VkExtent2D, Extent2D>;
-    public:
-		using Base::Base;
-
-        Extent2D(uint32_t w = 800, uint32_t h = 600) : Base() {
-            this->width = w;
-            this->height = h;
-        }
-
-        Extent2D& setWidth(uint32_t w) { this->width = w; return *this; }
-        Extent2D& setHeight(uint32_t h) { this->height = h; return *this; }
-
-		uint32_t getWidth() const { return this->width; };
-		uint32_t getHeight() const { return this->height; };
-
-        // Helper to get current window size from GLFW window
-        static Extent2D getWindowExtent(GLFWwindow* window) {
-            int width, height;
-            glfwGetWindowSize(window, &width, &height);
-            return Extent2D{
-                static_cast<uint32_t>(width),
-                static_cast<uint32_t>(height)
-            };
-        }
-
-        // Helper to get current frame buffer size from GLFW window
-        static Extent2D getFrameBufferExtent(GLFWwindow* window) {
-            int width, height;
-            glfwGetFramebufferSize(window, &width, &height);
-            return Extent2D{
-                static_cast<uint32_t>(width),
-                static_cast<uint32_t>(height)
-            };
-        }
-    };
-
-    struct CopyRegion : public StructBase<VkBufferCopy, CopyRegion> {
-        using Base = StructBase<VkBufferCopy, CopyRegion>;
-    public:
-        using Base::Base;
-
-        CopyRegion(size_t srcOffset, size_t dstOffset, size_t size) : Base() {
-			this->dstOffset = dstOffset;
-			this->srcOffset = srcOffset;
-			this->size = size;
-        };
-    };
-
-	struct Color : public StructBase<std::array<float, 4>, Color>
-    {
-        using Base = StructBase<std::array<float, 4>, Color>;
-    public:
-        using Base::Base;
-
-        Color(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f) : Base({ r, g, b, a }) {};
-
-        Color(uint8_t r, uint8_t g, uint8_t b,
-            uint8_t a = std::numeric_limits<uint8_t>::max()) :
-            Base({ (static_cast<float>(r) / 255.f),
-            (static_cast<float>(g) / 255.f),
-            (static_cast<float>(b) / 255.f),
-            (static_cast<float>(a) / 255.f) }) {
-        };
-
-        operator const glm::vec4& () const { return *reinterpret_cast<const glm::vec4*>(this); };
-        operator glm::vec4& () { return *reinterpret_cast<glm::vec4*>(this); };
-
-        operator const VkClearValue& () const { return *reinterpret_cast<const VkClearValue*>(this); };
-        operator VkClearValue& () { return *reinterpret_cast<VkClearValue*>(this); };
-
-        static Color Black() { return Color(0.0f, 0.0f, 0.0f); }
-        static Color White() { return Color(1.0f, 1.0f, 1.0f); }
-        static Color Red() { return Color(1.0f, 0.0f, 0.0f); }
-        static Color Green() { return Color(0.0f, 1.0f, 0.0f); }
-        static Color Blue() { return Color(0.0f, 0.0f, 1.0f); }
-
-        Color& setR(float r) {
-            Base::operator[](0) = r;
-            return *this;
-        }
-
-        Color& setG(float g) {
-            Base::operator[](1) = g;
-            return *this;
-        }
-
-        Color& setB(float b) {
-            Base::operator[](2) = b;
-            return *this;
-        }
-
-        Color& setA(float a) {
-            Base::operator[](3) = a;
-            return *this;
-        }
-
-        float getR() const { return Base::operator[](0); };
-        float getG() const { return Base::operator[](1); };
-        float getB() const { return Base::operator[](2); };
-        float getA() const { return Base::operator[](3); };
-    };
-
-    ////only works as an interface to existing memory, doesn't actually own it
-    //template <typename T>
-    //class ArrayInterface
-    //{
-    //private:
-    //    const T* const m_array = nullptr;
-    //    const size_t m_size = 0;
-
-    //public:
-    //    ArrayInterface() : m_array(nullptr), m_size(0) {};
-
-    //    ArrayInterface(const T* const array, const size_t size) :
-    //        m_array(array), m_size(size) {
-    //    };
-
-    //    const T& operator[](const size_t index) const {
-    //        return m_array[index];
-    //    }
-
-    //    const T* const data() const { return m_array; };
-    //    size_t size() const { return m_size; };
-    //};
-
-    //template<typename StateNew, typename StatePrior, typename Converter, size_t N>
-    //static std::array<StateNew, N> convert(
-    //    std::array<StatePrior, N> const& prior,
-    //    Converter&& converter)
-    //{
-    //    std::array<StateNew, N> current;
-    //    for (int i = 0; i < N; i++) {
-    //        current[i] = converter(prior[i]);
-    //    }
-    //    return current;
-    //}
-
-    //template<typename StateNew, typename StatePrior, typename Converter>
-    //static std::vector<StateNew> convert(
-    //    const std::vector<StatePrior>& prior,
-    //    Converter&& converter)
-    //{
-    //    std::vector<StateNew> current(prior.size());
-    //    for (int i = 0; i < prior.size(); i++) {
-    //        current[i] = converter(prior[i]);
-    //    }
-    //    return current;
-    //}
-
-    struct alignas(4) DrawCommand
-    {
-        uint32_t vertexCount;
-        uint32_t instanceCount;
-        uint32_t firstVertex;
-        uint32_t firstInstance;
-    };
-
-    struct Extent3D : public StructBase<VkExtent3D, Extent3D>
-    {
-        using Base = StructBase<VkExtent3D, Extent3D>;
-    public:
-        using Base::Base;
-
-        using Base::operator VkExtent3D&;
-        using Base::operator const VkExtent3D&;
-
-        Extent3D(uint32_t w = 800, uint32_t h = 600, uint32_t d = 1) : Base() {
-            this->width = w;
-            this->height = h;
-			this->depth = d;
-        }
-
-        Extent3D(const Extent2D& extent, uint32_t d = 1) : Base() {
-            this->width = extent.getWidth();
-            this->height = extent.getHeight();
-            this->depth = d;
-        }
-
-
-        operator const glm::uvec3& () const { return *reinterpret_cast<const glm::uvec3*>(this); };
-        operator glm::uvec3& () { return *reinterpret_cast<glm::uvec3*>(this); };
-
-        Extent3D& setWidth(uint32_t w) {
-            this->width = w;
-            return *this;
-        }
-
-        Extent3D& setHeight(uint32_t h) {
-            this->height = h;
-            return *this;
-		}
-
-        Extent3D& setDepth(uint32_t d) {
-            this->depth = d;
-            return *this;
-		}
-
-		uint32_t getWidth() const { return this->width; };
-		uint32_t getHeight() const { return this->height; };
-		uint32_t getDepth() const { return this->depth; };
-    };
-
-    struct Offset3D : public StructBase<VkOffset3D, Offset3D>
-    {
-        using Base = StructBase<VkOffset3D, Offset3D>;
-    public:
-        using Base::Base;
-
-        Offset3D(int32_t x = 0, int32_t y = 0, int32_t z = 0) : Base() {
-            this->x = x;
-            this->y = y;
-            this->z = z;
-        }
-
-        operator const glm::ivec3& () const { return *reinterpret_cast<const glm::ivec3*>(this); };
-        operator glm::ivec3& () { return *reinterpret_cast<glm::ivec3*>(this); };
-
-        Offset3D& setX(int32_t x) {
-            this->x = x;
-            return *this;
-        }
-
-        Offset3D& setY(int32_t y) {
-            this->y = y;
-            return *this;
-        }
-
-        Offset3D& setZ(int32_t z) {
-            this->z = z;
-            return *this;
-        }
-
-        int32_t getX() const { return this->x; };
-        int32_t getY() const { return this->y; };
-        int32_t getZ() const { return this->z; };
-    };
-
-    struct Offset2D : public StructBase<VkOffset2D, Offset2D>
-    {
-        using Base = StructBase<VkOffset2D, Offset2D>;
-    public:
-        using Base::Base;
-
-        Offset2D(int32_t x = 0, int32_t y = 0) : Base() {
-            this->x = x;
-            this->y = y;
-        }
-
-        operator const glm::ivec2& () const { return *reinterpret_cast<const glm::ivec2*>(this); };
-        operator glm::ivec2& () { return *reinterpret_cast<glm::ivec2*>(this); };
-
-        Offset2D& setX(int32_t x) {
-            this->x = x;
-            return *this;
-        }
-
-        Offset2D& setY(int32_t y) {
-            this->y = y;
-            return *this;
-        }
-
-        int32_t getX() const { return this->x; };
-        int32_t getY() const { return this->y; };
-    };
-
-    struct Viewport : public StructBase<VkViewport, Viewport>
-    {
-        using Base = StructBase<VkViewport, Viewport>;
-    public:
-        using Base::Base;
-       
-        Viewport(float x, float y, float width, float height,
-            float minDepth, float maxDepth) : Base() {
-            this->x = x;
-            this->y = y;
-            this->width = width;
-            this->height = height;
-            this->minDepth = minDepth;
-            this->maxDepth = maxDepth;
-        }
-
-        int32_t getX() const { return this->x; };
-        int32_t getY() const { return this->y; };
-        int32_t getWidth() const { return this->width; };
-        int32_t getHeight() const { return this->height; };
-        int32_t getMinDepth() const { return this->minDepth; };
-        int32_t getMaxDepth() const { return this->maxDepth; };
-
-        Viewport& setX(float x) { this->x = x; return *this; };
-        Viewport& setY(float y) { this->y = y; return *this; };
-        Viewport& setWidth(float width) { this->width = width; return *this; };
-        Viewport& setHeight(float height) { this->height = height; return *this; };
-        Viewport& setMinDepth(float minDepth) { this->minDepth = minDepth; return *this; };
-        Viewport& setMaxDepth(float maxDepth) { this->maxDepth = maxDepth; return *this; };
-    };
-
-    struct Rect2D : public StructBase<VkRect2D, Rect2D>
-    {
-        using Base = StructBase<VkRect2D, Rect2D>;
-    public:
-        using Base::Base;
-
-        Rect2D(const Offset2D& offset, const Extent2D& extent) : Base() {
-            this->offset.x = offset.getX();
-            this->offset.y = offset.getY();
-            this->extent.width = extent.getWidth();
-            this->extent.height = extent.getHeight();
-        };
-
-    };
-
-    struct RenderRegion {
-    private:
-        Viewport viewport;
-        Rect2D scissor;
-
-    public:
-        RenderRegion() = default;
-        ~RenderRegion() = default;
-
-        RenderRegion(const RenderRegion&) noexcept = default;
-        RenderRegion(RenderRegion&&) noexcept = default;
-
-        RenderRegion& operator=(const RenderRegion&) = default;
-        RenderRegion& operator=(RenderRegion&&) noexcept = default;
-
-        // Create a full-window render region
-        static RenderRegion createFullWindow(const Extent2D& extent) {
-            RenderRegion region{};
-            region.viewport = Viewport(
-                0.0f,                                       // x
-                0.0f,                                       // y
-                static_cast<float>(extent.getWidth()),      // width
-                static_cast<float>(extent.getHeight()),     // height
-                0.0f,                                       // minDepth
-                1.0f                                        // maxDepth
-            );
-
-            region.scissor = Rect2D(
-                Offset2D(0, 0), extent);
-
-            return region;
-        }
-
-        // Create a custom region within the window
-        static RenderRegion createCustom(
-            float x, float y,           //region left top corner
-            float width, float height   //region dimensions
-        )
-        {
-            RenderRegion region{};
-            region.viewport = Viewport(x, y, width, height,
-                0.0f, 1.0f);
-            region.scissor = Rect2D(
-                Offset2D(static_cast<int32_t>(x), static_cast<int32_t>(y)),
-                Extent2D(static_cast<uint32_t>(width), static_cast<uint32_t>(height)));
-            return region;
-        }
-
-        bool isWithinBounds(const Extent2D& extent) const {
-            return (viewport.getX() >= 0.0f &&
-                viewport.getY() >= 0.0f &&
-                viewport.getX() + viewport.getWidth() <= static_cast<float>(extent.getWidth()) &&
-                viewport.getY() + viewport.getHeight() <= static_cast<float>(extent.getHeight()));
-        }
-    };
-
-	struct PushConstantRange : public StructBase<VkPushConstantRange, PushConstantRange>
-    {
-        using Base = StructBase<VkPushConstantRange, PushConstantRange>;
-    public:
-        using Base::Base;
-
-        PushConstantRange(ShaderStage::Flags stage, uint32_t offset, uint32_t size) : Base() {
-            this->stageFlags = stage;
-            this->offset = offset;
-            this->size = size;
-        }
-
-        PushConstantRange& setStageFlags(ShaderStage::Flags stage) {
-            this->stageFlags = stage;
-            return *this;
-		}
-
-        PushConstantRange& setOffset(uint32_t offset) {
-            this->offset = offset;
-            return *this;
-        }
-
-        PushConstantRange& setSize(uint32_t size) {
-            this->size = size;
-            return *this;
-        }
-
-		ShaderStage::Flags getStageFlags() const { return this->stageFlags; };
-		uint32_t getOffset() const { return this->offset; };
-		uint32_t getSize() const { return this->size; };
-    };
-
-    static inline void verify(bool condition,
-        const std::string& message, const char* file, int line, const char* func) {
-#ifdef _DEBUG
-        if (!condition) {
-            std::string formatted = "[VERIFY FAILED] " + message +
-                "\n  File: " + file +
-                "\n  Line: " + std::to_string(line) +
-                "\n  Function: " + func;
-            std::cerr << formatted << std::endl;
-            throw std::runtime_error(formatted);
-        }
-#else
-        (void)condition; (void)message; (void)file; (void)line; (void)func;
-#endif
-    }
-
-    class MemoryRequirements : public StructBase<VkMemoryRequirements, MemoryRequirements>
-    {
-        using Base = StructBase<VkMemoryRequirements, MemoryRequirements>;
-    public:
-        using Base::Base;
-        size_t getSize() const { return static_cast<size_t>(this->size); }
-        size_t getAlignment() const { return static_cast<size_t>(this->alignment); }
-        uint32_t getMemoryTypeBits() const { return this->memoryTypeBits; }
-    };
+    
 
     static inline const std::unordered_map<VkResult, const std::string> s_resultMessages = {
     {VK_SUCCESS, "Success"},
@@ -783,6 +400,26 @@ namespace Graphics {
         static_assert(index < sizeof...(Types), "Type index not found in variadic pack");
     };
 
+    template<typename T, typename... Types>
+    static inline const auto IndexFromVariadicPack_v = IndexFromVariadicPack<T, Types...>::index;
+
+    template<int32_t index, typename... Types>
+    struct TypeFromVariadicPackIndex;
+
+    template<int32_t index, typename First, typename... Rest>
+    struct TypeFromVariadicPackIndex<index, First, Rest...> {
+        using Type = std::conditional_t<(index == 0), First, typename TypeFromVariadicPackIndex<index - 1, Rest...>::Type>;
+    };
+
+    template<int32_t index>
+    struct TypeFromVariadicPackIndex<index> {
+        using Type = void;
+        static_assert(index < 0, "Index out of bounds");
+    };
+
+    template<int32_t index, typename... Types>
+    using TypeFromVariadicPackIndex_t = typename TypeFromVariadicPackIndex<index, Types...>::Type;
+
     template<StructureType... structs>
     struct StructChain {
     private:
@@ -792,11 +429,17 @@ namespace Graphics {
             if constexpr (sizeof...(structs) > 1) {
                 [this] <size_t... I>(std::index_sequence<I...>) {
                     ((std::get<I>(m_structs).pNext = &std::get<I + 1>(m_structs)), ...);
+                    ((std::get<I>(m_structs).sType = static_cast<VkStructureType>(
+                        StructToEnumTraits_v<TypeFromVariadicPackIndex_t<I, EnumToStructTraits_ct<structs>...>>
+                    )), ...);
                 }(std::make_index_sequence<sizeof...(structs) - 1>{});
             }
+            std::get<sizeof...(structs) - 1>(m_structs).sType = static_cast<VkStructureType>(
+                StructToEnumTraits_v<TypeFromVariadicPackIndex_t<sizeof...(structs) - 1, EnumToStructTraits_ct<structs>...>>);
         }
 
     public:
+        using HeadType = std::tuple_element_t<0, std::tuple<EnumToStructTraits_ct<structs>...>>;
 
         StructChain() {
 			std::memset(&m_structs, 0, sizeof(m_structs));
@@ -841,7 +484,7 @@ namespace Graphics {
         template<StructureType structure>
         inline auto& get() {
             return std::get<
-                IndexFromVariadicPack<StructTraits_t<structure>, StructTraits_t<structs>...>::index
+                IndexFromVariadicPack_v<EnumToStructTraits_ct<structure>, EnumToStructTraits_ct<structs>...>
            >(m_structs);
         }
 
@@ -853,11 +496,15 @@ namespace Graphics {
         template<StructureType structure>
         inline const auto& get() const {
             return std::get<
-                IndexFromVariadicPack<StructTraits_t<structure>, StructTraits_t<structs>...>::index
+                IndexFromVariadicPack_v<EnumToStructTraits_ct<structure>, EnumToStructTraits_ct<structs>...>
             >(m_structs);
         }
 
-        inline auto& getHead() {
+        inline HeadType& getHead() {
+            return std::get<0>(m_structs);
+        }
+
+        inline const HeadType& getHead() const {
             return std::get<0>(m_structs);
         }
     };

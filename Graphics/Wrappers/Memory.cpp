@@ -19,20 +19,20 @@ namespace Graphics
             s_resultMessages.at(result));
     }
 
-    void Memory::bindBuffer(const DeviceRef& device, const DeviceFunctionTable& functions,
+    void MemoryRef::bindBuffer(const DeviceRef& device, const DeviceFunctionTable& functions,
         const BufferRef& buffer, size_t offset /*= 0*/)
     {
-        GRAPHICS_VERIFY(isValid(), "Trying to bind to an invalid memory");
+        GRAPHICS_VERIFY(isSet(), "Trying to bind to an invalid memory");
         auto result = functions.execute<DeviceFunction::BindBufferMemory>(
             device.getHandle(), buffer.getHandle(), getHandle(), offset);
         GRAPHICS_VERIFY(result == VK_SUCCESS, "Failed to bind buffer memory: " +
             s_resultMessages.at(result));
     }
 
-    void Memory::bindImage(const DeviceRef& device, const DeviceFunctionTable& functions,
+    void MemoryRef::bindImage(const DeviceRef& device, const DeviceFunctionTable& functions,
         const ImageRef& image, size_t offset /*= 0*/)
     {
-        GRAPHICS_VERIFY(isValid(), "Trying to bind to an invalid memory");
+        GRAPHICS_VERIFY(isSet(), "Trying to bind to an invalid memory");
         auto result = functions.execute<DeviceFunction::BindImageMemory>(
             device.getHandle(), image.getHandle(), getHandle(), offset);
         GRAPHICS_VERIFY(result == VK_SUCCESS, "Failed to bind image memory: " +
@@ -44,5 +44,6 @@ namespace Graphics
         GRAPHICS_VERIFY(isValid(), "Trying to free an invalid memory");
         functions.execute<DeviceFunction::FreeMemory>(
             device.getHandle(), getHandle(), nullptr);
+        reset();
     }
 }

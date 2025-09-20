@@ -2,12 +2,17 @@
 
 namespace Graphics {
 
+	template<size_t index, typename T>
+	std::any getCorrectAnyQueueFamilyProperty(const T& data) {
+		return std::any(static_cast<typename QueuePropertyTypeTrait<static_cast<QueueProperty>(index)>::Type>(data));
+	}
+
 	const std::array<CompleteQueueFamilyPropertyChain::QueueFamilyPropertySetFunc,
 		static_cast<size_t>(QueueProperty::Num)> CompleteQueueFamilyPropertyChain::s_queuePropertySet = {
 		//QueueFlags
 		[](CompleteQueueFamilyPropertyChain& chain, const std::any& data) {
 			auto& props = chain.get<StructureType::QueueFamilyProperties2>();
-			props.queueFamilyProperties.queueFlags = std::any_cast<vk::QueueFlags>(data); 
+			props.queueFamilyProperties.queueFlags = std::any_cast<QueueFlags::Flags>(data);
 		},
 		//QueueCount
 		[](CompleteQueueFamilyPropertyChain& chain, const std::any& data) {
@@ -32,22 +37,22 @@ namespace Graphics {
 		//QueueFlags
 		[](const CompleteQueueFamilyPropertyChain& chain) -> std::any {
 			auto& props = chain.get<StructureType::QueueFamilyProperties2>();
-			return std::any(props.queueFamilyProperties.queueFlags);
+			return getCorrectAnyQueueFamilyProperty<0>(props.queueFamilyProperties.queueFlags);
 		},
 		//QueueCount
 		[](const CompleteQueueFamilyPropertyChain& chain) -> std::any {
 			auto& props = chain.get<StructureType::QueueFamilyProperties2>();
-			return std::any(props.queueFamilyProperties.queueCount);
+			return getCorrectAnyQueueFamilyProperty<1>(props.queueFamilyProperties.queueCount);
 		},
 		//TimestampValidBits
 		[](const CompleteQueueFamilyPropertyChain& chain) -> std::any {
 			auto& props = chain.get<StructureType::QueueFamilyProperties2>();
-			return std::any(props.queueFamilyProperties.timestampValidBits);
+			return getCorrectAnyQueueFamilyProperty<2>(props.queueFamilyProperties.timestampValidBits);
 		},
 		//MinImageTransferGranularity
 		[](const CompleteQueueFamilyPropertyChain& chain) -> std::any {
 			auto& props = chain.get<StructureType::QueueFamilyProperties2>();
-			return std::any(props.queueFamilyProperties.minImageTransferGranularity);
+			return getCorrectAnyQueueFamilyProperty<3>(props.queueFamilyProperties.minImageTransferGranularity);
 		},
 	};
 
@@ -68,10 +73,10 @@ namespace Graphics {
 
 			[](const std::any& required, const std::any& available)
 			{
-				const std::array<uint32_t, 3>& requiredGranularity =
-					std::any_cast<const std::array<uint32_t, 3>&>(required);
-				const std::array<uint32_t, 3>& availableGranularity =
-					std::any_cast<const std::array<uint32_t, 3>&>(available);
+				const std::span<uint32_t, 3>& requiredGranularity =
+					std::any_cast<const std::span<uint32_t, 3>&>(required);
+				const std::span<uint32_t, 3>& availableGranularity =
+					std::any_cast<const std::span<uint32_t, 3>&>(available);
 				return requiredGranularity[0] == availableGranularity[0] &&
 					requiredGranularity[1] == availableGranularity[1] &&
 					requiredGranularity[2] == availableGranularity[2]; },

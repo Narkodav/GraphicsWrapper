@@ -2,6 +2,23 @@
 #include "Enums.h"
 
 namespace Graphics {
+
+    template <typename T>
+    struct IndexTypeTraits {
+        static inline constexpr IndexType value = []() {
+            if constexpr (sizeof(T) == 1)
+                return IndexType::Uint8;
+            else if constexpr (sizeof(T) == 2)
+                return IndexType::Uint16;
+            else if constexpr (sizeof(T) == 4)
+                return IndexType::Uint32;
+            return IndexType::NoneKHR;
+            }();
+    };
+
+    template <typename T>
+    static inline constexpr IndexType IndexTypeTraits_v = IndexTypeTraits<T>::value;
+
     template<StructureType T>
     struct EnumToStructTraits { static_assert(false, "StructureType not implemented"); };
 
@@ -1155,5 +1172,605 @@ namespace Graphics {
     struct StructToEnumTraits<VkPhysicalDeviceFloatControlsProperties> {
         static constexpr auto s_type = StructureType::PhysicalDeviceFloatControlsProperties;
         static constexpr auto s_name = "VkPhysicalDeviceFloatControlsProperties";
+    };
+
+    // PipelineDynamicStateCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::PipelineDynamicStateCreateInfo> {
+        using Type = vk::PipelineDynamicStateCreateInfo;
+        using CType = VkPipelineDynamicStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineDynamicStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::PipelineDynamicStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineDynamicStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineDynamicStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkPipelineDynamicStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineDynamicStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineDynamicStateCreateInfo";
+    };
+
+    // SamplerCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::SamplerCreateInfo> {
+        using Type = vk::SamplerCreateInfo;
+        using CType = VkSamplerCreateInfo;
+        static constexpr auto s_name = "VkSamplerCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::SamplerCreateInfo> {
+        static constexpr auto s_type = StructureType::SamplerCreateInfo;
+        static constexpr auto s_name = "VkSamplerCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkSamplerCreateInfo> {
+        static constexpr auto s_type = StructureType::SamplerCreateInfo;
+        static constexpr auto s_name = "VkSamplerCreateInfo";
+    };
+
+    // ShaderModuleCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::ShaderModuleCreateInfo> {
+        using Type = vk::ShaderModuleCreateInfo;
+        using CType = VkShaderModuleCreateInfo;
+        static constexpr auto s_name = "VkShaderModuleCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::ShaderModuleCreateInfo> {
+        static constexpr auto s_type = StructureType::ShaderModuleCreateInfo;
+        static constexpr auto s_name = "VkShaderModuleCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkShaderModuleCreateInfo> {
+        static constexpr auto s_type = StructureType::ShaderModuleCreateInfo;
+        static constexpr auto s_name = "VkShaderModuleCreateInfo";
+    };
+
+    // RenderPassCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::RenderPassCreateInfo> {
+        using Type = vk::RenderPassCreateInfo;
+        using CType = VkRenderPassCreateInfo;
+        static constexpr auto s_name = "VkRenderPassCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::RenderPassCreateInfo> {
+        static constexpr auto s_type = StructureType::RenderPassCreateInfo;
+        static constexpr auto s_name = "VkRenderPassCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkRenderPassCreateInfo> {
+        static constexpr auto s_type = StructureType::RenderPassCreateInfo;
+        static constexpr auto s_name = "VkRenderPassCreateInfo";
+    };
+
+    // SwapChainCreateInfoKHR
+    template<>
+    struct EnumToStructTraits<StructureType::SwapchainCreateInfoKHR> {
+        using Type = vk::SwapchainCreateInfoKHR;
+        using CType = VkSwapchainCreateInfoKHR;
+        static constexpr auto s_name = "VkSwapchainCreateInfoKHR";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::SwapchainCreateInfoKHR> {
+        static constexpr auto s_type = StructureType::SwapchainCreateInfoKHR;
+        static constexpr auto s_name = "VkSwapchainCreateInfoKHR";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkSwapchainCreateInfoKHR> {
+        static constexpr auto s_type = StructureType::SwapchainCreateInfoKHR;
+        static constexpr auto s_name = "VkSwapchainCreateInfoKHR";
+    };
+
+    // SemaphoreCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::SemaphoreCreateInfo> {
+        using Type = vk::SemaphoreCreateInfo;
+        using CType = VkSemaphoreCreateInfo;
+        static constexpr auto s_name = "VkSemaphoreCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::SemaphoreCreateInfo> {
+        static constexpr auto s_type = StructureType::SemaphoreCreateInfo;
+        static constexpr auto s_name = "VkSemaphoreCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkSemaphoreCreateInfo> {
+        static constexpr auto s_type = StructureType::SemaphoreCreateInfo;
+        static constexpr auto s_name = "VkSemaphoreCreateInfo";
+    };
+
+    // InstanceCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::InstanceCreateInfo> {
+        using Type = vk::InstanceCreateInfo;
+        using CType = VkInstanceCreateInfo;
+        static constexpr auto s_name = "VkInstanceCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::InstanceCreateInfo> {
+        static constexpr auto s_type = StructureType::InstanceCreateInfo;
+        static constexpr auto s_name = "VkInstanceCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkInstanceCreateInfo> {
+        static constexpr auto s_type = StructureType::InstanceCreateInfo;
+        static constexpr auto s_name = "VkInstanceCreateInfo";
+    };
+
+    // ImageViewCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::ImageViewCreateInfo> {
+        using Type = vk::ImageViewCreateInfo;
+        using CType = VkImageViewCreateInfo;
+        static constexpr auto s_name = "VkImageViewCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::ImageViewCreateInfo> {
+        static constexpr auto s_type = StructureType::ImageViewCreateInfo;
+        static constexpr auto s_name = "VkImageViewCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkImageViewCreateInfo> {
+        static constexpr auto s_type = StructureType::ImageViewCreateInfo;
+        static constexpr auto s_name = "VkImageViewCreateInfo";
+    };
+
+    // FrameBufferCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::FramebufferCreateInfo> {
+        using Type = vk::FramebufferCreateInfo;
+        using CType = VkFramebufferCreateInfo;
+        static constexpr auto s_name = "VkFramebufferCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::FramebufferCreateInfo> {
+        static constexpr auto s_type = StructureType::FramebufferCreateInfo;
+        static constexpr auto s_name = "VkFramebufferCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkFramebufferCreateInfo> {
+        static constexpr auto s_type = StructureType::FramebufferCreateInfo;
+        static constexpr auto s_name = "VkFramebufferCreateInfo";
+    };
+
+    // DeviceQueueCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::DeviceQueueCreateInfo> {
+        using Type = vk::DeviceQueueCreateInfo;
+        using CType = VkDeviceQueueCreateInfo;
+        static constexpr auto s_name = "VkDeviceQueueCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::DeviceQueueCreateInfo> {
+        static constexpr auto s_type = StructureType::DeviceQueueCreateInfo;
+        static constexpr auto s_name = "VkDeviceQueueCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkDeviceQueueCreateInfo> {
+        static constexpr auto s_type = StructureType::DeviceQueueCreateInfo;
+        static constexpr auto s_name = "VkDeviceQueueCreateInfo";
+    };
+
+    // CommandPoolCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::CommandPoolCreateInfo> {
+        using Type = vk::CommandPoolCreateInfo;
+        using CType = VkCommandPoolCreateInfo;
+        static constexpr auto s_name = "VkCommandPoolCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::CommandPoolCreateInfo> {
+        static constexpr auto s_type = StructureType::CommandPoolCreateInfo;
+        static constexpr auto s_name = "VkCommandPoolCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkCommandPoolCreateInfo> {
+        static constexpr auto s_type = StructureType::CommandPoolCreateInfo;
+        static constexpr auto s_name = "VkCommandPoolCreateInfo";
+    };
+
+    // PipelineColorBlendStateCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::PipelineColorBlendStateCreateInfo> {
+        using Type = vk::PipelineColorBlendStateCreateInfo;
+        using CType = VkPipelineColorBlendStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineColorBlendStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::PipelineColorBlendStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineColorBlendStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineColorBlendStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkPipelineColorBlendStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineColorBlendStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineColorBlendStateCreateInfo";
+    };
+
+    // PipelineLayoutCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::PipelineLayoutCreateInfo> {
+        using Type = vk::PipelineLayoutCreateInfo;
+        using CType = VkPipelineLayoutCreateInfo;
+        static constexpr auto s_name = "VkPipelineLayoutCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::PipelineLayoutCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineLayoutCreateInfo;
+        static constexpr auto s_name = "VkPipelineLayoutCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkPipelineLayoutCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineLayoutCreateInfo;
+        static constexpr auto s_name = "VkPipelineLayoutCreateInfo";
+    };
+
+    // PipelineDepthStencilStateCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::PipelineDepthStencilStateCreateInfo> {
+        using Type = vk::PipelineDepthStencilStateCreateInfo;
+        using CType = VkPipelineDepthStencilStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineDepthStencilStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::PipelineDepthStencilStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineDepthStencilStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineDepthStencilStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkPipelineDepthStencilStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineDepthStencilStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineDepthStencilStateCreateInfo";
+    };
+
+    // DescriptorSetLayoutCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::DescriptorSetLayoutCreateInfo> {
+        using Type = vk::DescriptorSetLayoutCreateInfo;
+        using CType = VkDescriptorSetLayoutCreateInfo;
+        static constexpr auto s_name = "VkDescriptorSetLayoutCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::DescriptorSetLayoutCreateInfo> {
+        static constexpr auto s_type = StructureType::DescriptorSetLayoutCreateInfo;
+        static constexpr auto s_name = "VkDescriptorSetLayoutCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkDescriptorSetLayoutCreateInfo> {
+        static constexpr auto s_type = StructureType::DescriptorSetLayoutCreateInfo;
+        static constexpr auto s_name = "VkDescriptorSetLayoutCreateInfo";
+    };
+
+    // MemoryAllocateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::MemoryAllocateInfo> {
+        using Type = vk::MemoryAllocateInfo;
+        using CType = VkMemoryAllocateInfo;
+        static constexpr auto s_name = "VkMemoryAllocateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::MemoryAllocateInfo> {
+        static constexpr auto s_type = StructureType::MemoryAllocateInfo;
+        static constexpr auto s_name = "VkMemoryAllocateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkMemoryAllocateInfo> {
+        static constexpr auto s_type = StructureType::MemoryAllocateInfo;
+        static constexpr auto s_name = "VkMemoryAllocateInfo";
+    };
+
+    // FenceCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::FenceCreateInfo> {
+        using Type = vk::FenceCreateInfo;
+        using CType = VkFenceCreateInfo;
+        static constexpr auto s_name = "VkFenceCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::FenceCreateInfo> {
+        static constexpr auto s_type = StructureType::FenceCreateInfo;
+        static constexpr auto s_name = "VkFenceCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkFenceCreateInfo> {
+        static constexpr auto s_type = StructureType::FenceCreateInfo;
+        static constexpr auto s_name = "VkFenceCreateInfo";
+    };
+
+    // ImageCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::ImageCreateInfo> {
+        using Type = vk::ImageCreateInfo;
+        using CType = VkImageCreateInfo;
+        static constexpr auto s_name = "VkImageCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::ImageCreateInfo> {
+        static constexpr auto s_type = StructureType::ImageCreateInfo;
+        static constexpr auto s_name = "VkImageCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkImageCreateInfo> {
+        static constexpr auto s_type = StructureType::ImageCreateInfo;
+        static constexpr auto s_name = "VkImageCreateInfo";
+    };
+
+    // ApplicationInfo
+    template<>
+    struct EnumToStructTraits<StructureType::ApplicationInfo> {
+        using Type = vk::ApplicationInfo;
+        using CType = VkApplicationInfo;
+        static constexpr auto s_name = "VkApplicationInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::ApplicationInfo> {
+        static constexpr auto s_type = StructureType::ApplicationInfo;
+        static constexpr auto s_name = "VkApplicationInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkApplicationInfo> {
+        static constexpr auto s_type = StructureType::ApplicationInfo;
+        static constexpr auto s_name = "VkApplicationInfo";
+    };
+
+    // PipelineMultisampleStateCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::PipelineMultisampleStateCreateInfo> {
+        using Type = vk::PipelineMultisampleStateCreateInfo;
+        using CType = VkPipelineMultisampleStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineMultisampleStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::PipelineMultisampleStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineMultisampleStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineMultisampleStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkPipelineMultisampleStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineMultisampleStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineMultisampleStateCreateInfo";
+    };
+
+    // BufferCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::BufferCreateInfo> {
+        using Type = vk::BufferCreateInfo;
+        using CType = VkBufferCreateInfo;
+        static constexpr auto s_name = "VkBufferCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::BufferCreateInfo> {
+        static constexpr auto s_type = StructureType::BufferCreateInfo;
+        static constexpr auto s_name = "VkBufferCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkBufferCreateInfo> {
+        static constexpr auto s_type = StructureType::BufferCreateInfo;
+        static constexpr auto s_name = "VkBufferCreateInfo";
+    };
+
+    // PipelineRasterizationStateCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::PipelineRasterizationStateCreateInfo> {
+        using Type = vk::PipelineRasterizationStateCreateInfo;
+        using CType = VkPipelineRasterizationStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineRasterizationStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::PipelineRasterizationStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineRasterizationStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineRasterizationStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkPipelineRasterizationStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineRasterizationStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineRasterizationStateCreateInfo";
+    };
+
+    // DebugUtilsMessengerCreateInfoEXT
+    template<>
+    struct EnumToStructTraits<StructureType::DebugUtilsMessengerCreateInfoEXT> {
+        using Type = vk::DebugUtilsMessengerCreateInfoEXT;
+        using CType = VkDebugUtilsMessengerCreateInfoEXT;
+        static constexpr auto s_name = "VkDebugUtilsMessengerCreateInfoEXT";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::DebugUtilsMessengerCreateInfoEXT> {
+        static constexpr auto s_type = StructureType::DebugUtilsMessengerCreateInfoEXT;
+        static constexpr auto s_name = "VkDebugUtilsMessengerCreateInfoEXT";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkDebugUtilsMessengerCreateInfoEXT> {
+        static constexpr auto s_type = StructureType::DebugUtilsMessengerCreateInfoEXT;
+        static constexpr auto s_name = "VkDebugUtilsMessengerCreateInfoEXT";
+    };
+
+    // PipelineViewportStateCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::PipelineViewportStateCreateInfo> {
+        using Type = vk::PipelineViewportStateCreateInfo;
+        using CType = VkPipelineViewportStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineViewportStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::PipelineViewportStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineViewportStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineViewportStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkPipelineViewportStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineViewportStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineViewportStateCreateInfo";
+    };
+
+    // PipelineInputAssemblyStateCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::PipelineInputAssemblyStateCreateInfo> {
+        using Type = vk::PipelineInputAssemblyStateCreateInfo;
+        using CType = VkPipelineInputAssemblyStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineInputAssemblyStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::PipelineInputAssemblyStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineInputAssemblyStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineInputAssemblyStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkPipelineInputAssemblyStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineInputAssemblyStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineInputAssemblyStateCreateInfo";
+    };
+
+    // GraphicsPipelineCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::GraphicsPipelineCreateInfo> {
+        using Type = vk::GraphicsPipelineCreateInfo;
+        using CType = VkGraphicsPipelineCreateInfo;
+        static constexpr auto s_name = "VkGraphicsPipelineCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::GraphicsPipelineCreateInfo> {
+        static constexpr auto s_type = StructureType::GraphicsPipelineCreateInfo;
+        static constexpr auto s_name = "VkGraphicsPipelineCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkGraphicsPipelineCreateInfo> {
+        static constexpr auto s_type = StructureType::GraphicsPipelineCreateInfo;
+        static constexpr auto s_name = "VkGraphicsPipelineCreateInfo";
+    };
+
+    // PipelineVertexInputStateCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::PipelineVertexInputStateCreateInfo> {
+        using Type = vk::PipelineVertexInputStateCreateInfo;
+        using CType = VkPipelineVertexInputStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineVertexInputStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::PipelineVertexInputStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineVertexInputStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineVertexInputStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkPipelineVertexInputStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineVertexInputStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineVertexInputStateCreateInfo";
+    };
+
+    // PipelineShaderStageCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::PipelineShaderStageCreateInfo> {
+        using Type = vk::PipelineShaderStageCreateInfo;
+        using CType = VkPipelineShaderStageCreateInfo;
+        static constexpr auto s_name = "VkPipelineShaderStageCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::PipelineShaderStageCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineShaderStageCreateInfo;
+        static constexpr auto s_name = "VkPipelineShaderStageCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkPipelineShaderStageCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineShaderStageCreateInfo;
+        static constexpr auto s_name = "VkPipelineShaderStageCreateInfo";
+    };
+
+    // DeviceCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::DeviceCreateInfo> {
+        using Type = vk::DeviceCreateInfo;
+        using CType = VkDeviceCreateInfo;
+        static constexpr auto s_name = "VkDeviceCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::DeviceCreateInfo> {
+        static constexpr auto s_type = StructureType::DeviceCreateInfo;
+        static constexpr auto s_name = "VkDeviceCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkDeviceCreateInfo> {
+        static constexpr auto s_type = StructureType::DeviceCreateInfo;
+        static constexpr auto s_name = "VkDeviceCreateInfo";
+    };
+
+    // DescriptorPoolCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::DescriptorPoolCreateInfo> {
+        using Type = vk::DescriptorPoolCreateInfo;
+        using CType = VkDescriptorPoolCreateInfo;
+        static constexpr auto s_name = "VkDescriptorPoolCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::DescriptorPoolCreateInfo> {
+        static constexpr auto s_type = StructureType::DescriptorPoolCreateInfo;
+        static constexpr auto s_name = "VkDescriptorPoolCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkDescriptorPoolCreateInfo> {
+        static constexpr auto s_type = StructureType::DescriptorPoolCreateInfo;
+        static constexpr auto s_name = "VkDescriptorPoolCreateInfo";
     };
 }

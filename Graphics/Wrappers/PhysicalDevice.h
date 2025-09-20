@@ -1,8 +1,12 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "../InstanceFunctionTable.h"
 #include "Surface.h"
 #include "Memory.h"
+#include "TaskTables/QueuePropertyEnum.h"
+#include "TaskTables/PropertyEnum.h"
+#include "TaskTables/FeatureEnum.h"
 
 namespace Graphics
 {
@@ -67,7 +71,7 @@ namespace Graphics
         }
 
         bool compare(const CompleteQueueFamilyPropertyChain& requiredChain,
-            const std::vector<QueueProperty>& propToCheck) const {
+            std::span<const QueueProperty> propToCheck) const {
             for (size_t i = 0; i < propToCheck.size(); ++i)
             {
                 std::any required = requiredChain.getProperty(propToCheck[i]);
@@ -99,40 +103,8 @@ namespace Graphics
             Graphics::StructureType::PhysicalDeviceVulkan11Features,
             Graphics::StructureType::PhysicalDeviceVulkan12Features,
             Graphics::StructureType::PhysicalDeviceVulkan13Features,
-            Graphics::StructureType::PhysicalDevice16BitStorageFeatures,
-            Graphics::StructureType::PhysicalDeviceMultiviewFeatures,
-            Graphics::StructureType::PhysicalDeviceVariablePointersFeatures,
-            Graphics::StructureType::PhysicalDeviceProtectedMemoryFeatures,
-            Graphics::StructureType::PhysicalDeviceSamplerYcbcrConversionFeatures,
-            Graphics::StructureType::PhysicalDeviceShaderDrawParametersFeatures,
-            Graphics::StructureType::PhysicalDevice8BitStorageFeatures,
-            Graphics::StructureType::PhysicalDeviceShaderAtomicInt64Features,
-            Graphics::StructureType::PhysicalDeviceShaderFloat16Int8Features,
-            Graphics::StructureType::PhysicalDeviceDescriptorIndexingFeatures,
-            Graphics::StructureType::PhysicalDeviceScalarBlockLayoutFeatures,
-            Graphics::StructureType::PhysicalDeviceVulkanMemoryModelFeatures,
-            Graphics::StructureType::PhysicalDeviceImagelessFramebufferFeatures,
-            Graphics::StructureType::PhysicalDeviceUniformBufferStandardLayoutFeatures,
-            Graphics::StructureType::PhysicalDeviceShaderSubgroupExtendedTypesFeatures,
-            Graphics::StructureType::PhysicalDeviceSeparateDepthStencilLayoutsFeatures,
-            Graphics::StructureType::PhysicalDeviceHostQueryResetFeatures,
-            Graphics::StructureType::PhysicalDeviceTimelineSemaphoreFeatures,
-            Graphics::StructureType::PhysicalDeviceBufferDeviceAddressFeatures,
-            Graphics::StructureType::PhysicalDeviceBufferDeviceAddressFeaturesEXT,
-            Graphics::StructureType::PhysicalDeviceImageRobustnessFeatures,
-            Graphics::StructureType::PhysicalDeviceInlineUniformBlockFeatures,
-            Graphics::StructureType::PhysicalDevicePipelineCreationCacheControlFeatures,
-            Graphics::StructureType::PhysicalDevicePrivateDataFeatures,
-            Graphics::StructureType::PhysicalDeviceShaderDemoteToHelperInvocationFeatures,
-            Graphics::StructureType::PhysicalDeviceShaderTerminateInvocationFeatures,
-            Graphics::StructureType::PhysicalDeviceSubgroupSizeControlFeatures,
-            Graphics::StructureType::PhysicalDeviceSynchronization2Features,
-            Graphics::StructureType::PhysicalDeviceZeroInitializeWorkgroupMemoryFeatures,
-            Graphics::StructureType::PhysicalDeviceDynamicRenderingFeatures,
-            Graphics::StructureType::PhysicalDeviceShaderIntegerDotProductFeatures,
-            Graphics::StructureType::PhysicalDeviceMaintenance4Features,
             Graphics::StructureType::PhysicalDeviceMeshShaderFeaturesEXT,
-            Graphics::StructureType::PhysicalDeviceMeshShaderFeaturesNV
+            Graphics::StructureType::PhysicalDeviceRobustness2FeaturesEXT
         > {
         public:
 
@@ -168,7 +140,7 @@ namespace Graphics
             }
 
             bool compare(const CompleteFeatureChain& requiredChain,
-                const std::vector<DeviceFeature>& featureToCheck) const {
+                std::span<const DeviceFeature> featureToCheck) const {
                 for (size_t i = 0; i < featureToCheck.size(); ++i)
                 {
                     std::any required = requiredChain.getFeature(featureToCheck[i]);
@@ -225,7 +197,7 @@ namespace Graphics
             }
 
             bool compare(const CompletePropertyChain& requiredChain,
-                const std::vector<DeviceProperty>& propsToCheck) const {
+                std::span<const DeviceProperty> propsToCheck) const {
                 for (size_t i = 0; i < propsToCheck.size(); ++i)
                 {
                     std::any required = requiredChain.getProperty(propsToCheck[i]);
@@ -269,15 +241,16 @@ namespace Graphics
 
             functions.execute<InstanceFunction::GetPhysicalDeviceQueueFamilyProperties2>(
                 getHandle(), &queueFamilyCount, nullptr);
-            GRAPHICS_VERIFY(result == VK_SUCCESS,
-                "Failed to get queue family properties: " + s_resultMessages.at(result));
             queueProperties.resize(queueFamilyCount);
+            std::vector<VkQueueFamilyProperties2> temporary(queueFamilyCount);
+            for (size_t i = 0; i < temporary.size(); ++i)
+                temporary[i] = queueProperties[i].getHead();
 
             functions.execute<InstanceFunction::GetPhysicalDeviceQueueFamilyProperties2>(
-                getHandle(), &queueFamilyCount,
-                reinterpret_cast<VkQueueFamilyProperties*>(queueProperties.data()));
-            GRAPHICS_VERIFY(result == VK_SUCCESS,
-                "Failed to get queue family properties: " + s_resultMessages.at(result));
+                getHandle(), &queueFamilyCount, temporary.data());
+
+            for (size_t i = 0; i < queueProperties.size(); ++i)
+                queueProperties[i].getHead() = temporary[i];
         }
 
         template<StructureType... types>
@@ -305,15 +278,12 @@ namespace Graphics
         }
 
     private:
-        template<typename ChainType, InstanceFunction Function, typename CastType>
+        template<typename ChainType, InstanceFunction function, typename CastType>
         ChainType getQualitiesImpl(const InstanceFunctionTable& functions) const
         {
             ChainType chain;
-            auto result = functions.execute<Function>(
+            functions.execute<function>(
                 getHandle(), reinterpret_cast<CastType*>(&chain.getHead()));
-
-            GRAPHICS_VERIFY(result == VK_SUCCESS,
-                "Failed to get physical device qualities: " + s_resultMessages.at(result));
             return chain;
         }
     };

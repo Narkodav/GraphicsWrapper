@@ -1,5 +1,6 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "../DeviceFunctionTable.h"
 #include "Device.h"
 
@@ -44,6 +45,7 @@ namespace Graphics
         using Base = BaseComponent<VkImage, ImageRef>;
     public:
         using Base::Base;
+        static inline const std::string s_typeName = "Image";
 
         MemoryRequirements getMemoryRequirements(const DeviceRef& device,
             const DeviceFunctionTable& functions) const;
@@ -73,7 +75,7 @@ namespace Graphics
                 ImageUsage::Bits::Sampled |
                 ImageUsage::Bits::TransferSrc,
                 SharingMode sharingMode = SharingMode::Exclusive,
-                const std::vector<uint32_t>& queueFamilyIndices = {},
+                std::span<const uint32_t> queueFamilyIndices = {},
                 ImageLayout initialLayout = ImageLayout::Undefined) : Base()
             {
                 this->imageType = convertCEnum(imageType);
@@ -81,7 +83,7 @@ namespace Graphics
                 this->extent = extent.getStruct();
                 this->mipLevels = mipLevels;
                 this->arrayLayers = arrayLayers;
-                this->samples = static_cast<VkSampleCountFlagBits>(samples);
+                this->samples = convertCBit(samples);
                 this->tiling = convertCEnum(tiling);
                 this->usage = usage;
                 this->sharingMode = convertCEnum(sharingMode);
@@ -112,7 +114,7 @@ namespace Graphics
                 return *this;
             }
             CreateInfo& setSamples(SampleCount::Bits samples) {
-                this->samples = convertCEnum(samples);
+                this->samples = convertCBit(samples);
                 return *this;
             }
             CreateInfo& setTiling(ImageTiling tiling) {
@@ -127,7 +129,7 @@ namespace Graphics
                 this->sharingMode = convertCEnum(sharingMode);
                 return *this;
             }
-            CreateInfo& setQueueFamilyIndices(const std::vector<uint32_t>& queueFamilyIndices) {
+            CreateInfo& setQueueFamilyIndices(std::span<const uint32_t> queueFamilyIndices) {
                 this->queueFamilyIndexCount = queueFamilyIndices.size();
                 this->pQueueFamilyIndices = queueFamilyIndices.data();
                 return *this;
@@ -178,6 +180,7 @@ namespace Graphics
             using Base = BaseComponent<VkImageView, ViewRef>;
         public:
             using Base::Base;
+            static inline const std::string s_typeName = "Image::View";
         };
 
         class View : public VerificatorComponent<VkImageView, ViewRef>
@@ -235,8 +238,137 @@ namespace Graphics
             void destroy(const DeviceRef& device, const DeviceFunctionTable& functions);
         };
 
+        class MemoryBarrier : public StructBase<VkImageMemoryBarrier, MemoryBarrier> {
+            using Base = StructBase<VkImageMemoryBarrier, MemoryBarrier>;
+        public:
+            using Base::Base;
+
+            static inline const auto s_queueFamilyIgnored = VK_QUEUE_FAMILY_IGNORED;
+
+            MemoryBarrier(const ImageRef& image,
+                ImageLayout oldLayout = ImageLayout::Undefined,
+                ImageLayout newLayout = ImageLayout::Undefined,
+                Access::Flags srcAccessMask = Access::Bits::None,
+                Access::Flags dstAccessMask = Access::Bits::None,
+                uint32_t srcQueueFamilyIndex = s_queueFamilyIgnored,
+                uint32_t dstQueueFamilyIndex = s_queueFamilyIgnored,
+                const SubresourceRange& subresourceRange = SubresourceRange()) : Base() {
+                this->oldLayout = convertCEnum(oldLayout);
+                this->newLayout = convertCEnum(newLayout);
+                this->srcAccessMask = srcAccessMask;
+                this->dstAccessMask = dstAccessMask;
+                this->srcQueueFamilyIndex = srcQueueFamilyIndex;
+                this->dstQueueFamilyIndex = dstQueueFamilyIndex;
+                this->image = image;
+                this->subresourceRange = subresourceRange.getStruct();
+            }
+
+            MemoryBarrier& setOldLayout(ImageLayout oldLayout) {
+                this->oldLayout = convertCEnum(oldLayout);
+                return *this;
+            }
+
+            MemoryBarrier& setNewLayout(ImageLayout newLayout) {
+                this->newLayout = convertCEnum(newLayout);
+                return *this;
+            }
+
+            MemoryBarrier& setSrcAccessMask(Access::Flags srcAccessMask) {
+                this->srcAccessMask = srcAccessMask;
+                return *this;
+            }
+
+            MemoryBarrier& setDstAccessMask(Access::Flags dstAccessMask) {
+                this->srcAccessMask = dstAccessMask;
+                return *this;
+            }
+
+            MemoryBarrier& setSrcQueueFamilyIndex(uint32_t srcQueueFamilyIndex) {
+                this->srcQueueFamilyIndex = srcQueueFamilyIndex;
+                return *this;
+            }
+
+            MemoryBarrier& setDstQueueFamilyIndex(uint32_t dstQueueFamilyIndex) {
+                this->dstQueueFamilyIndex = dstQueueFamilyIndex;
+                return *this;
+            }
+
+            MemoryBarrier& setImage(const ImageRef& image) {
+                this->image = image;
+                return *this;
+            }
+
+            MemoryBarrier& setSubresourceRange(const SubresourceRange& subresourceRange) {
+                this->subresourceRange = subresourceRange;
+                return *this;
+            }
+
+            SubresourceRange& getSubresourceRange() {
+                return *reinterpret_cast<SubresourceRange*>(&this->subresourceRange);
+            }
+        };
+
+        class Subresourcelayers : public StructBase<VkImageSubresourceLayers, Subresourcelayers> {
+            using Base = StructBase<VkImageSubresourceLayers, Subresourcelayers>;
+        public:
+            using Base::Base;
+
+            Subresourcelayers& setAspectMask(ImageAspect::Flags aspectMask) {
+                this->aspectMask = aspectMask;
+                return *this;
+            }
+            Subresourcelayers& setMipLevel(uint32_t mipLevel) {
+                this->mipLevel = mipLevel;
+                return *this;
+            }
+            Subresourcelayers& setBaseArrayLayer(uint32_t baseArrayLayer) {
+                this->baseArrayLayer = baseArrayLayer;
+                return *this;
+            }
+            Subresourcelayers& setLayerCount(uint32_t layerCount) {
+                this->layerCount = layerCount;
+                return *this;
+            }
+        };
+
+        class Blit : public StructBase<VkImageBlit, Blit> {
+            using Base = StructBase<VkImageBlit, Blit>;
+        public:
+            using Base::Base;
+
+            Blit& setSrcOffsets(std::span<const Offset3D, 2> srcOffsets) {
+                this->srcOffsets[0] = srcOffsets[0];
+                this->srcOffsets[1] = srcOffsets[1];
+                return *this;
+            }
+
+            Blit& setDstOffsets(std::span<const Offset3D, 2> dstOffsets) {
+                this->dstOffsets[0] = dstOffsets[0];
+                this->dstOffsets[1] = dstOffsets[1];
+                return *this;
+            }
+
+            Blit& setDstSubresource(const Subresourcelayers& dstSubresource) {
+                this->dstSubresource = dstSubresource.getStruct();
+                return *this;
+            }
+
+            Blit& setSrcSubresource(const Subresourcelayers& srcSubresource) {
+                this->srcSubresource = srcSubresource.getStruct();
+                return *this;
+            }
+
+            Subresourcelayers& getSrcSubresource() {
+                return *reinterpret_cast<Subresourcelayers*>(&this->srcSubresource);
+            }
+
+            Subresourcelayers& getDstSubresource() {
+                return *reinterpret_cast<Subresourcelayers*>(&this->dstSubresource);
+            }
+        };
+
         void create(const DeviceRef& device, const DeviceFunctionTable& functions,
-            const CreateInfo& createInfo);      
+            const CreateInfo& createInfo);
 
         void destroy(const DeviceRef& device, const DeviceFunctionTable& functions);
     };

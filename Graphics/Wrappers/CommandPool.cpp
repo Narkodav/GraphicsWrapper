@@ -17,12 +17,13 @@ namespace Graphics
         GRAPHICS_VERIFY(isValid(), "Trying to destroy an invalid command pool");
         functions.execute<DeviceFunction::DestroyCommandPool>(
             device.getHandle(), getHandle(), nullptr);
+        BaseComponent<VkCommandPool, CommandPoolRef>::reset();
     }
 
-    CommandBuffer CommandPool::allocateCommandBuffer(const DeviceRef& device, const DeviceFunctionTable& functions,
+    CommandBuffer CommandPoolRef::allocateCommandBuffer(const DeviceRef& device, const DeviceFunctionTable& functions,
         CommandBufferLevel level /*= CommandBufferLevel::Primary*/)
     {
-        GRAPHICS_VERIFY(isValid(), "Trying to allocate a command buffer from an invalid command pool");
+        GRAPHICS_VERIFY(isSet(), "Trying to allocate a command buffer from an invalid command pool");
         vk::CommandBufferAllocateInfo allocInfo{};
         allocInfo.setCommandPool(getHandle())
             .setLevel(convertEnum(level))
@@ -37,18 +38,18 @@ namespace Graphics
         return buffer;
     }
 
-    void CommandPool::freeCommandBuffer(const DeviceRef& device, const DeviceFunctionTable& functions,
+    void CommandPoolRef::freeCommandBuffer(const DeviceRef& device, const DeviceFunctionTable& functions,
         CommandBuffer& buffer)
     {
-        GRAPHICS_VERIFY(isValid(), "Trying to free a command buffer from an invalid command pool");
+        GRAPHICS_VERIFY(isSet(), "Trying to free a command buffer from an invalid command pool");
         functions.execute<DeviceFunction::FreeCommandBuffers>(
             device.getHandle(), getHandle(), 1, CommandBuffer::underlyingCast(&buffer));
     }
 
-    std::vector<CommandBuffer> CommandPool::allocateCommandBuffers(const DeviceRef& device, const DeviceFunctionTable& functions,
+    std::vector<CommandBuffer> CommandPoolRef::allocateCommandBuffers(const DeviceRef& device, const DeviceFunctionTable& functions,
         size_t count, CommandBufferLevel level /*= CommandBufferLevel::Primary*/)
     {
-        GRAPHICS_VERIFY(isValid(), "Trying to allocate command buffers from an invalid command pool");
+        GRAPHICS_VERIFY(isSet(), "Trying to allocate command buffers from an invalid command pool");
         vk::CommandBufferAllocateInfo allocInfo{};
         allocInfo.setCommandPool(getHandle())
             .setLevel(convertEnum(level))
@@ -63,15 +64,15 @@ namespace Graphics
         return buffer;
     }
 
-    void CommandPool::freeCommandBuffers(const DeviceRef& device, const DeviceFunctionTable& functions,
-        std::vector<CommandBuffer>& buffer)
+    void CommandPoolRef::freeCommandBuffers(const DeviceRef& device, const DeviceFunctionTable& functions,
+        std::span<const CommandBuffer> buffer)
     {
-        GRAPHICS_VERIFY(isValid(), "Trying to free command buffers from an invalid command pool");
+        GRAPHICS_VERIFY(isSet(), "Trying to free command buffers from an invalid command pool");
         functions.execute<DeviceFunction::FreeCommandBuffers>(
             device.getHandle(), getHandle(), 1, CommandBuffer::underlyingCast(buffer.data()));
     }
 
-    void CommandPool::resetPool(const DeviceRef& device, const DeviceFunctionTable& functions,
+    void CommandPoolRef::reset(const DeviceRef& device, const DeviceFunctionTable& functions,
         CommandPoolReset::Flags flags /*= CommandPoolReset::Bits::ReleaseResources*/) {
         auto result = functions.execute<DeviceFunction::ResetCommandPool>(
             device.getHandle(), getHandle(), flags);

@@ -24,13 +24,10 @@
     <ClInclude Include="Graphics\Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Wrappers\Wrappers.h">
+    <ClInclude Include="Graphics\Wrappers\TaskTables\QueuePropertyEnum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\QueuePropertyEnum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\PropertyEnum.h">
+    <ClInclude Include="Graphics\Wrappers\TaskTables\PropertyEnum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\InstanceFunctionTable.h">
@@ -42,7 +39,7 @@
     <ClInclude Include="Graphics\Flags.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\FeatureEnum.h">
+    <ClInclude Include="Graphics\Wrappers\TaskTables\FeatureEnum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Enums.h">
@@ -52,9 +49,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\BufferDataLayouts.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\PlatformManagement\InputStateTracker.h">
@@ -141,6 +135,24 @@
     <ClInclude Include="Graphics\Wrappers\CommandPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Wrappers\DescriptorSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Wrappers\Pipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Wrappers\Utility\Structs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Structs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Wrappers\Utility\ResourceManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Wrappers\DescriptorPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -152,16 +164,10 @@
     <ClCompile Include="Vendor\stb_image\stb_image_write.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Wrappers\Wrappers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Flags.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\BufferDataLayouts.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\PlatformManagement\InputStateTracker.cpp">
@@ -254,5 +260,21 @@
     <ClCompile Include="Graphics\Wrappers\CommandPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Wrappers\DescriptorSet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Wrappers\Pipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Wrappers\Utility\ResourceManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Wrappers\DescriptorPool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\basic.vert" />
+    <None Include="Shaders\basic.frag" />
   </ItemGroup>
 </Project>

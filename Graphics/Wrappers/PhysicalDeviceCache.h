@@ -1,9 +1,13 @@
 #pragma once
 #include "../Common.h"
+#include "../Structs.h"
 #include "../InstanceFunctionTable.h"
 #include "Instance.h"
 #include "PhysicalDevice.h"
 #include "Queue.h"
+#include "TaskTables/QueuePropertyEnum.h"
+#include "TaskTables/PropertyEnum.h"
+#include "TaskTables/FeatureEnum.h"
 
 namespace Graphics
 {

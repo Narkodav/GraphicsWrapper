@@ -133,6 +133,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics\Wrappers\DescriptorPool.h" />
+    <ClInclude Include="Graphics\Structs.h" />
+    <ClInclude Include="Graphics\Wrappers\DescriptorSet.h" />
     <ClInclude Include="Graphics\Wrappers\CommandPool.h" />
     <ClInclude Include="Graphics\Wrappers\CommandBuffer.h" />
     <ClInclude Include="Graphics\Wrappers\FrameBuffer.h" />
@@ -141,12 +144,11 @@
     <ClInclude Include="Graphics\StructTraits.h" />
     <ClInclude Include="Graphics\Wrappers\Device.h" />
     <ClInclude Include="Graphics\Wrappers\DebugUtilsMessenger.h" />
-    <ClInclude Include="Graphics\BufferDataLayouts.h" />
     <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\Common.h" />
     <ClInclude Include="Graphics\DeviceFunctionTable.h" />
     <ClInclude Include="Graphics\Enums.h" />
-    <ClInclude Include="Graphics\FeatureEnum.h" />
+    <ClInclude Include="Graphics\Wrappers\TaskTables\FeatureEnum.h" />
     <ClInclude Include="Graphics\Flags.h" />
     <ClInclude Include="Graphics\FunctionTable.h" />
     <ClInclude Include="Graphics\InstanceFunctionTable.h" />
@@ -157,10 +159,10 @@
     <ClInclude Include="Graphics\PlatformManagement\PlatformContext.h" />
     <ClInclude Include="Graphics\PlatformManagement\Window.h" />
     <ClInclude Include="Graphics\PlatformManagement\WindowEvents.h" />
-    <ClInclude Include="Graphics\PropertyEnum.h" />
-    <ClInclude Include="Graphics\QueuePropertyEnum.h" />
+    <ClInclude Include="Graphics\Wrappers\TaskTables\PropertyEnum.h" />
+    <ClInclude Include="Graphics\Wrappers\TaskTables\QueuePropertyEnum.h" />
+    <ClInclude Include="Graphics\Wrappers\Utility\Structs.h" />
     <ClInclude Include="Graphics\Wrappers\Utility\Utility.h" />
-    <ClInclude Include="Graphics\Wrappers\Wrappers.h" />
     <ClInclude Include="Graphics\Wrappers\Instance.h" />
     <ClInclude Include="Graphics\Wrappers\PhysicalDevice.h" />
     <ClInclude Include="Graphics\Wrappers\Surface.h" />
@@ -173,10 +175,14 @@
     <ClInclude Include="Graphics\Wrappers\SwapChain.h" />
     <ClInclude Include="Graphics\Wrappers\ShaderModule.h" />
     <ClInclude Include="Graphics\Wrappers\Sampler.h" />
+    <ClInclude Include="Graphics\Wrappers\Pipeline.h" />
+    <ClInclude Include="Graphics\Wrappers\Utility\ResourceManager.h" />
     <ClInclude Include="Vendor\stb_image\stb_image.h" />
     <ClInclude Include="Vendor\stb_image\stb_image_write.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Graphics\Wrappers\DescriptorPool.cpp" />
+    <ClCompile Include="Graphics\Wrappers\DescriptorSet.cpp" />
     <ClCompile Include="Graphics\Wrappers\CommandPool.cpp" />
     <ClCompile Include="Graphics\Wrappers\CommandBuffer.cpp" />
     <ClCompile Include="Graphics\Wrappers\FrameBuffer.cpp" />
@@ -184,7 +190,6 @@
     <ClCompile Include="Graphics\Wrappers\Fence.cpp" />
     <ClCompile Include="Graphics\Wrappers\Device.cpp" />
     <ClCompile Include="Graphics\Wrappers\DebugUtilsMessenger.cpp" />
-    <ClCompile Include="Graphics\BufferDataLayouts.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
     <ClCompile Include="Graphics\Flags.cpp" />
     <ClCompile Include="Graphics\PlatformManagement\InputStateTracker.cpp" />
@@ -198,7 +203,6 @@
     <ClCompile Include="Graphics\Wrappers\TaskTables\PropertyTaskTables.cpp" />
     <ClCompile Include="Graphics\Wrappers\TaskTables\QueuePropertyTaskTables.cpp" />
     <ClCompile Include="Graphics\Wrappers\Utility\Utility.cpp" />
-    <ClCompile Include="Graphics\Wrappers\Wrappers.cpp" />
     <ClCompile Include="Graphics\Wrappers\Instance.cpp" />
     <ClCompile Include="Graphics\Wrappers\Image.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -212,8 +216,14 @@
     <ClCompile Include="Graphics\Wrappers\SwapChain.cpp" />
     <ClCompile Include="Graphics\Wrappers\ShaderModule.cpp" />
     <ClCompile Include="Graphics\Wrappers\Sampler.cpp" />
+    <ClCompile Include="Graphics\Wrappers\Pipeline.cpp" />
+    <ClCompile Include="Graphics\Wrappers\Utility\ResourceManager.cpp" />
     <ClCompile Include="Vendor\stb_image\stb_image.cpp" />
     <ClCompile Include="Vendor\stb_image\stb_image_write.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\basic.frag" />
+    <None Include="Shaders\basic.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
