@@ -1,0 +1,2 @@
+A:\compilers\mingw64\bin\ar.exe qc libstb_image.a CMakeFiles/stb_image.dir/E_/Program_Files_(x86)/API/stb_image/stb_image.cpp.obj CMakeFiles/stb_image.dir/E_/Program_Files_(x86)/API/stb_image/stb_image_write.cpp.obj
+A:\compilers\mingw64\bin\ranlib.exe libstb_image.a

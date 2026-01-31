@@ -1,0 +1,7 @@
+# ninja log v5
+16	384	7914954751499219	CMakeFiles/stb_image.dir/E_/Program_Files_(x86)/API/stb_image/stb_image_write.cpp.obj	9cd7bba7ab66bd3d
+10	528	7914954752949281	CMakeFiles/stb_image.dir/E_/Program_Files_(x86)/API/stb_image/stb_image.cpp.obj	3352b354576637df
+528	634	7914954753688983	stb_image.lib	e9b121b1e673e41f
+2	674	7914954754425175	CMakeFiles/GraphicsWrapper.dir/src/Graphics/Utility/PixelData2D.cpp.obj	f54d340f225580ed
+3	6370	7914991172039537	CMakeFiles/GraphicsWrapper.dir/src/main.cpp.obj	8653eaaf9516eab2
+6370	7154	7914991179434405	GraphicsWrapper.exe	9592a72b7a2914af

@@ -1,0 +1,4 @@
+E:/unik/C_code/libraries/GraphicsWrapper/build/msvc-debug/CMakeFiles/GraphicsWrapper.dir
+E:/unik/C_code/libraries/GraphicsWrapper/build/msvc-debug/CMakeFiles/stb_image.dir
+E:/unik/C_code/libraries/GraphicsWrapper/build/msvc-debug/CMakeFiles/edit_cache.dir
+E:/unik/C_code/libraries/GraphicsWrapper/build/msvc-debug/CMakeFiles/rebuild_cache.dir

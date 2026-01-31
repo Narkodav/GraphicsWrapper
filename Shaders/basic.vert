@@ -11,7 +11,7 @@ layout(set = 0, binding = 0) uniform UniformTransforms {
 } ubo;
 
 void main() {
-
     gl_Position = ubo.proj * ubo.view * inPosition;
+    fragTexCoord = inPosition.xy * 0.5 + 0.5;  // Convert [-1,1] to [0,1]
     textureId = inTextureId;
 }
