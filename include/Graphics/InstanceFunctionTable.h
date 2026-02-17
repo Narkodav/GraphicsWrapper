@@ -593,5 +593,5 @@ namespace Graphics {
         static constexpr const char* name = "vkGetRandROutputDisplayEXT";
     };
     */
-using InstanceFunctionTable = FunctionTable<InstanceFunction, InstanceFunctionTraits, VkInstance, PFN_vkGetInstanceProcAddr>;
+    using InstanceFunctionTable = FunctionTable<InstanceFunction, InstanceFunctionTraits, VkInstance, PFN_vkGetInstanceProcAddr>;
 }

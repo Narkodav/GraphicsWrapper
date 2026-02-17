@@ -12,45 +12,23 @@ namespace Graphics
 	class DescriptorSetWrite;
 	class DescriptorSetCopy;
 
-	class DescriptorSet : public BaseComponent<VkDescriptorSet, DescriptorSet>
-	{
-		using Base = BaseComponent<VkDescriptorSet, DescriptorSet>;
-	public:
-		using Base::Base;
-
-		static void update(const DeviceFunctionTable& functions, const DeviceRef& device,
-			std::span<const DescriptorSetWrite> descriptorWrites, std::span<const DescriptorSetCopy> descriptorCopies);
-
-		static void update(const DeviceFunctionTable& functions, const DeviceRef& device,
-			std::span<const DescriptorSetWrite> descriptorWrites);
-
-		static void update(const DeviceFunctionTable& functions, const DeviceRef& device,
-			std::span<const DescriptorSetCopy> descriptorCopies);
-
-		static void update(const DeviceFunctionTable& functions, const DeviceRef& device,
-			const DescriptorSetWrite& descriptorWrite);
-
-		static void update(const DeviceFunctionTable& functions, const DeviceRef& device,
-			const DescriptorSetCopy& descriptorCopy);
-	};
-
-	class DescriptorImageInfo : public StructBase<VkDescriptorImageInfo, DescriptorImageInfo>
+		class DescriptorImageInfo : public StructBase<VkDescriptorImageInfo, DescriptorImageInfo>
 	{
 		using Base = StructBase<VkDescriptorImageInfo, DescriptorImageInfo>;
 	public:
 		using Base::Base;
-		DescriptorImageInfo(const SamplerRef& sampler, const ImageViewRef& imageView,
+		DescriptorImageInfo(SamplerRef sampler, ImageViewRef imageView,
 			ImageLayout layout) : Base() {
-			this->sampler = sampler;
-			this->imageView = imageView;
+			this->sampler = sampler.getHandle();
+			this->imageView = imageView.getHandle();
 			this->imageLayout = convertCEnum(layout);
 		}
-		DescriptorImageInfo& setSampler(const SamplerRef& sampler) {
-			this->sampler = sampler;
+		DescriptorImageInfo& setSampler(SamplerRef sampler) {
+			this->sampler = sampler.getHandle();
 			return *this;
 		}
-		DescriptorImageInfo& setImageView(const ImageViewRef& imageView) {
-			this->imageView = imageView;
+		DescriptorImageInfo& setImageView(ImageViewRef imageView) {
+			this->imageView = imageView.getHandle();
 			return *this;
 		}
 		DescriptorImageInfo& setImageLayout(ImageLayout layout) {
@@ -64,14 +42,13 @@ namespace Graphics
 		using Base = StructBase<VkDescriptorBufferInfo, DescriptorBufferInfo>;
 	public:
 		using Base::Base;
-		DescriptorBufferInfo(const BufferRef& buffer,
-			DeviceSize offset, DeviceSize range) : Base() {
-			this->buffer = buffer;
+		DescriptorBufferInfo(BufferRef buffer, DeviceSize offset, DeviceSize range) : Base() {
+			this->buffer = buffer.getHandle();
 			this->offset = offset;
 			this->range = range;
 		}
-		DescriptorBufferInfo& setBuffer(const BufferRef& buffer) {
-			this->buffer = buffer;
+		DescriptorBufferInfo& setBuffer(BufferRef buffer) {
+			this->buffer = buffer.getHandle();
 			return *this;
 		}
 		DescriptorBufferInfo& setOffset(DeviceSize offset) {
@@ -83,6 +60,51 @@ namespace Graphics
 			return *this;
 		}
 
+	};
+
+	class DescriptorSet : public BaseComponent<VkDescriptorSet, DescriptorSet>
+	{
+		using Base = BaseComponent<VkDescriptorSet, DescriptorSet>;
+	public:
+		using Base::Base;
+
+		static void update(const DeviceFunctionTable& functions, DeviceRef device,
+			std::span<const DescriptorSetWrite> descriptorWrites, std::span<const DescriptorSetCopy> descriptorCopies);
+
+		static void update(const DeviceFunctionTable& functions, DeviceRef device,
+			std::span<const DescriptorSetWrite> descriptorWrites);
+
+		static void update(const DeviceFunctionTable& functions, DeviceRef device,
+			std::span<const DescriptorSetCopy> descriptorCopies);
+
+		static void update(const DeviceFunctionTable& functions, DeviceRef device,
+			const DescriptorSetWrite& descriptorWrite);
+
+		static void update(const DeviceFunctionTable& functions, DeviceRef device,
+			const DescriptorSetCopy& descriptorCopy);
+
+		void write(const DeviceFunctionTable& functions, DeviceRef device,
+			uint32_t dstBinding, uint32_t dstArrayElement, std::span<const DescriptorBufferInfo> bufferInfo);
+
+		void write(const DeviceFunctionTable& functions, DeviceRef device,
+			uint32_t dstBinding, uint32_t dstArrayElement, std::span<const DescriptorImageInfo> imageInfo);
+
+		void write(const DeviceFunctionTable& functions, DeviceRef device,
+			uint32_t dstBinding, uint32_t dstArrayElement,
+			std::span<const BufferViewRef> texelBufferViews);
+
+		void write(const DeviceFunctionTable& functions, DeviceRef device,
+			uint32_t dstBinding, uint32_t dstArrayElement, const DescriptorBufferInfo& bufferInfo);
+
+		void write(const DeviceFunctionTable& functions, DeviceRef device,
+			uint32_t dstBinding, uint32_t dstArrayElement, const DescriptorImageInfo& imageInfo);
+
+		void write(const DeviceFunctionTable& functions, DeviceRef device,
+			uint32_t dstBinding, uint32_t dstArrayElement, BufferViewRef texelBufferViews);
+
+		void copy(const DeviceFunctionTable& functions, DeviceRef device, DescriptorSet srcSet,
+			uint32_t srcBinding, uint32_t dstBinding, uint32_t srcArrayElement, uint32_t dstArrayElement,
+			uint32_t descriptorCount);
 	};
 
 	class DescriptorSetLayoutRef : public BaseComponent<VkDescriptorSetLayout, DescriptorSetLayoutRef>
@@ -173,8 +195,8 @@ namespace Graphics
 		using Base::Base;
 
 		void create(const DeviceFunctionTable& functions,
-			const DeviceRef& device, const DescriptorSetLayoutCreateInfo& createInfo);
-		void destroy(const DeviceFunctionTable& functions, const DeviceRef& device);
+			DeviceRef device, const DescriptorSetLayoutCreateInfo& createInfo);
+		void destroy(const DeviceFunctionTable& functions, DeviceRef device);
 	};
 
 	class DescriptorSetCopy : public StructBase<VkCopyDescriptorSet, DescriptorSetCopy>
@@ -262,6 +284,39 @@ namespace Graphics
 			this->dstArrayElement = dstArrayElement;
 			this->pTexelBufferView = BufferViewRef::underlyingCast(texelBufferView.data());
 			this->descriptorCount = texelBufferView.size();
+			this->pImageInfo = nullptr;
+			this->pBufferInfo = nullptr;
+		}
+
+		DescriptorSetWrite(const DescriptorSet& dstSet, uint32_t dstBinding,
+			uint32_t dstArrayElement, const DescriptorImageInfo& imageInfo) : Base() {
+			this->dstSet = dstSet;
+			this->dstBinding = dstBinding;
+			this->dstArrayElement = dstArrayElement;
+			this->pImageInfo = imageInfo.getUnderlyingPointer();
+			this->descriptorCount = 1;
+			this->pTexelBufferView = nullptr;
+			this->pBufferInfo = nullptr;
+		}
+
+		DescriptorSetWrite(const DescriptorSet& dstSet, uint32_t dstBinding,
+			uint32_t dstArrayElement, const DescriptorBufferInfo& bufferInfo) : Base() {
+			this->dstSet = dstSet;
+			this->dstBinding = dstBinding;
+			this->dstArrayElement = dstArrayElement;
+			this->pBufferInfo = bufferInfo.getUnderlyingPointer();
+			this->descriptorCount = 1;
+			this->pTexelBufferView = nullptr;
+			this->pImageInfo = nullptr;
+		}
+
+		DescriptorSetWrite(const DescriptorSet& dstSet, uint32_t dstBinding,
+			uint32_t dstArrayElement, const BufferViewRef& texelBufferView) : Base() {
+			this->dstSet = dstSet;
+			this->dstBinding = dstBinding;
+			this->dstArrayElement = dstArrayElement;
+			this->pTexelBufferView = texelBufferView.getUnderlyingPointer();
+			this->descriptorCount = 1;
 			this->pImageInfo = nullptr;
 			this->pBufferInfo = nullptr;
 		}

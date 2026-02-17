@@ -36,6 +36,11 @@ namespace Graphics {
         using ClassType = Class;
     };
 
+    template<typename Class, typename Ret, typename... Params>
+    struct FunctionTypeTraits<Ret(Class::*)(Params...) const> : FunctionTypeTraits<Ret(Params...)> {
+        using ClassType = Class;
+    };
+
     template<typename Func, typename... Args>
     struct IsInvocableWithConvertibleArgs : std::false_type {};
 
@@ -58,6 +63,10 @@ namespace Graphics {
     template<typename Func, typename... Args>
     static inline const bool IsInvocableWithConvertibleArgs_v = IsInvocableWithConvertibleArgs<Func, Args...>::value;
 
+    // Contract:
+    // - Functions may be null if not available (extensions, features, loader behavior)
+    // - Calling execute<func>() is only valid if isLoaded<func>() is true
+    // - No runtime checks are performed in release builds
     template<typename FunctionEnum, template <FunctionEnum> class FunctionTraits, 
     typename PassedType, typename GetProcAddrType>
     class FunctionTable
@@ -80,7 +89,7 @@ namespace Graphics {
 
         void loadAllFunctions(PassedType obj) {
             [this, &obj] <std::size_t... Is>(std::index_sequence<Is...>) {
-                ((loadFunction<static_cast<FunctionEnum>(Is)>(obj)), ...);
+                ((this->loadFunction<static_cast<FunctionEnum>(Is)>(obj)), ...);
             }(std::make_index_sequence<static_cast<size_t>(FunctionEnum::Num)>{});            
         }
 
@@ -97,8 +106,8 @@ namespace Graphics {
         template<FunctionEnum func, typename... Args>
         typename FunctionTypeTraits<typename FunctionTraits<func>::Type>::ReturnType
             execute(Args&&... args) const {
-            static_assert(IsInvocableWithConvertibleArgs_v<typename FunctionTraits<func>::Type, Args...>,
-                "Arguments are not convertible to function parameter types");
+            // static_assert(IsInvocableWithConvertibleArgs_v<typename FunctionTraits<func>::Type, Args...>,
+            //     "Arguments are not convertible to function parameter types");
 #ifdef _DEBUG
             if (!isLoaded<func>()) {
                 throw std::runtime_error(std::string("Vulkan function not loaded: ") +

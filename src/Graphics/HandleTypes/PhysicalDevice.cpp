@@ -27,7 +27,7 @@ namespace Graphics
         return properties;
     }
 
-    bool PhysicalDevice::getSurfaceSupport(const InstanceFunctionTable& functions, const SurfaceRef& surface, uint32_t familyIndex) const
+    bool PhysicalDevice::getSurfaceSupport(const InstanceFunctionTable& functions, SurfaceRef surface, uint32_t familyIndex) const
     {
         Bool32 supported;
         auto result = functions.execute<InstanceFunction::GetPhysicalDeviceSurfaceSupportKHR>(getHandle(),
@@ -45,7 +45,7 @@ namespace Graphics
     }
 
     SurfaceCapabilities PhysicalDevice::getSurfaceCapabilities(const InstanceFunctionTable& functions,
-        const SurfaceRef& surface) const
+        SurfaceRef surface) const
     {
         GRAPHICS_VERIFY(surface.isSet(), "Trying to get surface capabilities with an invalid surface");
         SurfaceCapabilities capabilities;
@@ -57,7 +57,7 @@ namespace Graphics
     }
 
     std::vector<SurfaceFormat> PhysicalDevice::getSurfaceFormats(const InstanceFunctionTable& functions,
-        const SurfaceRef& surface) const
+        SurfaceRef surface) const
     {
         GRAPHICS_VERIFY(surface.isSet(), "Trying to get surface formats with an invalid surface");
         uint32_t formatsCount = 0;
@@ -76,7 +76,7 @@ namespace Graphics
     }
 
     std::vector<PresentMode> PhysicalDevice::getSurfacePresentModes(const InstanceFunctionTable& functions,
-        const SurfaceRef& surface) const
+        SurfaceRef surface) const
     {
         GRAPHICS_VERIFY(surface.isSet(), "Trying to get surface present modes with an invalid surface");
         uint32_t presentModesCount = 0;

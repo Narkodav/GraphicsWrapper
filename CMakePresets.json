@@ -7,6 +7,32 @@
     },
 
     "configurePresets": [
+
+        {
+            "name": "clang-debug",
+            "displayName": "Clang Debug",
+            "generator": "MinGW Makefiles",
+            "binaryDir": "${sourceDir}/build/clang-debug",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "C:/Users/user/.utils/llvm-mingw/bin/clang.exe",
+                "CMAKE_CXX_COMPILER": "C:/Users/user/.utils/llvm-mingw/bin/clang++.exe",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/clang-debug"
+            }
+        },
+        {
+            "name": "clang-release",
+            "displayName": "Clang Release",
+            "generator": "MinGW Makefiles",
+            "binaryDir": "${sourceDir}/build/clang-release",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "C:/Users/user/.utils/llvm-mingw/bin/clang.exe",
+                "CMAKE_CXX_COMPILER": "C:/Users/user/.utils/llvm-mingw/bin/clang++.exe",
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/clang-release"
+            }
+        },
+        
         {
             "name": "mingw-debug",
             "displayName": "MinGW Debug",
@@ -16,10 +42,7 @@
                 "CMAKE_C_COMPILER": "A:/compilers/mingw64/bin/gcc.exe",
                 "CMAKE_CXX_COMPILER": "A:/compilers/mingw64/bin/g++.exe",
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/mingw-debug",
-
-                "CMAKE_PREFIX_PATH": "E:/Program Files (x86)/Code/C_code/libraries/CommonApi/install/mingw-debug-static/lib/cmake/CommonApi",
-                "Containers_DIR": "E:/Program Files (x86)/Code/C_code/libraries/Containers/install/mingw-debug-static/lib/cmake/Containers"
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/mingw-debug"
             }
         },
         {
@@ -31,10 +54,7 @@
                 "CMAKE_C_COMPILER": "A:/compilers/mingw64/bin/gcc.exe",
                 "CMAKE_CXX_COMPILER": "A:/compilers/mingw64/bin/g++.exe",
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/mingw-release",
-
-                "CommonApi_DIR": "E:/Program Files (x86)/Code/C_code/libraries/CommonApi/install/mingw-release-static/lib/cmake/CommonApi",
-                "Containers_DIR": "E:/Program Files (x86)/Code/C_code/libraries/Containers/install/mingw-release-static/lib/cmake/Containers"
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/mingw-release"
             }
         },
         {

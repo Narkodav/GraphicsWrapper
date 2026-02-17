@@ -1,6 +1,6 @@
+#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include "Graphics/Utility/PixelData2D.h"
-#include "Graphics/Common.h"
 
 namespace Graphics::Utility {
 

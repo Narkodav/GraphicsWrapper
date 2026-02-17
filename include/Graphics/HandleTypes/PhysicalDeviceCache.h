@@ -63,7 +63,7 @@ namespace Graphics
 
 		std::vector<std::pair<PhysicalDevice, Data>> m_data;
 
-		PhysicalDeviceCache(const InstanceRef& instance, const InstanceFunctionTable& functions);
+		PhysicalDeviceCache(InstanceRef instance, const InstanceFunctionTable& functions);
 
 	public:
 		PhysicalDeviceCache() = default;
@@ -73,13 +73,13 @@ namespace Graphics
 		PhysicalDeviceCache& operator=(const PhysicalDeviceCache&) = delete;
 
 		SearchResult getFittingDevice(const InstanceFunctionTable& functions,
-			const Surface& surface, const DeviceRequirements& requirements) const;
+			SurfaceRef surface, const DeviceRequirements& requirements) const;
 
 		SearchResult getFittingDevice(
 			const DeviceRequirements& requirements) const;
 
 		void checkDeviceSuitability(SearchResult& result,
-			const InstanceFunctionTable& functions, const Surface& surface, 
+			const InstanceFunctionTable& functions, SurfaceRef surface, 
 			const std::pair<PhysicalDevice, PhysicalDeviceCache::Data>& data,
 			const DeviceRequirements& requirements) const;
 
@@ -88,7 +88,7 @@ namespace Graphics
 			const std::pair<PhysicalDevice, PhysicalDeviceCache::Data>& data) const;
 
 		bool checkQueueFamilySuitability(
-			const InstanceFunctionTable& functions, const Surface& surface,
+			const InstanceFunctionTable& functions, SurfaceRef surface,
 			const std::unordered_map<QueueProperty, std::any>& props,
 			const std::pair<PhysicalDevice, PhysicalDeviceCache::Data>& data,
 			size_t familyIndex) const;

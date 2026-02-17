@@ -1,7 +1,7 @@
 #include "Graphics/Graphics.h"
 
 namespace Graphics {
-    void SwapChain::create(const DeviceFunctionTable& functions, const DeviceRef& device,
+    void SwapChain::create(const DeviceFunctionTable& functions, DeviceRef device,
         const SwapChainCreateInfo& createInfo)
     {
         GRAPHICS_VERIFY(!isValid(), "Trying to create a valid swap chain");
@@ -12,7 +12,7 @@ namespace Graphics {
         GRAPHICS_VERIFY_RESULT(result, "Failed to create swap chain");
     }
 
-    void SwapChain::destroy(const DeviceFunctionTable& functions, const DeviceRef& device)
+    void SwapChain::destroy(const DeviceFunctionTable& functions, DeviceRef device)
     {
         GRAPHICS_VERIFY(isValid(), "Trying to destroy an invalid swap chain");
         functions.execute<DeviceFunction::DestroySwapchainKHR>(
@@ -20,9 +20,10 @@ namespace Graphics {
         reset();
     }
 
-    Result SwapChain::acquireNextImage(const DeviceFunctionTable& functions, const DeviceRef& device,
-        const SemaphoreRef& semaphore, const FenceRef& fence, uint32_t& imageIndex,
-        uint32_t timeout /*= std::numeric_limits<uint32_t>::max()*/)
+    Result SwapChain::acquireNextImage(const DeviceFunctionTable& functions, DeviceRef device,
+        SemaphoreRef semaphore, FenceRef fence, uint32_t& imageIndex,
+        uint32_t timeout // = std::numeric_limits<uint32_t>::max()
+    )
     {
         GRAPHICS_VERIFY(isValid(), "Trying to acquire next image from an invalid swap chain");
         return convertCEnum(functions.execute<DeviceFunction::AcquireNextImageKHR>(
@@ -30,7 +31,27 @@ namespace Graphics {
             fence.getHandle(), &imageIndex));
     }
 
-    void SwapChain::recreate(const DeviceFunctionTable& functions, const DeviceRef& device,
+    Result SwapChain::acquireNextImage(const DeviceFunctionTable& functions, DeviceRef device,
+        SemaphoreRef semaphore, uint32_t& imageIndex, uint32_t timeout // = std::numeric_limits<uint32_t>::max()
+    )
+    {
+        GRAPHICS_VERIFY(isValid(), "Trying to acquire next image from an invalid swap chain");
+        return convertCEnum(functions.execute<DeviceFunction::AcquireNextImageKHR>(
+            device.getHandle(), getHandle(), timeout, semaphore.getHandle(),
+            nullptr, &imageIndex));
+    }
+
+    Result SwapChain::acquireNextImage(const DeviceFunctionTable& functions, DeviceRef device,
+        FenceRef fence, uint32_t& imageIndex, uint32_t timeout // = std::numeric_limits<uint32_t>::max()
+    )
+    {
+        GRAPHICS_VERIFY(isValid(), "Trying to acquire next image from an invalid swap chain");
+        return convertCEnum(functions.execute<DeviceFunction::AcquireNextImageKHR>(
+            device.getHandle(), getHandle(), timeout, nullptr,
+            fence.getHandle(), &imageIndex));
+    }
+
+    void SwapChain::recreate(const DeviceFunctionTable& functions, DeviceRef device,
         SwapChainCreateInfo& createInfo)
     {
 		SwapChain newSwapChain;
@@ -40,7 +61,7 @@ namespace Graphics {
         *this = std::move(newSwapChain);
     }
 
-    std::vector<ImageRef> SwapChainRef::getImages(const DeviceFunctionTable& functions, const DeviceRef& device) const {
+    std::vector<ImageRef> SwapChainRef::getImages(const DeviceFunctionTable& functions, DeviceRef device) const {
         uint32_t imageCount = 0;
 
         auto result = functions.execute<DeviceFunction::GetSwapchainImagesKHR>(

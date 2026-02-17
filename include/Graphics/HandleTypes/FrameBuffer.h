@@ -21,7 +21,7 @@ namespace Graphics
 		using Base = StructBase<VkFramebufferCreateInfo, FrameBufferCreateInfo>;
 	public:
 		using Base::Base;
-		FrameBufferCreateInfo(const RenderPassRef& renderPass,
+		FrameBufferCreateInfo(RenderPassRef renderPass,
 			std::span<const ImageView> attachments,
 			const Extent2D& extent, uint32_t layers = 1) : Base()
 		{
@@ -32,7 +32,7 @@ namespace Graphics
 			this->height = extent.getHeight();
 			this->layers = layers;
 		}
-		FrameBufferCreateInfo& setRenderPass(const RenderPassRef& renderPass) {
+		FrameBufferCreateInfo& setRenderPass(RenderPassRef renderPass) {
 			this->renderPass = renderPass.getHandle();
 			return *this;
 		}
@@ -64,9 +64,9 @@ namespace Graphics
     public:
 		using Base::Base;        
 
-		void create(const DeviceRef& device, const DeviceFunctionTable& functions,
+		void create(const DeviceFunctionTable& functions, DeviceRef device, 
 			const FrameBufferCreateInfo& createInfo);
-		void destroy(const DeviceRef& device, const DeviceFunctionTable& functions);
+		void destroy(const DeviceFunctionTable& functions, DeviceRef device);
     };
 
 }

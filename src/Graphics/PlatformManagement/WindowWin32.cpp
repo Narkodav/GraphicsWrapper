@@ -14,35 +14,51 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
+#include <windowsx.h>
 
 namespace Platform::Win32
 {
-    //typedef LRESULT(CALLBACK* WNDPROC)(HWND, UINT, WPARAM, LPARAM);
-
     class Window::ClassRegistrator {
     private:
-        WNDCLASS m_wc = {};
-        const std::string m_name = "Window";
+        WNDCLASSEX m_wc{};
+        const wchar_t* m_nameW = L"Window";
+        const char* m_name = "Window";
 
         ClassRegistrator() {
+            m_wc.cbSize = sizeof(WNDCLASSEX);              // REQUIRED
+            m_wc.style = CS_HREDRAW | CS_VREDRAW;
             m_wc.lpfnWndProc = reinterpret_cast<WNDPROC>(windowProc);
+            m_wc.cbClsExtra = 0;
+            m_wc.cbWndExtra = 0;
             m_wc.hInstance = GetModuleHandle(nullptr);
-            m_wc.lpszClassName = m_name.c_str();
-            RegisterClass(&m_wc);
+            m_wc.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+            m_wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+            m_wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+            m_wc.lpszMenuName = nullptr;
+            m_wc.lpszClassName = m_name;
+            m_wc.hIconSm = LoadIcon(nullptr, IDI_APPLICATION);
+
+            ATOM atom = RegisterClassEx(&m_wc);
+            if (!atom)
+            {
+                DWORD error = GetLastError();
+                printf("RegisterClassEx failed: %lu\n", error);
+            }
         }
+
         ~ClassRegistrator() {
-            UnregisterClass(m_wc.lpszClassName, m_wc.hInstance);
+            UnregisterClass(m_name, m_wc.hInstance);
         }
+
         ClassRegistrator(const ClassRegistrator&) = delete;
         ClassRegistrator& operator=(const ClassRegistrator&) = delete;
+        ClassRegistrator(ClassRegistrator&&) = delete;
+        ClassRegistrator& operator=(ClassRegistrator&&) = delete;
 
     public:
-
-        ClassRegistrator(ClassRegistrator&&) = default;
-        ClassRegistrator& operator=(ClassRegistrator&&) = default;
-
-        const std::string& getName() const { return m_name; };
-        WNDCLASS getHandle() const { return m_wc; };
+        const wchar_t* getNameWide() const { return m_nameW; }
+        const char* getName() const { return m_name; }
+        const WNDCLASSEX& getHandle() const { return m_wc; }
 
         static ClassRegistrator& getInstance() {
             static ClassRegistrator instance;
@@ -61,10 +77,30 @@ namespace Platform::Win32
     }
 
     void Window::destroy() {
-        if (m_windowHandle) {
-            m_shouldClose = true;
-            DestroyWindow(reinterpret_cast<HWND>(m_windowHandle));
-        }
+        if (!m_windowHandle)
+                return;
+
+        // Unregister raw input devices
+        RAWINPUTDEVICE rid[2]{};
+
+        // Keyboard
+        rid[0].usUsagePage = 0x01;
+        rid[0].usUsage     = 0x06;
+        rid[0].dwFlags     = RIDEV_REMOVE;
+        rid[0].hwndTarget  = nullptr;
+
+        // Mouse
+        rid[1].usUsagePage = 0x01;
+        rid[1].usUsage     = 0x02;
+        rid[1].dwFlags     = RIDEV_REMOVE;
+        rid[1].hwndTarget  = nullptr;
+
+        RegisterRawInputDevices(rid, 2, sizeof(RAWINPUTDEVICE));
+
+        // Destroy the window
+        DestroyWindow(reinterpret_cast<HWND>(m_windowHandle));
+
+        // m_windowHandle will be cleared in WM_DESTROY (onDestroy)
     }
 
     void Window::create(Extent extent, std::string_view title, WindowAttributes attr /*= WindowAttributes::defaultAtr()*/) {
@@ -109,10 +145,13 @@ namespace Platform::Win32
             exStyle |= WS_EX_LAYERED;
         }
 
+        auto& mouse = Mouse::getInstance();
+        GetCursorPos(reinterpret_cast<POINT*>(&mouse.m_mousePos));
+        
         // Create the window
-        m_windowHandle = reinterpret_cast<WindowHandle>(CreateWindowEx(
+        HWND hwnd = CreateWindowEx(
             exStyle,
-            wc.getName().c_str(),
+            wc.getName(),
             title.data(),
             style,
             CW_USEDEFAULT,
@@ -123,9 +162,32 @@ namespace Platform::Win32
             nullptr,
             reinterpret_cast<HINSTANCE>(getInstanceHandle()),
             this
-        ));
+        );
+
+        if(hwnd != m_windowHandle)
+            throw std::runtime_error("Window handles dont match");
 
         if (!m_windowHandle) {
+            DWORD error = GetLastError();
+            LPSTR messageBuffer = nullptr;
+            size_t size = FormatMessageA(
+                FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                FORMAT_MESSAGE_FROM_SYSTEM |
+                FORMAT_MESSAGE_IGNORE_INSERTS,
+                nullptr,
+                error,
+                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                (LPSTR)&messageBuffer,
+                0,
+                nullptr
+            );
+
+            std::string message(messageBuffer, size);
+            LocalFree(messageBuffer);
+
+            std::cerr << "CreateWindowEx failed with error "
+                    << error << ": " << message << std::endl;
+
             throw std::runtime_error("Failed to create window");
         }
 
@@ -160,9 +222,26 @@ namespace Platform::Win32
 
         UpdateWindow(reinterpret_cast<HWND>(m_windowHandle));
         m_shouldClose = false;
+
+        RAWINPUTDEVICE rid[2]{};
+
+        // Keyboard
+        rid[0].usUsagePage = 0x01;
+        rid[0].usUsage     = 0x06;
+        rid[0].dwFlags     = RIDEV_NOLEGACY;
+        rid[0].hwndTarget  = reinterpret_cast<HWND>(m_windowHandle);
+
+        // Mouse
+        rid[1].usUsagePage = 0x01;
+        rid[1].usUsage     = 0x02;
+        rid[1].dwFlags     = RIDEV_INPUTSINK;
+        rid[1].hwndTarget  = reinterpret_cast<HWND>(m_windowHandle);
+
+        RegisterRawInputDevices(rid, 2, sizeof(RAWINPUTDEVICE));
     }
 
     void Window::pollEvents() {
+        Mouse::getInstanceUnsafe().refreshState();
         MSG msg;
         while (PeekMessage(&msg, reinterpret_cast<HWND>(m_windowHandle), 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
@@ -171,31 +250,12 @@ namespace Platform::Win32
     }
 
     void Window::pollEventsGlobal() {
+        Mouse::getInstanceUnsafe().refreshState();
         MSG msg;
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-    }
-
-    bool Window::popEvent() {
-        MSG msg;
-        bool hadEvent = PeekMessage(&msg, reinterpret_cast<HWND>(m_windowHandle), 0, 0, PM_REMOVE);
-        if (!hadEvent)
-            return false;
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-        return true;
-    }
-
-    bool Window::popEventGlobal() {
-        MSG msg;
-        bool hadEvent = PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE);
-        if (!hadEvent)
-            return false;
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-        return true;
     }
 
     void Window::show() { ShowWindow(reinterpret_cast<HWND>(m_windowHandle), SW_SHOW); }
@@ -225,44 +285,35 @@ namespace Platform::Win32
     Window* Window::getThisPointer(WindowHandle hwnd) {
         return reinterpret_cast<Window*>(GetWindowLongPtr(reinterpret_cast<HWND>(hwnd), GWLP_USERDATA));
     }
-
-    LongResult CALLBACK Window::windowProc(WindowHandle hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+    
+    LRESULT CALLBACK Window::windowProc(WindowHandle windowHandle, UINT message, WPARAM auxiliaryData, LPARAM payloadData)
     {
-        switch (uMsg) {
-        case WM_NULL: return onNull(wParam, lParam);
-        case WM_CREATE: return onCreate(hwnd, wParam, lParam);
-        case WM_DESTROY: return callEvent<&Window::onDestroy>(hwnd, uMsg, wParam, lParam);
+        switch (message) {
+        case WM_NULL: return onNull(auxiliaryData, payloadData);
+        case WM_CREATE: return onCreate(windowHandle, auxiliaryData, payloadData);
+        case WM_DESTROY: return callEvent<&Window::onDestroy>(windowHandle, message, auxiliaryData, payloadData);
         
         // Window events
-        case WM_SIZE: return callEvent<&Window::onWindowResized>(hwnd, uMsg, wParam, lParam);
-        case WM_MOVE: return callEvent<&Window::onWindowMoved>(hwnd, uMsg, wParam, lParam);
-        case WM_SETFOCUS: return callEvent<&Window::onWindowFocused>(hwnd, uMsg, wParam, lParam);
-        case WM_KILLFOCUS: return callEvent<&Window::onWindowUnfocused>(hwnd, uMsg, wParam, lParam);
-        case WM_CLOSE: return callEvent<&Window::onWindowClosed>(hwnd, uMsg, wParam, lParam);
-        case WM_PAINT: return callEvent<&Window::onWindowRefresh>(hwnd, uMsg, wParam, lParam);
-        case WM_DPICHANGED: return callEvent<&Window::onWindowContentScaleChanged>(hwnd, uMsg, wParam, lParam);
-        
-        // Keyboard events
-        case WM_KEYDOWN: return callEvent<&Window::onKeyPressed>(hwnd, uMsg, wParam, lParam);
-        case WM_KEYUP: return callEvent<&Window::onKeyReleased>(hwnd, uMsg, wParam, lParam);
-        case WM_CHAR: return callEvent<&Window::onChar>(hwnd, uMsg, wParam, lParam);
+        case WM_SIZE: return callEvent<&Window::onWindowResized>(windowHandle, message, auxiliaryData, payloadData);
+        case WM_MOVE: return callEvent<&Window::onWindowMoved>(windowHandle, message, auxiliaryData, payloadData);
+        case WM_SETFOCUS: return callEvent<&Window::onWindowFocused>(windowHandle, message, auxiliaryData, payloadData);
+        case WM_KILLFOCUS: return callEvent<&Window::onWindowUnfocused>(windowHandle, message, auxiliaryData, payloadData);
+        case WM_CLOSE: return callEvent<&Window::onWindowClosed>(windowHandle, message, auxiliaryData, payloadData);
+        case WM_PAINT: return callEvent<&Window::onWindowRefresh>(windowHandle, message, auxiliaryData, payloadData);
+        case WM_DPICHANGED: return callEvent<&Window::onWindowContentScaleChanged>(windowHandle, message, auxiliaryData, payloadData);
 
         // Mouse events
-        case WM_LBUTTONDOWN: return callEvent<&Window::onLeftMouseButtonPressed>(hwnd, uMsg, wParam, lParam);
-        case WM_RBUTTONDOWN: return callEvent<&Window::onRightMouseButtonPressed>(hwnd, uMsg, wParam, lParam);
-        case WM_MBUTTONDOWN: return callEvent<&Window::onMiddleMouseButtonPressed>(hwnd, uMsg, wParam, lParam);
-        case WM_XBUTTONDOWN: return callEvent<&Window::onExtraMouseButtonPressed>(hwnd, uMsg, wParam, lParam);
-        case WM_LBUTTONUP: return callEvent<&Window::onLeftMouseButtonReleased>(hwnd, uMsg, wParam, lParam);
-        case WM_RBUTTONUP: return callEvent<&Window::onRightMouseButtonReleased>(hwnd, uMsg, wParam, lParam);
-        case WM_MBUTTONUP: return callEvent<&Window::onMiddleMouseButtonReleased>(hwnd, uMsg, wParam, lParam);
-        case WM_XBUTTONUP: return callEvent<&Window::onExtraButtonReleased>(hwnd, uMsg, wParam, lParam);
-        case WM_MOUSEMOVE: return callEvent<&Window::onMouseMoved>(hwnd, uMsg, wParam, lParam);
-        case WM_MOUSEWHEEL:
-        case WM_MOUSEHWHEEL: return callEvent<&Window::onMouseScrolled>(hwnd, uMsg, wParam, lParam);
-        case WM_MOUSELEAVE: return callEvent<&Window::onMouseLeft>(hwnd, uMsg, wParam, lParam);
+        case WM_MOUSEMOVE: return callEvent<&Window::onMouseMoved>(windowHandle, message, auxiliaryData, payloadData);
+        case WM_MOUSELEAVE: return callEvent<&Window::onMouseLeft>(windowHandle, message, auxiliaryData, payloadData);
         
+        // Raw input
+        case WM_INPUT: return callEvent<&Window::onRawInput>(windowHandle, message, auxiliaryData, payloadData);
+
         default: 
-            return DefWindowProc(reinterpret_cast<HWND>(hwnd), uMsg, wParam, lParam);
+            Window* window = getThisPointer(windowHandle);
+            if (window)
+                window->m_windowEvents.emit<WindowEvents::Native>(windowHandle, message, auxiliaryData, payloadData);
+            return DefWindowProc(reinterpret_cast<HWND>(windowHandle), message, auxiliaryData, payloadData);
         }
     }
 
@@ -353,167 +404,180 @@ namespace Platform::Win32
         return 0;
     }
 
-    LRESULT Window::onKeyPressed(WPARAM wParam, LPARAM lParam)
-    {
-        auto key = static_cast<KeyboardKey>(wParam);
-        //bool isExtended = (lParam & (1 << 24));
-        bool wasDown = (lParam & (1 << 30));
-        uint32_t scanCode = (lParam >> 16) & 0xFF;
-
-        if(wasDown)
-            m_windowEvents.emit<IOEvents::KeyRepeated>(key, scanCode);
-        else m_windowEvents.emit<IOEvents::KeyPressed>(key, scanCode);
+    LRESULT Window::onMouseMoved(WPARAM, LPARAM payloadData) {
+        auto& mouse = Mouse::getInstanceUnsafe();
+        m_ClientRelativeMousePosition.x = GET_X_LPARAM(payloadData);
+        m_ClientRelativeMousePosition.y = GET_Y_LPARAM(payloadData);
+        mouse.m_mousePos = m_ClientRelativeMousePosition;
+        ClientToScreen(reinterpret_cast<HWND>(m_windowHandle), reinterpret_cast<POINT*>(&mouse.m_mousePos));
+        mouse.m_moved = true;
+        m_windowEvents.emit<IOEvents::MouseMovedScreen>(m_ClientRelativeMousePosition);
         return 0;
     }
-
-    LRESULT Window::onKeyReleased(WPARAM wParam, LPARAM lParam)
-    {
-        auto key = static_cast<KeyboardKey>(wParam);
-        uint32_t scanCode = (lParam >> 16) & 0xFF;
-        m_windowEvents.emit<IOEvents::KeyReleased>(key, scanCode);
-        return 0;
-    }
-
-    LRESULT Window::onChar(WPARAM wParam, LPARAM lParam)
-    {
-        unsigned int codepoint = static_cast<unsigned int>(wParam);
-        bool isExtendedKey = (lParam & (1 << 24));
-        bool isAltPressed = (lParam & (1 << 29));
-        bool wasDownBefore = (lParam & (1 << 30));
-        m_windowEvents.emit<IOEvents::CharInput>(codepoint, isExtendedKey, isAltPressed, wasDownBefore);
-        return 0;
-    }
-
-    LRESULT Window::onLeftMouseButtonPressed(WPARAM, LPARAM lParam) {
-        double x = LOWORD(lParam);
-        double y = HIWORD(lParam);
-        m_windowEvents.emit<IOEvents::MouseLeftButtonPressed>(x, y);
-        m_windowEvents.emit<IOEvents::MouseButtonPressed>(MouseButton::Lmb, x, y);
-        return 0;
-    }
-
-    LRESULT Window::onRightMouseButtonPressed(WPARAM, LPARAM lParam) {
-        double x = LOWORD(lParam);
-        double y = HIWORD(lParam);
-        m_windowEvents.emit<IOEvents::MouseRightButtonPressed>(x, y);
-        m_windowEvents.emit<IOEvents::MouseButtonPressed>(MouseButton::Rmb, x, y);
-        return 0;
-    }
-    LRESULT Window::onMiddleMouseButtonPressed(WPARAM, LPARAM lParam) {
-        double x = LOWORD(lParam);
-        double y = HIWORD(lParam);
-        m_windowEvents.emit<IOEvents::MouseMiddleButtonPressed>(x, y);
-        m_windowEvents.emit<IOEvents::MouseButtonPressed>(MouseButton::Mmb, x, y);
-        return 0;
-    }
-    LRESULT Window::onExtraMouseButtonPressed(WPARAM wParam, LPARAM lParam) {
-        WORD xButton = HIWORD(wParam);
-        double x = LOWORD(lParam);
-        double y = HIWORD(lParam);
-        if (xButton == XBUTTON1) {
-            m_windowEvents.emit<IOEvents::MouseExtraButtonPressed>(MouseButton::Button4, x, y);
-            m_windowEvents.emit<IOEvents::MouseButtonPressed>(MouseButton::Button4, x, y);
-        }
-        else if (xButton == XBUTTON2) {
-            m_windowEvents.emit<IOEvents::MouseExtraButtonPressed>(MouseButton::Button5, x, y);
-            m_windowEvents.emit<IOEvents::MouseButtonPressed>(MouseButton::Button5, x, y);
-        }
-        else m_windowEvents.emit<IOEvents::MouseButtonPressed>(MouseButton::Unknown, x, y);
-        return 0;
-    }
-
-    LRESULT Window::onLeftMouseButtonReleased(WPARAM, LPARAM lParam) {
-        double x = LOWORD(lParam);
-        double y = HIWORD(lParam);
-        m_windowEvents.emit<IOEvents::MouseLeftButtonReleased>(x, y);
-        m_windowEvents.emit<IOEvents::MouseButtonReleased>(MouseButton::Lmb, x, y);
-        return 0;
-    }
-    LRESULT Window::onRightMouseButtonReleased(WPARAM, LPARAM lParam) {
-        double x = LOWORD(lParam);
-        double y = HIWORD(lParam);
-        m_windowEvents.emit<IOEvents::MouseRightButtonReleased>(x, y);
-        m_windowEvents.emit<IOEvents::MouseButtonReleased>(MouseButton::Rmb, x, y);
-        return 0;
-    }
-    LRESULT Window::onMiddleMouseButtonReleased(WPARAM, LPARAM lParam) {
-        double x = LOWORD(lParam);
-        double y = HIWORD(lParam);
-        m_windowEvents.emit<IOEvents::MouseMiddleButtonReleased>(x, y);
-        m_windowEvents.emit<IOEvents::MouseButtonReleased>(MouseButton::Mmb, x, y);
-        return 0;
-    }
-    LRESULT Window::onExtraButtonReleased(WPARAM wParam, LPARAM lParam) {
-        WORD xButton = HIWORD(wParam);
-        double x = LOWORD(lParam);
-        double y = HIWORD(lParam);
-        if (xButton == XBUTTON1) {
-            m_windowEvents.emit<IOEvents::MouseExtraButtonReleased>(MouseButton::Button4, x, y);
-            m_windowEvents.emit<IOEvents::MouseButtonReleased>(MouseButton::Button4, x, y);
-        }
-        else if (xButton == XBUTTON2) {
-            m_windowEvents.emit<IOEvents::MouseExtraButtonReleased>(MouseButton::Button5, x, y);
-            m_windowEvents.emit<IOEvents::MouseButtonReleased>(MouseButton::Button5, x, y);
-        }
-        else m_windowEvents.emit<IOEvents::MouseButtonReleased>(MouseButton::Unknown, x, y);
-        return 0;
-    }
-
-    LRESULT Window::onMouseMoved(WPARAM, LPARAM lParam) {
-        double x = LOWORD(lParam);
-        double y = HIWORD(lParam);
-        m_windowEvents.emit<IOEvents::MouseMoved>(x, y);
-        if(!m_mouseInWindow) 
-        {
-            m_windowEvents.emit<IOEvents::MouseEntered>(x, y);
-            m_mouseInWindow = true;
-        }
-        if (m_attr.centerCursor || m_attr.cursorMode == CursorMode::Disabled) {
-            centerCursor();
-        }
-        return 0;
-    }
-    LRESULT Window::onMouseScrolled(WPARAM, LPARAM lParam) {
-        double xOffset = LOWORD(lParam);
-        double yOffset = HIWORD(lParam);
-        m_windowEvents.emit<IOEvents::MouseScrolled>(xOffset, yOffset);
-        return 0;
-    }
+    
     LRESULT Window::onMouseLeft(WPARAM, LPARAM) {
-        m_mouseInWindow = false;
         m_windowEvents.emit<IOEvents::MouseLeft>();
         return 0;
     }
 
-    bool Window::shouldClose() const
-    {
+    LRESULT Window::onRawInput(WPARAM, LPARAM payloadData) {
+        UINT size = 0;
+        GetRawInputData(
+            reinterpret_cast<HRAWINPUT>(payloadData),
+            RID_INPUT,
+            nullptr,
+            &size,
+            sizeof(RAWINPUTHEADER));
+
+        m_rawInputBuffer.resize(size);
+
+        if (GetRawInputData(
+                reinterpret_cast<HRAWINPUT>(payloadData),
+                RID_INPUT,
+                m_rawInputBuffer.data(),
+                &size,
+                sizeof(RAWINPUTHEADER)) != size)
+        {
+            return 0;
+        }
+
+        RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(m_rawInputBuffer.data());
+
+        switch(raw->header.dwType) {
+            case RIM_TYPEKEYBOARD: return onKeyboardInput(m_rawInputBuffer);
+            case RIM_TYPEMOUSE: return onMouseInput(m_rawInputBuffer);
+            default: return 0;
+        }
+        return 0;
+    }
+
+    LRESULT Window::onKeyboardInput(std::vector<uint8_t>& input) {
+        RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(input.data());
+        const RAWKEYBOARD& kb = raw->data.keyboard;
+
+        bool isE0 = (kb.Flags & RI_KEY_E0) != 0;
+        bool isE1 = (kb.Flags & RI_KEY_E1) != 0;
+        bool isBreak = (kb.Flags & RI_KEY_BREAK) != 0;
+
+        if (isBreak)
+            m_windowEvents.emit<IOEvents::KeyReleased>(
+                Detail::translatePS2Set1ToKey(isE1, isE0, static_cast<uint16_t>(kb.MakeCode)));
+        else
+            m_windowEvents.emit<IOEvents::KeyPressed>(
+                Detail::translatePS2Set1ToKey(isE1, isE0, static_cast<uint16_t>(kb.MakeCode)));
+        return 0;
+    }
+
+    LRESULT Window::onMouseInput(std::vector<uint8_t>& input) {
+        RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(input.data());
+        const RAWMOUSE& mouse = raw->data.mouse;
+
+        auto& mouseState = Mouse::getInstanceUnsafe();
+                
+        // Mouse movement
+        if (mouse.usFlags & MOUSE_MOVE_ABSOLUTE) {
+            RECT rect; 
+            if (mouse.usFlags & MOUSE_VIRTUAL_DESKTOP) { 
+                rect.left = GetSystemMetrics(SM_XVIRTUALSCREEN); 
+                rect.top = GetSystemMetrics(SM_YVIRTUALSCREEN); 
+                rect.right = GetSystemMetrics(SM_CXVIRTUALSCREEN); 
+                rect.bottom = GetSystemMetrics(SM_CYVIRTUALSCREEN); 
+            } else { 
+                rect.left = 0; 
+                rect.top = 0; 
+                rect.right = GetSystemMetrics(SM_CXSCREEN); 
+                rect.bottom = GetSystemMetrics(SM_CYSCREEN);
+            }
+            static thread_local uint16_t s_storedCursorPosX;
+            static thread_local uint16_t s_storedCursorPosY;
+
+            uint16_t newCursorPosX = MulDiv(mouse.lLastX, rect.right, USHRT_MAX) + rect.left; 
+            uint16_t newCursorPosY = MulDiv(mouse.lLastY, rect.bottom, USHRT_MAX) + rect.top;
+            if(newCursorPosX != s_storedCursorPosX || newCursorPosY != s_storedCursorPosY) {
+                auto deltaX = newCursorPosX - s_storedCursorPosX;
+                auto deltaY = newCursorPosY - s_storedCursorPosY;
+                mouseState.m_mouseDeltaPos = { 
+                    mouseState.m_mouseDeltaPos.x + deltaX, 
+                    mouseState.m_mouseDeltaPos.y + deltaY};
+                m_windowEvents.emit<IOEvents::MouseMovedDelta>(deltaX, deltaY);
+                s_storedCursorPosX = newCursorPosX;
+                s_storedCursorPosY = newCursorPosY;
+            }
+        } else if (mouse.lLastX != 0 || mouse.lLastY != 0){
+            mouseState.m_mouseDeltaPos = { 
+                mouseState.m_mouseDeltaPos.x + mouse.lLastX, 
+                mouseState.m_mouseDeltaPos.y + mouse.lLastY};
+            m_windowEvents.emit<IOEvents::MouseMovedDelta>(mouse.lLastX, mouse.lLastY);
+        }
+
+        // Mouse buttons
+        checkMouseButton<IOEvents::MouseLeftButtonPressed, IOEvents::MouseLeftButtonReleased>
+        (RI_MOUSE_LEFT_BUTTON_DOWN, RI_MOUSE_LEFT_BUTTON_UP, mouse.usButtonFlags, MouseButton::Lmb);
+
+        checkMouseButton<IOEvents::MouseRightButtonPressed, IOEvents::MouseRightButtonReleased>
+        (RI_MOUSE_RIGHT_BUTTON_DOWN, RI_MOUSE_RIGHT_BUTTON_UP, mouse.usButtonFlags, MouseButton::Rmb);
+
+        checkMouseButton<IOEvents::MouseMiddleButtonPressed, IOEvents::MouseMiddleButtonReleased>
+        (RI_MOUSE_MIDDLE_BUTTON_DOWN, RI_MOUSE_MIDDLE_BUTTON_UP, mouse.usButtonFlags, MouseButton::Mmb);
+
+        checkMouseButton<IOEvents::MouseButton4Pressed, IOEvents::MouseButton4Released>
+        (RI_MOUSE_BUTTON_4_UP, RI_MOUSE_BUTTON_4_DOWN, mouse.usButtonFlags, MouseButton::Button4);
+
+        checkMouseButton<IOEvents::MouseButton5Pressed, IOEvents::MouseButton5Released>
+        (RI_MOUSE_BUTTON_5_UP, RI_MOUSE_BUTTON_5_DOWN, mouse.usButtonFlags, MouseButton::Button5);
+
+        // Mouse wheel
+        if ((mouse.usButtonFlags & RI_MOUSE_WHEEL) || (mouse.usButtonFlags & RI_MOUSE_HWHEEL))
+        {
+            short wheelDelta = (short)mouse.usButtonData;
+            float scrollDelta = (float)wheelDelta / WHEEL_DELTA;
+
+            if (mouse.usButtonFlags & RI_MOUSE_HWHEEL) // Horizontal
+            {
+                unsigned long scrollChars = 1; // 1 is the default
+                SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &scrollChars, 0);
+                scrollDelta *= scrollChars;
+                mouseState.m_scrolled = true;
+                mouseState.m_scrollOffsets.x += scrollDelta;
+                m_windowEvents.emit<IOEvents::MouseWhellScrolled>(scrollDelta, 0, mouseState.m_mousePos);
+            }
+            else // Vertical
+            {
+                unsigned long scrollLines = 3; // 3 is the default
+                SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &scrollLines, 0);
+                if (scrollLines != WHEEL_PAGESCROLL)
+                    scrollDelta *= scrollLines;
+                mouseState.m_scrollOffsets.y += scrollDelta;
+                m_windowEvents.emit<IOEvents::MouseWhellScrolled>(0, scrollDelta, mouseState.m_mousePos);
+            }
+        }
+        return 0;
+    }
+
+    bool Window::shouldClose() const {
         return m_shouldClose;
     }
 
-    Position Window::getCursorPos()
-    {
-        POINT cursorPos;
-        if (GetCursorPos(&cursorPos)) {
-            ScreenToClient(reinterpret_cast<HWND>(m_windowHandle), &cursorPos);
-            m_cursorPos.x = cursorPos.x;
-            m_cursorPos.y = cursorPos.y;
+    Position Window::getCursorPos() {
+        if (GetCursorPos(reinterpret_cast<POINT*>(&m_ClientRelativeMousePosition))) {
+            ScreenToClient(reinterpret_cast<HWND>(m_windowHandle), reinterpret_cast<POINT*>(&m_ClientRelativeMousePosition));
+            return m_ClientRelativeMousePosition;
         }
-        return m_cursorPos;
+        return m_ClientRelativeMousePosition;
     }
 
     Position Window::getGlobalCursorPos()
     {
-        POINT cursorPos;
-        if (GetCursorPos(&cursorPos)) {
-            s_cursorPosGlobal.x = cursorPos.x;
-            s_cursorPosGlobal.y = cursorPos.y;            
-        }
-        return s_cursorPosGlobal;
+        auto& mouse = Mouse::getInstanceUnsafe();
+        GetCursorPos(reinterpret_cast<POINT*>(&mouse.m_mousePos));
+        return mouse.m_mousePos;
     }
 
     void Window::setCursorPos(Position pos)
     {
         SetCursorPos(pos.x, pos.y);
+        auto& mouse = Mouse::getInstanceUnsafe();
+        mouse.m_mousePos = pos;
     }
 
     bool Window::isMinimised()

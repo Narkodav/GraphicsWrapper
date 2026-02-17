@@ -21,7 +21,7 @@ namespace Graphics {
         using Base::Base;
         static inline const std::string s_typeName = "SwapChain";
 
-        std::vector<ImageRef> getImages(const DeviceFunctionTable& functions, const DeviceRef& device) const;
+        std::vector<ImageRef> getImages(const DeviceFunctionTable& functions, DeviceRef device) const;
     };
 
     class SwapChainCreateInfo : public StructBase<VkSwapchainCreateInfoKHR, SwapChainCreateInfo>
@@ -29,7 +29,7 @@ namespace Graphics {
         using Base = StructBase<VkSwapchainCreateInfoKHR, SwapChainCreateInfo>;
     public:
         using Base::Base;
-        SwapChainCreateInfo(const Surface& surface,
+        SwapChainCreateInfo(SurfaceRef surface,
             const Extent2D& imageExtent = { 1, 1 },
             uint32_t minImageCount = 2,
             uint32_t imageArrayLayers = 1,
@@ -42,7 +42,7 @@ namespace Graphics {
             Flags::CompositeAlpha::Bits compositeAlpha = Flags::CompositeAlpha::Bits::Opaque,
             PresentMode presentMode = PresentMode::Fifo,
             bool clipped = true,
-            const SwapChainRef& oldSwapChain = SwapChainRef()) : Base()
+            SwapChainRef oldSwapChain = SwapChainRef()) : Base()
         {
             this->surface = surface.getHandle();
             this->minImageCount = minImageCount;
@@ -61,7 +61,7 @@ namespace Graphics {
             this->oldSwapchain = oldSwapChain.getHandle();
         }
 
-        SwapChainCreateInfo(const SurfaceRef& surface,
+        SwapChainCreateInfo(SurfaceRef surface,
             const SurfaceFormat& surfaceFormat,
             const Extent2D& imageExtent = { 1, 1 },
             uint32_t minImageCount = 2,
@@ -73,7 +73,7 @@ namespace Graphics {
             Flags::CompositeAlpha::Bits compositeAlpha = Flags::CompositeAlpha::Bits::Opaque,
             PresentMode presentMode = PresentMode::Fifo,
             bool clipped = true,
-            const SwapChainRef& oldSwapChain = SwapChainRef()) : Base()
+            SwapChainRef oldSwapChain = SwapChainRef()) : Base()
         {
             this->surface = surface.getHandle();
             this->minImageCount = minImageCount;
@@ -92,7 +92,7 @@ namespace Graphics {
             this->oldSwapchain = oldSwapChain.getHandle();
         }
 
-        SwapChainCreateInfo& setSurface(const SurfaceRef& surface) {
+        SwapChainCreateInfo& setSurface(SurfaceRef surface) {
             this->surface = surface.getHandle();
             return *this;
         }
@@ -146,7 +146,7 @@ namespace Graphics {
             this->clipped = clipped;
             return *this;
         }
-        SwapChainCreateInfo& setOldSwapChain(const SwapChainRef& oldSwapChain) {
+        SwapChainCreateInfo& setOldSwapChain(SwapChainRef oldSwapChain) {
             this->oldSwapchain = oldSwapChain.getHandle();
             return *this;
         }
@@ -202,17 +202,23 @@ namespace Graphics {
 	public:
 		using Base::Base;
 
-        void create(const DeviceFunctionTable& functions, const DeviceRef& device,
+        void create(const DeviceFunctionTable& functions, DeviceRef device,
             const SwapChainCreateInfo& createInfo);
-        void destroy(const DeviceFunctionTable& functions, const DeviceRef& device);
+        void destroy(const DeviceFunctionTable& functions, DeviceRef device);
 
 		//implicitly sets the old swap chain parameter in create info
-        void recreate(const DeviceFunctionTable& functions, const DeviceRef& device,
+        void recreate(const DeviceFunctionTable& functions, DeviceRef device,
             SwapChainCreateInfo& createInfo);
 
-        Result acquireNextImage(const DeviceFunctionTable& functions, const DeviceRef& device,
-            const SemaphoreRef& semaphore, const FenceRef& fence, uint32_t& imageIndex,
-            uint32_t timeout = std::numeric_limits<uint32_t>::max());        
+        Result acquireNextImage(const DeviceFunctionTable& functions, DeviceRef device,
+            SemaphoreRef semaphore, FenceRef fence, uint32_t& imageIndex,
+            uint32_t timeout = std::numeric_limits<uint32_t>::max());
+
+        Result acquireNextImage(const DeviceFunctionTable& functions, DeviceRef device,
+            SemaphoreRef semaphore, uint32_t& imageIndex, uint32_t timeout = std::numeric_limits<uint32_t>::max());
+
+        Result acquireNextImage(const DeviceFunctionTable& functions, DeviceRef device,
+            FenceRef fence, uint32_t& imageIndex, uint32_t timeout = std::numeric_limits<uint32_t>::max());
 	};
 }
 

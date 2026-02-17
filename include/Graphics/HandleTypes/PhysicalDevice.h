@@ -221,17 +221,17 @@ namespace Graphics
         PhysicalDeviceMemoryProperties getMemoryProperties(const InstanceFunctionTable& functions) const;
 
         SurfaceCapabilities getSurfaceCapabilities(const InstanceFunctionTable& functions,
-            const SurfaceRef& surface) const;
+            SurfaceRef surface) const;
         std::vector<SurfaceFormat> getSurfaceFormats(const InstanceFunctionTable& functions,
-            const SurfaceRef& surface) const;
+            SurfaceRef surface) const;
         std::vector<PresentMode> getSurfacePresentModes(const InstanceFunctionTable& functions,
-            const SurfaceRef& surface) const;
+            SurfaceRef surface) const;
 
         FormatProperties getFormatProperties(const InstanceFunctionTable& functions, PixelFormat format) const;
 
         std::vector<ExtensionProperties> getExtensions(const InstanceFunctionTable& functions) const;
 
-        bool getSurfaceSupport(const InstanceFunctionTable& functions, const SurfaceRef& surface, uint32_t familyIndex) const;
+        bool getSurfaceSupport(const InstanceFunctionTable& functions, SurfaceRef surface, uint32_t familyIndex) const;
 
         template<typename QueuePropertyVector>
         void getQueueFamilyProperties(const InstanceFunctionTable& functions,

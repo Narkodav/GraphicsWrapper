@@ -639,7 +639,7 @@ namespace Graphics
 			this->pAttachments = PipelineColorBlendAttachmentState::underlyingCast(attachments.data());
 			return *this;
 		}
-		constexpr PipelineColorBlendStateCreateInfo& setBlendConstants(const Color& blendConstants) {
+		PipelineColorBlendStateCreateInfo& setBlendConstants(const Color& blendConstants) {
 			std::memcpy(this->blendConstants, blendConstants.getStruct().data(), sizeof(float) * 4);
 			return *this;
 		}

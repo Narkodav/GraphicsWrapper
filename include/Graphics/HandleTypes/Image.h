@@ -48,8 +48,8 @@ namespace Graphics
         using Base::Base;
         static inline const std::string s_typeName = "Image";
 
-        MemoryRequirements getMemoryRequirements(const DeviceRef& device,
-            const DeviceFunctionTable& functions) const;
+        MemoryRequirements getMemoryRequirements(const DeviceFunctionTable& functions, 
+            DeviceRef device) const;
     };
 
     class ImageCreateInfo : public StructBase<VkImageCreateInfo, ImageCreateInfo>
@@ -132,6 +132,46 @@ namespace Graphics
             this->initialLayout = convertCEnum(initialLayout);
             return *this;
         }
+
+        ImageType getImageType() const {
+            return convertCEnum(this->imageType);
+        }
+
+        PixelFormat getFormat() const {
+            return convertCEnum(this->format);
+        }
+
+        const Extent3D& getExtent() const {
+            return Extent3D::underlyingCast(this->extent);
+        }
+
+        uint32_t getMipLevels() const { return this->mipLevels; }
+
+        uint32_t getArrayLayers() const { return this->arrayLayers; }
+
+        Flags::SampleCount::Bits getSamples() const { 
+            return static_cast<Flags::SampleCount::Bits>(this->samples);
+        }
+
+        ImageTiling getTiling() const {
+            return convertCEnum(this->tiling);
+        }
+
+        Flags::ImageUsage getUsage() const { return this->usage; }
+
+        SharingMode getSharingMode() const {
+            return convertCEnum(this->sharingMode);
+        }
+
+        uint32_t getQueueFamilyIndexCount() const { return this->queueFamilyIndexCount; }
+
+        std::span<const uint32_t> getQueueFamilyIndices() const { 
+            return std::span(this->pQueueFamilyIndices, this->queueFamilyIndexCount);
+        }
+
+        ImageLayout getInitialLayout() const {
+            return convertCEnum(initialLayout);
+        }
     };
 
     class ImageSubresourceRange : public StructBase<VkImageSubresourceRange, ImageSubresourceRange>
@@ -175,7 +215,7 @@ namespace Graphics
         using Base = StructBase<VkImageViewCreateInfo, ImageViewCreateInfo>;
     public:
         using Base::Base;
-        ImageViewCreateInfo(const ImageRef& image,
+        ImageViewCreateInfo(ImageRef image,
             ImageViewType viewType = ImageViewType::T2D,
             PixelFormat format = PixelFormat::R8G8B8A8Srgb,
             const ComponentMapping& components = ComponentMapping(),
@@ -186,7 +226,7 @@ namespace Graphics
             this->components = components.getStruct();
             this->subresourceRange = subresourceRange.getStruct();
         }
-        ImageViewCreateInfo& setImage(const ImageRef& image) {
+        ImageViewCreateInfo& setImage(ImageRef image) {
             this->image = image.getHandle();
             return *this;
         }
@@ -229,9 +269,9 @@ namespace Graphics
     public:
         using Base::Base;        
 
-        void create(const DeviceRef& device, const DeviceFunctionTable& functions,
+        void create(const DeviceFunctionTable& functions, DeviceRef device,
             const ImageViewCreateInfo& createInfo);
-        void destroy(const DeviceRef& device, const DeviceFunctionTable& functions);
+        void destroy(const DeviceFunctionTable& functions, DeviceRef device);
     };
 
     class ImageMemoryBarrier : public StructBase<VkImageMemoryBarrier, ImageMemoryBarrier> {
@@ -340,6 +380,30 @@ namespace Graphics
     public:
         using Base::Base;
 
+        ImageBlit(const ImageSubresourceLayers& srcSubresource,
+            std::span<const Offset3D, 2> srcOffsets,
+            const ImageSubresourceLayers& dstSubresource,
+            std::span<const Offset3D, 2> dstOffsets) : Base() {
+            this->srcSubresource = srcSubresource;
+            this->srcOffsets[0] = srcOffsets[0];
+            this->srcOffsets[1] = srcOffsets[1];
+            this->dstSubresource = dstSubresource;
+            this->dstOffsets[0] = dstOffsets[0];
+            this->dstOffsets[1] = dstOffsets[1];
+        }
+
+        ImageBlit(const ImageSubresourceLayers& srcSubresource,
+            const Offset3D srcOffset1, const Offset3D srcOffset2,
+            const ImageSubresourceLayers& dstSubresource,
+            const Offset3D dstOffset1, const Offset3D dstOffset2) : Base() {
+            this->srcSubresource = srcSubresource;
+            this->srcOffsets[0] = srcOffset1;
+            this->srcOffsets[1] = srcOffset2;
+            this->dstSubresource = dstSubresource;
+            this->dstOffsets[0] = dstOffset1;
+            this->dstOffsets[1] = dstOffset2;
+        }
+
         ImageBlit& setSrcOffsets(const Offset3D srcOffset1, const Offset3D srcOffset2) {
             this->srcOffsets[0] = srcOffset1.getStruct();
             this->srcOffsets[1] = srcOffset2.getStruct();
@@ -390,10 +454,10 @@ namespace Graphics
     public:
         using Base::Base;
 
-        void create(const DeviceFunctionTable& functions, const DeviceRef& device,
+        void create(const DeviceFunctionTable& functions, DeviceRef device,
             const ImageCreateInfo& createInfo);
 
-        void destroy(const DeviceFunctionTable& functions, const DeviceRef& device);
+        void destroy(const DeviceFunctionTable& functions, DeviceRef device);
     };
 
 }

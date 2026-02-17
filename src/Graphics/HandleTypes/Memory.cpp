@@ -3,7 +3,7 @@
 namespace Graphics
 {
     void Memory::create(const DeviceFunctionTable& functions,
-        const DeviceRef& device, const MemoryAllocateInfo& allocInfo)
+        DeviceRef device, const MemoryAllocateInfo& allocInfo)
     {
         GRAPHICS_VERIFY(!isValid(), "Trying to create a valid memory");
 
@@ -14,8 +14,8 @@ namespace Graphics
         GRAPHICS_VERIFY_RESULT(result, "Failed to allocate memory");
     }
 
-    void MemoryRef::bindBuffer(const DeviceFunctionTable& functions, const DeviceRef& device,
-        const BufferRef& buffer, size_t offset /*= 0*/)
+    void MemoryRef::bindBuffer(const DeviceFunctionTable& functions, DeviceRef device,
+        BufferRef buffer, size_t offset /*= 0*/)
     {
         GRAPHICS_VERIFY(isSet(), "Trying to bind to an invalid memory");
         auto result = functions.execute<DeviceFunction::BindBufferMemory>(
@@ -23,8 +23,8 @@ namespace Graphics
         GRAPHICS_VERIFY_RESULT(result, "Failed to bind buffer memory");
     }
 
-    void MemoryRef::bindImage(const DeviceFunctionTable& functions, const DeviceRef& device,
-        const ImageRef& image, size_t offset /*= 0*/)
+    void MemoryRef::bindImage(const DeviceFunctionTable& functions, DeviceRef device,
+        ImageRef image, size_t offset /*= 0*/)
     {
         GRAPHICS_VERIFY(isSet(), "Trying to bind to an invalid memory");
         auto result = functions.execute<DeviceFunction::BindImageMemory>(
@@ -32,7 +32,7 @@ namespace Graphics
         GRAPHICS_VERIFY_RESULT(result, "Failed to bind image memory");
     }
 
-    void Memory::destroy(const DeviceFunctionTable& functions, const DeviceRef& device)
+    void Memory::destroy(const DeviceFunctionTable& functions, DeviceRef device)
     {
         GRAPHICS_VERIFY(isValid(), "Trying to free an invalid memory");
         functions.execute<DeviceFunction::FreeMemory>(
@@ -40,22 +40,22 @@ namespace Graphics
         reset();
     }
 
-    MemoryMapping Memory::map(const DeviceFunctionTable& functions, const DeviceRef& device,
+    MemoryMapping Memory::map(const DeviceFunctionTable& functions, DeviceRef device,
         DeviceSize offset /*= 0*/, DeviceSize size /*= MemoryMapping::s_wholeSize*/,
         Flags::MemoryMap flags /*= Flags::MemoryMap::Bits::None*/)
     {
         GRAPHICS_VERIFY(isValid(), "Memory was not created before being mapped");
         void* mapping = nullptr;
-        auto result = functions.execute<DeviceFunction::MapMemory>(device, getHandle(),
+        auto result = functions.execute<DeviceFunction::MapMemory>(device.getHandle(), getHandle(),
             offset, size, flags, &mapping);
         GRAPHICS_VERIFY_RESULT(result, "Failed to map memory");
         return MemoryMapping(mapping);
     }
 
-    void Memory::unmap(const DeviceFunctionTable& functions, const DeviceRef& device,
+    void Memory::unmap(const DeviceFunctionTable& functions, DeviceRef device,
         MemoryMapping& mapping) {
         GRAPHICS_VERIFY(isValid(), "Memory was not created before being unmapped");
-        functions.execute<DeviceFunction::UnmapMemory>(device, getHandle());
+        functions.execute<DeviceFunction::UnmapMemory>(device.getHandle(), getHandle());
         mapping.invalidate();
     }
 }

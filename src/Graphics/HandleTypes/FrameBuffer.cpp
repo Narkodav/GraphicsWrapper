@@ -1,8 +1,8 @@
-#include "../../../include/Graphics/Graphics.h"
+#include "Graphics/Graphics.h"
 
 namespace Graphics
 {
-    void FrameBuffer::create(const DeviceRef& device, const DeviceFunctionTable& functions,
+    void FrameBuffer::create(const DeviceFunctionTable& functions, DeviceRef device, 
         const FrameBufferCreateInfo& createInfo)
     {
         GRAPHICS_VERIFY(!isValid(), "Trying to create a valid frame buffer");
@@ -11,7 +11,7 @@ namespace Graphics
         GRAPHICS_VERIFY_RESULT(result, "Failed to create a frame buffer");
     }
 
-    void FrameBuffer::destroy(const DeviceRef& device, const DeviceFunctionTable& functions)
+    void FrameBuffer::destroy(const DeviceFunctionTable& functions, DeviceRef device)
     {
         GRAPHICS_VERIFY(isValid(), "Trying to destroy an invalid frame buffer");
         functions.execute<DeviceFunction::DestroyFramebuffer>(

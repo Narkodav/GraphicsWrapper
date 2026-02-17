@@ -1,9 +1,9 @@
 #pragma once
-#include "WindowWin32.h"
+#include "Graphics/PlatformManagement/WindowWin32.h"
 #include <vulkan/vulkan.h>
 
-#include "../Enums.h"
-#include "../Flags.h"
+#include "Graphics/Enums.h"
+#include "Graphics/Flags.h"
 
 namespace Graphics {
     class InstanceRef;

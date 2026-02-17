@@ -1,6 +1,6 @@
 #pragma once
-#include "../Common.h"
-#include "../HandleTypes/Pipeline.h"
+#include "Graphics/Common.h"
+#include "Graphics/HandleTypes/Pipeline.h"
 
 namespace Graphics::Utility {
 
@@ -37,8 +37,8 @@ namespace Graphics::Utility {
         template<size_t I>
         constexpr const auto& get() const { return std::get<I>(m_data); }
 
-        consteval static size_t size() { return sizeof...(Types); };
-        consteval static bool empty() { return sizeof...(Types) == 0; };
+        constexpr static size_t size() { return sizeof...(Types); };
+        constexpr static bool empty() { return sizeof...(Types) == 0; };
     };
 
     template<typename T>
@@ -146,7 +146,7 @@ namespace Graphics::Utility {
     public:
         constexpr auto enumerateDescriptors() const
         {
-            std::array<DescriptorSetLayoutBinding, this->size()> descriptors;
+            std::array<DescriptorSetLayoutBinding, sizeof...(Defs)> descriptors;
             size_t index = 0;
             this->iterateComplete([&]<DescriptorDefinition T>(const T & elem) {
                 descriptors[index++] = elem.getDescriptorSetLayoutBinding();

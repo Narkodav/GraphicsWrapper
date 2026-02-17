@@ -1,123 +1,97 @@
-set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS ON CACHE BOOL "" FORCE)
-cmake_minimum_required(VERSION 3.10)
-project(GraphicsWrapper)
+cmake_minimum_required(VERSION 3.20)
+project(GraphicsWrapper LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# ===============================
+# Library target
+# ===============================
 
-file(GLOB SRC_FILES
-    ${CMAKE_SOURCE_DIR}/src/*.cpp
-    ${CMAKE_SOURCE_DIR}/src/**/*.cpp
-    ${CMAKE_SOURCE_DIR}/src/**/**/*.cpp
+file(GLOB_RECURSE SRC_FILES
+    CONFIGURE_DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 )
 
-# Add executable
-add_library(${PROJECT_NAME} STATIC
-    ${SRC_FILES}
-)
-
+add_library(GraphicsWrapper ${SRC_FILES})
 add_library(GraphicsWrapper::GraphicsWrapper ALIAS GraphicsWrapper)
 
-target_include_directories(${PROJECT_NAME}
+target_compile_features(GraphicsWrapper PUBLIC cxx_std_20)
+
+target_include_directories(GraphicsWrapper
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        -Wall -Wextra -Wpedantic -Werror
-    )
-elseif (MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        /W4 /WX
-    )
-endif()
-
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
-
-# Dependencies
-set(API_DIR E:/Program\ Files\ \(x86\)/API)
-set(LOCAL_API_DIR E:/Program\ Files\ \(x86\)/Code/C_code/libraries)
-message(STATUS "Api directory: ${API_DIR}")
-
-# Vulkan
-find_package(Vulkan REQUIRED)
-target_link_libraries(${PROJECT_NAME}
-    PUBLIC Vulkan::Vulkan
+target_compile_options(GraphicsWrapper PRIVATE
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic>
+    $<$<CXX_COMPILER_ID:MSVC>:/W4>
 )
 
-target_include_directories(${PROJECT_NAME}
-    SYSTEM PUBLIC ${Vulkan_INCLUDE_DIRS}
+target_compile_definitions(${PROJECT_NAME}
+    PRIVATE GRAPHICS_WRAPPER_EXPORTS
 )
 
-# GLM
-set(glm_DIR ${API_DIR}/glm/cmake/glm)
-find_package(glm REQUIRED)
-target_link_libraries(${PROJECT_NAME}
-    PUBLIC glm::glm
+# ===============================
+# System dependency
+# ===============================
+
+target_link_libraries(GraphicsWrapper PUBLIC Vulkan::Vulkan)
+
+# ===============================
+# Internal dependencies (PRIVATE)
+# ===============================
+
+add_library(GraphicsWrapper_stb_image INTERFACE)
+target_include_directories(GraphicsWrapper_stb_image
+    INTERFACE 
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Vendor/stb_image>
+        $<INSTALL_INTERFACE:include/GraphicsWrapper/stb_image>
 )
+target_link_libraries(GraphicsWrapper PRIVATE GraphicsWrapper_stb_image)
 
-target_include_directories(${PROJECT_NAME}
-    SYSTEM PUBLIC ${GLM_INCLUDE_DIRS}
-)
+# ===============================
+# Other libraries
+# ===============================
 
-#STBI
-set(stb_image_DIR ${API_DIR}/stb_image)
-add_library(stb_image STATIC
-    ${stb_image_DIR}/stb_image.cpp
-    ${stb_image_DIR}/stb_image_write.cpp
-)
+target_link_libraries(GraphicsWrapper PUBLIC CommonApi::CommonApi)
+target_link_libraries(GraphicsWrapper PUBLIC Containers::Containers)
 
-add_library(GraphicsWrapper::stb_image ALIAS stb_image)
+# # =========================
+# # Test executable
+# # =========================
+# file(GLOB_RECURSE TEST_SRC_FILES
+#     ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp
+# )
 
-target_include_directories(stb_image SYSTEM PUBLIC
-    ${stb_image_DIR}
-)
+# add_executable(GraphicsWrapperTests ${TEST_SRC_FILES})
 
-target_link_libraries(${PROJECT_NAME}
-    PRIVATE stb_image
-)
+# # Link the library
+# target_link_libraries(GraphicsWrapperTests PRIVATE ${PROJECT_NAME})
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(stb_image PRIVATE
-        -Wno-error
-        -Wno-missing-field-initializers
-    )
-elseif (MSVC)
-    target_compile_options(stb_image PRIVATE
-        /W0
-    )
-endif()
+# # Match C++ standard and warnings
+# target_compile_features(GraphicsWrapperTests PUBLIC cxx_std_20)
+# target_compile_options(GraphicsWrapperTests PRIVATE
+#     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic>
+#     $<$<CXX_COMPILER_ID:MSVC>:/W4>
+# )
 
-#CommonApi
-find_package(CommonApi CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME}
-    PUBLIC CommonApi::CommonApi
-)
-get_target_property(CommonApi_INCLUDE_DIRS CommonApi::CommonApi INTERFACE_INCLUDE_DIRECTORIES)
+# target_include_directories(GraphicsWrapperTests PRIVATE
+#     ${CMAKE_CURRENT_SOURCE_DIR}/include
+# )
 
-#Containers
-find_package(Containers REQUIRED)
-target_link_libraries(${PROJECT_NAME} 
-    PUBLIC Containers::Containers
-)
-get_target_property(Containers_INCLUDE_DIRS Containers::Containers INTERFACE_INCLUDE_DIRECTORIES)
+# # Enable CTest
+# enable_testing()
+# add_test(NAME GraphicsWrapperTests COMMAND GraphicsWrapperTests)
 
-message(STATUS "Vulkan include dirs: ${Vulkan_INCLUDE_DIRS}")
-message(STATUS "GLM include dirs: ${GLM_INCLUDE_DIRS}")
-message(STATUS "STBI include dirs: ${stb_image_DIR}")
-message(STATUS "CommonApi include dirs: ${CommonApi_INCLUDE_DIRS}")
-message(STATUS "Containers include dirs: ${Containers_INCLUDE_DIRS}")
+# ===============================
+# Install & package (TOP-LEVEL ONLY)
+# ===============================
 
-# install
-install(TARGETS ${PROJECT_NAME}
-    EXPORT GraphicsWrapperTargets
-)
-
-install(TARGETS stb_image
+install(TARGETS ${PROJECT_NAME} GraphicsWrapper_stb_image
     EXPORT GraphicsWrapperTargets
     ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION include
 )
 
 install(DIRECTORY include/
@@ -133,7 +107,7 @@ install(EXPORT GraphicsWrapperTargets
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
-    ${CMAKE_SOURCE_DIR}/install/GraphicsWrapperConfig.cmake.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/install/GraphicsWrapperConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/GraphicsWrapperConfig.cmake
     INSTALL_DESTINATION lib/cmake/GraphicsWrapper
 )

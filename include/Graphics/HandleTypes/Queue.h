@@ -117,13 +117,13 @@ namespace Graphics
     public:
         using Base::Base;        
 
-        void waitIdle(const DeviceFunctionTable& functions) const;
+        Result waitIdle(const DeviceFunctionTable& functions) const;
 
-        void submit(const DeviceFunctionTable& functions,
+        Result submit(const DeviceFunctionTable& functions,
             std::span<const QueueSubmitInfo> submitInfos,
             const FenceRef& fence) const;
 
-        void submit(const DeviceFunctionTable& functions,
+        Result submit(const DeviceFunctionTable& functions,
             const QueueSubmitInfo& submitInfo,
             const FenceRef& fence) const;
 

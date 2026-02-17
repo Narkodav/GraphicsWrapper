@@ -7,8 +7,6 @@
 
 namespace Graphics
 {
-    class FrameBufferRef;
-
     class Attachment : public StructBase<VkAttachmentDescription, Attachment>
     {
 		using Base = StructBase<VkAttachmentDescription, Attachment>;
@@ -215,21 +213,6 @@ namespace Graphics
         static inline const std::string s_typeName = "RenderPass";
     };
 
-    class RenderPassBeginInfo : public StructBase<VkRenderPassBeginInfo, RenderPassBeginInfo>
-    {
-        using Base = StructBase<VkRenderPassBeginInfo, RenderPassBeginInfo>;
-    public:
-        using Base::Base;
-
-        RenderPassBeginInfo(const RenderPassRef& renderPass, const FrameBufferRef& frameBuffer,
-            std::span<const ClearValue> clearValues, const Rect2D& renderArea);
-
-        RenderPassBeginInfo& setRenderPass(const RenderPassRef& renderPass);
-        RenderPassBeginInfo& setFrameBuffer(const FrameBufferRef& frameBuffer);
-        RenderPassBeginInfo& setClearValues(std::span<const ClearValue> clearValues);
-        RenderPassBeginInfo& setRenderArea(const Rect2D& renderArea);
-    };
-
     class RenderPassCreateInfo : public StructBase<VkRenderPassCreateInfo, RenderPassCreateInfo>
     {
         using Base = StructBase<VkRenderPassCreateInfo, RenderPassCreateInfo>;
@@ -271,8 +254,8 @@ namespace Graphics
     public:
         using Base::Base;
 
-        void create(const DeviceFunctionTable& functions, const DeviceRef& device,
+        void create(const DeviceFunctionTable& functions, DeviceRef device,
             const RenderPassCreateInfo& createInfo);
-        void destroy(const DeviceFunctionTable& functions, const DeviceRef& device);
+        void destroy(const DeviceFunctionTable& functions, DeviceRef device);
     };
 }

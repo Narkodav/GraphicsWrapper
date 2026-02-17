@@ -1,4 +1,4 @@
-#include "../../../include/Graphics/Graphics.h"
+#include "Graphics/Graphics.h"
 
 namespace Graphics {
 
@@ -11,7 +11,7 @@ namespace Graphics {
 			beginInfo.getUnderlyingPointer(), convertCEnum(subpassContents));
 	}
 
-	void CommandBuffer::bindPipeline(const DeviceFunctionTable& functions, const PipelineRef& pipeline,
+	void CommandBuffer::bindPipeline(const DeviceFunctionTable& functions, PipelineRef pipeline,
 		PipelineBindPoint bindPoint)
 	{
 		GRAPHICS_VERIFY(isSet(), "Trying to record an invalid command buffer");
@@ -20,7 +20,7 @@ namespace Graphics {
 	}
 
 	void CommandBuffer::bindDescriptorSets(const DeviceFunctionTable& functions, PipelineBindPoint pipelineBindPoint,
-		const PipelineLayoutRef& pipelineLayout, uint32_t firstSet, std::span<const DescriptorSet> descriptorSets,
+		PipelineLayoutRef pipelineLayout, uint32_t firstSet, std::span<const DescriptorSet> descriptorSets,
 		std::span<const uint32_t> dynamicOffsets /*= {}*/)
 	{
 		GRAPHICS_VERIFY(isSet(), "Trying to record an invalid command buffer");
@@ -43,25 +43,24 @@ namespace Graphics {
 			imageMemoryBarriers.size(), ImageMemoryBarrier::underlyingCast(imageMemoryBarriers.data()));
 	}
 
-	void CommandBuffer::copyBuffer(const DeviceFunctionTable& functions, const BufferRef& srcBuffer,
-		const BufferRef& dstBuffer, std::span<const BufferCopy> copyRegions)
+	void CommandBuffer::copyBuffer(const DeviceFunctionTable& functions, BufferRef srcBuffer,
+		BufferRef dstBuffer, std::span<const BufferCopy> copyRegions)
 	{ 
 		GRAPHICS_VERIFY(isSet(), "Trying to record an invalid command buffer");
 		functions.execute<DeviceFunction::CmdCopyBuffer>(getHandle(), srcBuffer.getHandle(),
 			dstBuffer.getHandle(), copyRegions.size(), BufferCopy::underlyingCast(copyRegions.data()));
 	}
 
-	void CommandBuffer::copyBuffer(const DeviceFunctionTable& functions, const BufferRef& srcBuffer,
-		const BufferRef& dstBuffer, const BufferCopy& copyRegion)
+	void CommandBuffer::copyBuffer(const DeviceFunctionTable& functions, BufferRef srcBuffer,
+		BufferRef dstBuffer, const BufferCopy& copyRegion)
 	{
 		GRAPHICS_VERIFY(isSet(), "Trying to record an invalid command buffer");
 		functions.execute<DeviceFunction::CmdCopyBuffer>(getHandle(), srcBuffer.getHandle(),
 			dstBuffer.getHandle(), 1, BufferCopy::underlyingCast(&copyRegion));
 	}
 
-	void CommandBuffer::copyBufferToImage(const DeviceFunctionTable& functions, const BufferRef& srcBuffer,
-		const ImageRef& dstImage, ImageLayout dstLayout, 
-		std::span<const BufferImageCopy> imageCopies)
+	void CommandBuffer::copyBufferToImage(const DeviceFunctionTable& functions, BufferRef srcBuffer,
+		ImageRef dstImage, ImageLayout dstLayout, std::span<const BufferImageCopy> imageCopies)
 	{
 		GRAPHICS_VERIFY(isSet(), "Trying to record an invalid command buffer");
 		functions.execute<DeviceFunction::CmdCopyBufferToImage>(getHandle(), srcBuffer.getHandle(),
@@ -69,8 +68,8 @@ namespace Graphics {
 			BufferImageCopy::underlyingCast(imageCopies.data()));
 	}
 
-	void CommandBuffer::copyBufferToImage(const DeviceFunctionTable& functions, const BufferRef& srcBuffer,
-		const ImageRef& dstImage, ImageLayout dstLayout, const BufferImageCopy& imageCopy)
+	void CommandBuffer::copyBufferToImage(const DeviceFunctionTable& functions, BufferRef srcBuffer,
+		ImageRef dstImage, ImageLayout dstLayout, const BufferImageCopy& imageCopy)
 	{
 		GRAPHICS_VERIFY(isSet(), "Trying to record an invalid command buffer");
 		functions.execute<DeviceFunction::CmdCopyBufferToImage>(getHandle(), srcBuffer.getHandle(),
@@ -93,6 +92,16 @@ namespace Graphics {
 			scissors.size(), Scissor::underlyingCast(scissors.data()));
 	}
 
+	void CommandBuffer::setViewport(const DeviceFunctionTable& functions, const Viewport& viewport) {
+		GRAPHICS_VERIFY(isSet(), "Trying to record an invalid command buffer");
+		functions.execute<DeviceFunction::CmdSetViewport>(getHandle(), 0, 1, viewport.getUnderlyingPointer());
+	}
+
+    void CommandBuffer::setScissor(const DeviceFunctionTable& functions, const Scissor& scissor) {
+		GRAPHICS_VERIFY(isSet(), "Trying to record an invalid command buffer");
+		functions.execute<DeviceFunction::CmdSetScissor>(getHandle(), 0, 1, scissor.getUnderlyingPointer());
+	}
+
 	void CommandBuffer::draw(const DeviceFunctionTable& functions,
 		uint32_t vertexCount, uint32_t instanceCount,
 		uint32_t firstVertex, uint32_t firstInstance)
@@ -111,11 +120,11 @@ namespace Graphics {
 			indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 	}
 
-	void CommandBuffer::drawIndirect(const DeviceFunctionTable& functions, const BufferRef& buffer,
+	void CommandBuffer::drawIndirect(const DeviceFunctionTable& functions, BufferRef buffer,
 		DeviceSize offset, uint32_t drawCount, uint32_t stride)
 	{
 		GRAPHICS_VERIFY(isSet(), "Trying to record an invalid command buffer");
-		functions.execute<DeviceFunction::CmdDrawIndirect>(getHandle(), buffer,
+		functions.execute<DeviceFunction::CmdDrawIndirect>(getHandle(), buffer.getHandle(),
 			offset, drawCount, stride);
 	}
 
@@ -147,21 +156,20 @@ namespace Graphics {
 	}
 
 	void CommandBuffer::blitImage(const DeviceFunctionTable& functions,
-		const Image& srcImage, const Image& dstImage,
-		ImageLayout srcLayout, ImageLayout dstLayout,
+		ImageRef srcImage, ImageRef dstImage, ImageLayout srcLayout, ImageLayout dstLayout,
 		std::span<const ImageBlit> blit, Filter filter /*= Filter::Linear*/)
 	{
 		GRAPHICS_VERIFY(isSet(), "Trying to record an invalid command buffer");
-		functions.execute<DeviceFunction::CmdBlitImage>(getHandle(), srcImage,
+		functions.execute<DeviceFunction::CmdBlitImage>(getHandle(), srcImage.getHandle(),
 			convertCEnum(srcLayout), dstImage.getHandle(), convertCEnum(dstLayout), blit.size(),
 			ImageBlit::underlyingCast(blit.data()), convertCEnum(filter));
 	}
 
-	void CommandBuffer::pushConstants(const DeviceFunctionTable& functions, const PipelineLayoutRef& pipelineLayout,
+	void CommandBuffer::pushConstants(const DeviceFunctionTable& functions, PipelineLayoutRef pipelineLayout,
 		Flags::ShaderStage stageFlags, uint32_t offset, uint32_t size, const void* values)
 	{
 		GRAPHICS_VERIFY(isSet(), "Trying to record an invalid command buffer");
-		functions.execute<DeviceFunction::CmdPushConstants>(getHandle(), pipelineLayout,
+		functions.execute<DeviceFunction::CmdPushConstants>(getHandle(), pipelineLayout.getHandle(),
 			stageFlags, offset, size, values);
 	}
 

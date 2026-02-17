@@ -289,7 +289,7 @@ namespace Graphics::Utility
             .setUsage(Flags::ImageUsage::Bits::DepthStencilAttachment);
 
         swapChainData.depthImage.create(deviceFunctions, device, swapChainData.depthImageCreateInfo);
-        auto memRequirements = swapChainData.depthImage.getMemoryRequirements(device, deviceFunctions);
+        auto memRequirements = swapChainData.depthImage.getMemoryRequirements(deviceFunctions, device);
         swapChainData.depthImageMemoryCreateInfo.setAllocationSize(memRequirements.getSize())
             .setMemoryTypeIndex(findMemoryTypeFirstFit(physicalDevice.getMemoryProperties(functions),
                 memRequirements.getMemoryTypeBits(), Flags::MemoryProperty::Bits::DeviceLocal));
@@ -302,7 +302,7 @@ namespace Graphics::Utility
             .setSubresourceRange(ImageSubresourceRange(
                 Flags::ImageAspect::Bits::Depth, 0, 1, 0, desiredImageArrayLayerCount))
             .setComponents(ComponentMapping());
-        swapChainData.depthImageView.create(device, deviceFunctions, swapChainData.depthImageViewCreateInfo);
+        swapChainData.depthImageView.create(deviceFunctions, device, swapChainData.depthImageViewCreateInfo);
 
         swapChainData.swapChainImageViews.reserve(swapChainData.swapChainImages.size());
         swapChainData.swapChainFrameBuffers.reserve(swapChainData.swapChainImages.size());
@@ -322,7 +322,7 @@ namespace Graphics::Utility
                 .setImage(swapChainData.swapChainImages[i]);
 
             swapChainData.swapChainImageViews.push_back(ImageView{});
-            swapChainData.swapChainImageViews.back().create(device, deviceFunctions,
+            swapChainData.swapChainImageViews.back().create(deviceFunctions, device,
                 swapChainData.swapChainImageViewCreateInfos.back());
 
             swapChainData.attachmentRefs[i] = { swapChainData.swapChainImageViews.back(), swapChainData.depthImageView };
@@ -333,7 +333,7 @@ namespace Graphics::Utility
                 .setLayers(desiredImageArrayLayerCount);
 
             swapChainData.swapChainFrameBuffers.push_back(FrameBuffer{});
-            swapChainData.swapChainFrameBuffers.back().create(device, deviceFunctions, swapChainData.swapChainFrameBufferCreateInfos.back());
+            swapChainData.swapChainFrameBuffers.back().create(deviceFunctions, device, swapChainData.swapChainFrameBufferCreateInfos.back());
         }
 
 		return swapChainData;
@@ -343,17 +343,17 @@ namespace Graphics::Utility
         const DeviceRef& device, SwapChainData& data)
     {
         for (auto& framebuffer : data.swapChainFrameBuffers) {
-            framebuffer.destroy(device, deviceFunctions);
+            framebuffer.destroy(deviceFunctions, device);
         }
         data.swapChainFrameBuffers.clear();
         data.swapChainFrameBufferCreateInfos.clear();
         for (auto& imageView : data.swapChainImageViews) {
-            imageView.destroy(device, deviceFunctions);
+            imageView.destroy(deviceFunctions, device);
         }        
         data.swapChainImageViews.clear();
         data.swapChainImageViewCreateInfos.clear();
         data.attachmentRefs.clear();
-        data.depthImageView.destroy(device, deviceFunctions);
+        data.depthImageView.destroy(deviceFunctions, device);
         data.depthImage.destroy(deviceFunctions, device);
         data.depthImageMemory.destroy(deviceFunctions, device);
 		data.swapChain.destroy(deviceFunctions, device);
@@ -372,24 +372,24 @@ namespace Graphics::Utility
         data.swapChainImages = data.swapChain.getImages(deviceFunctions, device);
 
         for (auto& framebuffer : data.swapChainFrameBuffers) {
-            framebuffer.destroy(device, deviceFunctions);
+            framebuffer.destroy(deviceFunctions, device);
         }
         data.swapChainFrameBuffers.clear();
         data.swapChainFrameBufferCreateInfos.clear();
         for (auto& imageView : data.swapChainImageViews) {
-            imageView.destroy(device, deviceFunctions);
+            imageView.destroy(deviceFunctions, device);
         }
         data.swapChainImageViews.clear();
         data.swapChainImageViewCreateInfos.clear();
         data.attachmentRefs.clear();
-        data.depthImageView.destroy(device, deviceFunctions);
+        data.depthImageView.destroy(deviceFunctions, device);
         data.depthImage.destroy(deviceFunctions, device);
 
         data.depthImageCreateInfo.setExtent(Extent3D(preferredExtent, 1));
         data.depthImage.create(deviceFunctions, device, data.depthImageCreateInfo);
 
         data.depthImageViewCreateInfo.setImage(data.depthImage);
-        data.depthImageView.create(device, deviceFunctions, data.depthImageViewCreateInfo);
+        data.depthImageView.create(deviceFunctions, device, data.depthImageViewCreateInfo);
 
         data.swapChainImageViews.reserve(data.swapChainImages.size());
         data.swapChainFrameBuffers.reserve(data.swapChainImages.size());
@@ -407,7 +407,7 @@ namespace Graphics::Utility
                 .setViewType(ImageViewType::T2D)
                 .setImage(data.swapChainImages[i]);
             data.swapChainImageViews.push_back(ImageView{});
-            data.swapChainImageViews.back().create(device, deviceFunctions,
+            data.swapChainImageViews.back().create(deviceFunctions, device,
                 data.swapChainImageViewCreateInfos.back());
             data.attachmentRefs[i] = { data.swapChainImageViews.back(), data.depthImageView };
             data.swapChainFrameBufferCreateInfos.push_back(FrameBufferCreateInfo{});
@@ -416,7 +416,7 @@ namespace Graphics::Utility
                 .setExtent(preferredExtent)
                 .setLayers(1);
             data.swapChainFrameBuffers.push_back(FrameBuffer{});
-            data.swapChainFrameBuffers.back().create(device, deviceFunctions, data.swapChainFrameBufferCreateInfos.back());
+            data.swapChainFrameBuffers.back().create(deviceFunctions, device, data.swapChainFrameBufferCreateInfos.back());
 		}
     }
 
@@ -604,7 +604,7 @@ namespace Graphics::Utility
         commandBuffer.copyBuffer(deviceFunctions, srcBuffer, dstBuffer, copyRegion);
     }
 
-    MemoryRequirements initBufferMemoryPairFirstFit(const DeviceFunctionTable& deviceFunctions, DeviceRef device, 
+    MemoryRequirements createBufferMemoryPairFirstFit(const DeviceFunctionTable& deviceFunctions, DeviceRef device, 
         const PhysicalDeviceMemoryProperties& deviceMemoryProps, Buffer& buffer, Memory& memory, 
         size_t size, Flags::BufferUsage bufferUsage, Flags::MemoryProperty requiredProperties,
         Flags::MemoryProperty forbiddenProperties, //= Flags::MemoryProperty::Bits::None 
@@ -619,5 +619,36 @@ namespace Graphics::Utility
             });
         memory.bindBuffer(deviceFunctions, device, buffer);
         return memoryRequirements;
+    }
+
+    /**
+     * Calculate the number of mipmap levels for a 2D texture.
+     *
+     * The mathematical formula for the number of mip levels is:
+     * 
+     *     mipLevels = floor(log2(max(width, height))) + 1
+     *
+     * This ensures that the smallest mip level is 1x1, and each
+     * level halves the size of the previous level until reaching 1.
+     *
+     * The bitwise integer version below avoids floating-point calculations:
+     * - `maxDim >>= 1` repeatedly divides the dimension by 2 (equivalent to log2)
+     * - Each shift counts as one mip level
+     * 
+     * Advantages of using the bitwise method:
+     * 1. Avoids any floating-point rounding issues.
+     * 2. Pure integer arithmetic, faster and predictable.
+     * 3. Works for all 32-bit dimensions that Vulkan supports.
+     */
+    uint32_t calculateMipLevelCount(uint32_t width, uint32_t height) {
+        if (width == 0 || height == 0) return 1; // Minimum 1 level
+
+        uint32_t maxDim = std::max(width, height);
+        uint32_t levels = 0;
+        while (maxDim > 0) {
+            ++levels;
+            maxDim >>= 1;
+        }
+        return levels;
     }
 }

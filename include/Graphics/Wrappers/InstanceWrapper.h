@@ -155,7 +155,7 @@ namespace Graphics::Wrappers {
 
         const InstanceFunctionTable& getFunctionTable() const { return m_instanceFunctionTable; }
 
-        PhysicalDeviceCache::SearchResult getFittingDevice(const Surface& surface, const DeviceRequirements& requirements) const {
+        PhysicalDeviceCache::SearchResult getFittingDevice(SurfaceRef surface, const DeviceRequirements& requirements) const {
             auto result = m_physicalDeviceCache.getFittingDevice(m_instanceFunctionTable, surface, requirements);
             if (!result.isSuitable()) {
                 throw std::runtime_error("No fitting device found");

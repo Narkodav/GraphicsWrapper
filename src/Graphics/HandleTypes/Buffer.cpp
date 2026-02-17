@@ -1,4 +1,4 @@
-#include "../../../include/Graphics/Graphics.h"
+#include "Graphics/Graphics.h"
 
 namespace Graphics {
     void Buffer::create(const DeviceFunctionTable& functions, const DeviceRef& device, const BufferCreateInfo& createInfo)

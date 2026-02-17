@@ -73,61 +73,6 @@ namespace Graphics {
         BufferCopy& setSize(size_t size) { this->size = size; return *this; }
     };
 
-    struct Color : public StructBase<std::array<float, 4>, Color>
-    {
-        using Base = StructBase<std::array<float, 4>, Color>;
-    public:
-        using Base::Base;
-
-        Color(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f) : Base({ r, g, b, a }) {};
-
-        Color(uint8_t r, uint8_t g, uint8_t b,
-            uint8_t a = std::numeric_limits<uint8_t>::max()) :
-            Base({ (static_cast<float>(r) / 255.f),
-            (static_cast<float>(g) / 255.f),
-            (static_cast<float>(b) / 255.f),
-            (static_cast<float>(a) / 255.f) }) {
-        };
-
-        operator const glm::vec4& () const { return *reinterpret_cast<const glm::vec4*>(this); };
-        operator glm::vec4& () { return *reinterpret_cast<glm::vec4*>(this); };
-
-        operator const VkClearValue& () const { return *reinterpret_cast<const VkClearValue*>(this); };
-        operator VkClearValue& () { return *reinterpret_cast<VkClearValue*>(this); };
-
-        static Color Empty() { return Color(0.0f, 0.0f, 0.0f, 0.0f); }
-        static Color Black() { return Color(0.0f, 0.0f, 0.0f); }
-        static Color White() { return Color(1.0f, 1.0f, 1.0f); }
-        static Color Red() { return Color(1.0f, 0.0f, 0.0f); }
-        static Color Green() { return Color(0.0f, 1.0f, 0.0f); }
-        static Color Blue() { return Color(0.0f, 0.0f, 1.0f); }
-
-        Color& setR(float r) {
-            Base::operator[](0) = r;
-            return *this;
-        }
-
-        Color& setG(float g) {
-            Base::operator[](1) = g;
-            return *this;
-        }
-
-        Color& setB(float b) {
-            Base::operator[](2) = b;
-            return *this;
-        }
-
-        Color& setA(float a) {
-            Base::operator[](3) = a;
-            return *this;
-        }
-
-        float getR() const { return Base::operator[](0); };
-        float getG() const { return Base::operator[](1); };
-        float getB() const { return Base::operator[](2); };
-        float getA() const { return Base::operator[](3); };
-    };
-
     struct alignas(4) DrawCommand
     {
         uint32_t vertexCount;
@@ -186,7 +131,7 @@ namespace Graphics {
         int32_t getY() const { return this->y; };
     };
 
-    struct Extent3D : public StructBase<VkExtent3D, Extent3D>
+    class Extent3D : public StructBase<VkExtent3D, Extent3D>
     {
         using Base = StructBase<VkExtent3D, Extent3D>;
     public:
@@ -290,7 +235,7 @@ namespace Graphics {
         Viewport& setMaxDepth(float maxDepth) { this->maxDepth = maxDepth; return *this; };
     };
 
-    struct Rect2D : public StructBase<VkRect2D, Rect2D>
+    class Rect2D : public StructBase<VkRect2D, Rect2D>
     {
         using Base = StructBase<VkRect2D, Rect2D>;
     public:
@@ -299,6 +244,13 @@ namespace Graphics {
         Rect2D(const Offset2D& offset, const Extent2D& extent) : Base() {
             this->offset.x = offset.getX();
             this->offset.y = offset.getY();
+            this->extent.width = extent.getWidth();
+            this->extent.height = extent.getHeight();
+        };
+
+        Rect2D(const Extent2D& extent) : Base() {
+            this->offset.x = 0;
+            this->offset.y = 0;
             this->extent.width = extent.getWidth();
             this->extent.height = extent.getHeight();
         };
@@ -434,7 +386,7 @@ namespace Graphics {
         uint32_t getOffset() const { return this->offset; };
         uint32_t getSize() const { return this->size; };
     };
-
+    
     class ClearColorValue : public UnionBase<VkClearColorValue, ClearColorValue,
         std::array<float, 4>, std::array<int32_t, 4>, std::array<uint32_t, 4>>
     {
@@ -514,6 +466,61 @@ namespace Graphics {
         const ClearDepthStencilValue& getClearDepthStencil() const { 
             return ClearDepthStencilValue::underlyingCast(getUnion().depthStencil); 
         }
+    };
+
+    struct Color : public StructBase<std::array<float, 4>, Color>
+    {
+        using Base = StructBase<std::array<float, 4>, Color>;
+    public:
+        using Base::Base;
+
+        Color(float r = 0.0f, float g = 0.0f, float b = 0.0f, float a = 1.0f) : Base({ r, g, b, a }) {};
+
+        Color(uint8_t r, uint8_t g, uint8_t b,
+            uint8_t a = std::numeric_limits<uint8_t>::max()) :
+            Base({ (static_cast<float>(r) / 255.f),
+            (static_cast<float>(g) / 255.f),
+            (static_cast<float>(b) / 255.f),
+            (static_cast<float>(a) / 255.f) }) {
+        };
+
+        operator const glm::vec4& () const { return *reinterpret_cast<const glm::vec4*>(this); };
+        operator glm::vec4& () { return *reinterpret_cast<glm::vec4*>(this); };
+
+        operator const ClearValue& () const { return *reinterpret_cast<const ClearValue*>(this); };
+        operator ClearValue& () { return *reinterpret_cast<ClearValue*>(this); };
+
+        static Color Empty() { return Color(0.0f, 0.0f, 0.0f, 0.0f); }
+        static Color Black() { return Color(0.0f, 0.0f, 0.0f); }
+        static Color White() { return Color(1.0f, 1.0f, 1.0f); }
+        static Color Red() { return Color(1.0f, 0.0f, 0.0f); }
+        static Color Green() { return Color(0.0f, 1.0f, 0.0f); }
+        static Color Blue() { return Color(0.0f, 0.0f, 1.0f); }
+
+        Color& setR(float r) {
+            Base::operator[](0) = r;
+            return *this;
+        }
+
+        Color& setG(float g) {
+            Base::operator[](1) = g;
+            return *this;
+        }
+
+        Color& setB(float b) {
+            Base::operator[](2) = b;
+            return *this;
+        }
+
+        Color& setA(float a) {
+            Base::operator[](3) = a;
+            return *this;
+        }
+
+        float getR() const { return Base::operator[](0); };
+        float getG() const { return Base::operator[](1); };
+        float getB() const { return Base::operator[](2); };
+        float getA() const { return Base::operator[](3); };
     };
 
     class AllocationCallbacks : public StructBase<VkAllocationCallbacks, AllocationCallbacks>

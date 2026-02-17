@@ -1,4 +1,4 @@
-#include "../../../include/Graphics/Graphics.h"
+#include "Graphics/Graphics.h"
 
 namespace Graphics::DebugUtils
 {

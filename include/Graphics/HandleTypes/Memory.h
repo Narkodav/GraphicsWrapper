@@ -17,10 +17,10 @@ namespace Graphics
         using Base::Base;
         static inline const std::string s_typeName = "Memory";
 
-        void bindBuffer(const DeviceFunctionTable& functions, const DeviceRef& device,
-            const BufferRef& buffer, size_t offset = 0);
-        void bindImage(const DeviceFunctionTable& functions, const DeviceRef& device,
-            const ImageRef& image, size_t offset = 0);
+        void bindBuffer(const DeviceFunctionTable& functions, DeviceRef device,
+            BufferRef buffer, size_t offset = 0);
+        void bindImage(const DeviceFunctionTable& functions, DeviceRef device,
+            ImageRef image, size_t offset = 0);
     };
 
     class MemoryType : public StructBase<VkMemoryType, MemoryType>
@@ -161,30 +161,31 @@ namespace Graphics
             return m_mapping != nullptr;
         }
 
+        void* get(size_t offset = 0) { return static_cast<std::byte*>(m_mapping) + offset; }
+        const void* get(size_t offset = 0) const { return static_cast<const std::byte*>(m_mapping) + offset; }
+
         template<typename T>
         std::span<T> get(size_t offset, size_t size)
         {
-            return std::span<T>(reinterpret_cast<T*>(reinterpret_cast<uint8_t*>(m_mapping)
-                + offset), size);
+            return std::span<T>(reinterpret_cast<T*>(static_cast<std::byte*>(m_mapping) + offset), size);
         }
 
         template<typename T>
         const std::span<const T> get(size_t offset, size_t size) const
         {
-            return std::span<const T>(reinterpret_cast<T*>(reinterpret_cast<uint8_t*>(m_mapping)
-                + offset), size);
+            return std::span<const T>(reinterpret_cast<const T*>(static_cast<const std::byte*>(m_mapping) + offset), size);
         }
 
         template<typename T>
         T* get(size_t offset = 0)
         {
-            return reinterpret_cast<T*>(reinterpret_cast<uint8_t*>(m_mapping) + offset);
+            return reinterpret_cast<T*>(static_cast<std::byte*>(m_mapping) + offset);
         }
 
         template<typename T>
         const T* get(size_t offset = 0) const
         {
-            return reinterpret_cast<T*>(reinterpret_cast<uint8_t*>(m_mapping) + offset);
+            return reinterpret_cast<const T*>(static_cast<const std::byte*>(m_mapping) + offset);
         }
     };
 
@@ -197,16 +198,16 @@ namespace Graphics
 		static inline const size_t s_maxMemoryTypes = VK_MAX_MEMORY_TYPES;
         static inline const size_t s_maxMemoryHeaps = VK_MAX_MEMORY_HEAPS;        
 
-        void create(const DeviceFunctionTable& functions, const DeviceRef& device,
+        void create(const DeviceFunctionTable& functions, DeviceRef device,
             const MemoryAllocateInfo& allocInfo);
 
-        void destroy(const DeviceFunctionTable& functions, const DeviceRef& device);
+        void destroy(const DeviceFunctionTable& functions, DeviceRef device);
 
-        MemoryMapping map(const DeviceFunctionTable& functions, const DeviceRef& device,
+        MemoryMapping map(const DeviceFunctionTable& functions, DeviceRef device,
             DeviceSize offset = 0, DeviceSize size = MemoryMapping::s_wholeSize,
             Flags::MemoryMap flags = Flags::MemoryMap::Bits::None);
 
-        void unmap(const DeviceFunctionTable& functions, const DeviceRef& device,
+        void unmap(const DeviceFunctionTable& functions, DeviceRef device,
             MemoryMapping& mapping);
     };
 }

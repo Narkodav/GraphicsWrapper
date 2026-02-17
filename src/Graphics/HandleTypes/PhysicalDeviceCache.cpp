@@ -2,7 +2,7 @@
 
 namespace Graphics
 {
-	PhysicalDeviceCache::PhysicalDeviceCache(const InstanceRef& instance, const InstanceFunctionTable& functions)
+	PhysicalDeviceCache::PhysicalDeviceCache(InstanceRef instance, const InstanceFunctionTable& functions)
 	{
 		auto devices = instance.getPhysicalDevices(functions);
 		m_data.reserve(devices.size());
@@ -21,7 +21,7 @@ namespace Graphics
 	};
 
 	PhysicalDeviceCache::SearchResult PhysicalDeviceCache::getFittingDevice(const InstanceFunctionTable& functions, 
-		const Surface& surface, const DeviceRequirements& requirements) const
+		SurfaceRef surface, const DeviceRequirements& requirements) const
 	{
 		SearchResult result;
 		for (size_t i = 0; i < m_data.size(); ++i)
@@ -63,7 +63,7 @@ namespace Graphics
 	}
 
 	void PhysicalDeviceCache::checkDeviceSuitability(
-		SearchResult& result, const InstanceFunctionTable& functions, const Surface& surface, 
+		SearchResult& result, const InstanceFunctionTable& functions, SurfaceRef surface, 
 		const std::pair<PhysicalDevice, PhysicalDeviceCache::Data>& data,
 		const DeviceRequirements& requirements) const
 	{		
@@ -181,7 +181,7 @@ namespace Graphics
 	}
 
 	bool PhysicalDeviceCache::checkQueueFamilySuitability(
-		const InstanceFunctionTable& functions, const Surface& surface,
+		const InstanceFunctionTable& functions, SurfaceRef surface,
 		const std::unordered_map<QueueProperty, std::any>& props,
 		const std::pair<PhysicalDevice, PhysicalDeviceCache::Data>& data,
 		size_t familyIndex) const

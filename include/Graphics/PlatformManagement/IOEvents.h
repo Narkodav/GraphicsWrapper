@@ -2,140 +2,288 @@
 #include <cstdint>
 #include <stdexcept>
 #include <iostream>
+#include <array>
+
+#include "Graphics/PlatformManagement/Structs.h"
 
 namespace Platform
 {
-    //enum class KeyboardKey
-    //{
-    //    A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
-    //    _1, _2, _3, _4, _5, _6, _7, _8, _9, _0,
-    //    Escape, LControl, LShift, LAlt, LSuper, RSuper, Menu, Lmb, Rmb, Mmb,
-    //    Enter, Tab, Backspace, Space, CapsLock, NumLock, ScrollLock, Pause, PrintScreen,
-    //    PageUp, PageDown, End, Home, Insert, Delete, Left, Right, Up, Down,
-    //    Numpad0, Numpad1, Numpad2, Numpad3, Numpad4, Numpad5, Numpad6, Numpad7, Numpad8, Numpad9,
-    //    Add, Subtract, Multiply, Divide, Decimal, NumpadEnter, NumpadEquals,
-    //    F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
-    //    Tilda, Minus, Equals, LBracket, RBracket, Backslash, Semicolon, Apostrophe, Comma, Period, Slash,
-    //    Unknown,
-    //    Num
-    //};
-
-#ifdef _WIN32
-    enum class KeyboardKey
+    // Mirrors HID usage codes, de facto native standard for modern keyboards
+    enum class KeyboardKey : uint16_t
     {
-        // Alphabet keys (using character values which match VK codes)
-        A = 0x41, B = 0x42, C = 0x43, D = 0x44, E = 0x45,
-        F = 0x46, G = 0x47, H = 0x48, I = 0x49, J = 0x4A,
-        K = 0x4B, L = 0x4C, M = 0x4D, N = 0x4E, O = 0x4F,
-        P = 0x50, Q = 0x51, R = 0x52, S = 0x53, T = 0x54,
-        U = 0x55, V = 0x56, W = 0x57, X = 0x58, Y = 0x59, Z = 0x5A,
+        None = 0x00, // No key pressed / reserved
 
-        // Number keys (top row)
-        _0 = 0x30, _1 = 0x31, _2 = 0x32, _3 = 0x33, _4 = 0x34,
-        _5 = 0x35, _6 = 0x36, _7 = 0x37, _8 = 0x38, _9 = 0x39,
+        // --- Letters (0x04–0x1D) ---
+        A = 0x04, B = 0x05, C = 0x06, D = 0x07,
+        E = 0x08, F = 0x09, G = 0x0A, H = 0x0B,
+        I = 0x0C, J = 0x0D, K = 0x0E, L = 0x0F,
+        M = 0x10, N = 0x11, O = 0x12, P = 0x13,
+        Q = 0x14, R = 0x15, S = 0x16, T = 0x17,
+        U = 0x18, V = 0x19, W = 0x1A, X = 0x1B,
+        Y = 0x1C, Z = 0x1D,
 
-        // Function keys
-        F1 = 0x70, F2 = 0x71, F3 = 0x72, F4 = 0x73,
-        F5 = 0x74, F6 = 0x75, F7 = 0x76, F8 = 0x77,
-        F9 = 0x78, F10 = 0x79, F11 = 0x7A, F12 = 0x7B,
+        // --- Numbers (0x1E–0x27) ---
+        Digit1 = 0x1E, Digit2 = 0x1F, Digit3 = 0x20,
+        Digit4 = 0x21, Digit5 = 0x22, Digit6 = 0x23,
+        Digit7 = 0x24, Digit8 = 0x25, Digit9 = 0x26,
+        Digit0 = 0x27,
 
-        // Modifier keys
-        Escape = 0x1B,
-        LControl = 0xA2,
-        RControl = 0xA3,
-        LShift = 0xA0,
-        RShift = 0xA1,
-        LAlt = 0xA4,      // VK_LMENU
-        RAlt = 0xA5,      // VK_RMENU
-        LSuper = 0x5B,    // VK_LWIN
-        RSuper = 0x5C,    // VK_RWIN
-        Menu = 0x5D,      // VK_APPS (Application key)
+        // --- Control / whitespace (0x28–0x2C) ---
+        Enter = 0x28,
+        Escape = 0x29,
+        Backspace = 0x2A,
+        Tab = 0x2B,
+        Space = 0x2C,
 
-        // Navigation keys
-        Enter = 0x0D,
-        Tab = 0x09,
-        Backspace = 0x08,
-        Space = 0x20,
-        CapsLock = 0x14,
-        NumLock = 0x90,
-        ScrollLock = 0x91,
-        Pause = 0x13,
-        PrintScreen = 0x2C,
+        // --- Symbols / punctuation (0x2D–0x38) ---
+        Minus = 0x2D,
+        Equal = 0x2E,
+        LeftBracket = 0x2F,
+        RightBracket = 0x30,
+        Backslash = 0x31,
+        NonUsHash = 0x32,       // ISO-specific
+        Semicolon = 0x33,
+        Apostrophe = 0x34,
+        Grave = 0x35,
+        Comma = 0x36,
+        Period = 0x37,
+        Slash = 0x38,
 
-        // Cursor keys
-        PageUp = 0x21,    // VK_PRIOR
-        PageDown = 0x22,  // VK_NEXT
-        End = 0x23,
-        Home = 0x24,
-        Insert = 0x2D,
-        Delete = 0x2E,
-        Left = 0x25,
-        Right = 0x27,
-        Up = 0x26,
-        Down = 0x28,
+        // --- Lock keys (0x39) ---
+        CapsLock = 0x39,
 
-        // Numpad keys
-        Numpad0 = 0x60,
-        Numpad1 = 0x61,
-        Numpad2 = 0x62,
-        Numpad3 = 0x63,
-        Numpad4 = 0x64,
-        Numpad5 = 0x65,
-        Numpad6 = 0x66,
-        Numpad7 = 0x67,
-        Numpad8 = 0x68,
-        Numpad9 = 0x69,
-        Add = 0x6B,
-        Subtract = 0x6D,
-        Multiply = 0x6A,
-        Divide = 0x6F,
-        Decimal = 0x6E,
-        NumpadEnter = 0x0D,  // Same as main Enter
-        NumpadEquals = 0x92, // No standard VK, often 0x92
+        // --- Function keys (0x3A–0x45) ---
+        F1 = 0x3A,  F2 = 0x3B,  F3 = 0x3C,  F4 = 0x3D,
+        F5 = 0x3E,  F6 = 0x3F,  F7 = 0x40,  F8 = 0x41,
+        F9 = 0x42,  F10 = 0x43, F11 = 0x44, F12 = 0x45,
 
-        // Symbol keys (using VK values)
-        Tilda = 0xC0,        // VK_OEM_3
-        Minus = 0xBD,         // VK_OEM_MINUS
-        Equals = 0xBB,        // VK_OEM_PLUS
-        LBracket = 0xDB,      // VK_OEM_4
-        RBracket = 0xDD,      // VK_OEM_6
-        Backslash = 0xDC,     // VK_OEM_5
-        Semicolon = 0xBA,     // VK_OEM_1
-        Apostrophe = 0xDE,    // VK_OEM_7
-        Comma = 0xBC,         // VK_OEM_COMMA
-        Period = 0xBE,        // VK_OEM_PERIOD
-        Slash = 0xBF,         // VK_OEM_2
+        // --- System / navigation keys (0x46–0x52) ---
+        PrintScreen = 0x46,
+        ScrollLock = 0x47,
+        Pause = 0x48,
+        Insert = 0x49,
+        Home = 0x4A,
+        PageUp = 0x4B,
+        Delete = 0x4C,
+        End = 0x4D,
+        PageDown = 0x4E,
+        Right = 0x4F,
+        Left = 0x50,
+        Down = 0x51,
+        Up = 0x52,
 
-        Unknown = 0x00,
-        Count
+        // --- Numpad / keypad keys (0x53–0x63) ---
+        NumLock = 0x53,
+        NumpadDivide = 0x54,
+        NumpadMultiply = 0x55,
+        NumpadMinus = 0x56,
+        NumpadPlus = 0x57,
+        NumpadEnter = 0x58,
+        Numpad1 = 0x59, Numpad2 = 0x5A, Numpad3 = 0x5B,
+        Numpad4 = 0x5C, Numpad5 = 0x5D, Numpad6 = 0x5E,
+        Numpad7 = 0x5F, Numpad8 = 0x60, Numpad9 = 0x61,
+        Numpad0 = 0x62,
+        NumpadDecimal = 0x63,
+
+        // --- International / ISO keys (0x64–0x87) ---
+        NonUsBackslash = 0x64,  // ISO-only
+        Application = 0x65,     // Menu key
+        Power = 0x66,
+        NumpadEqual = 0x67,
+        F13 = 0x68, F14 = 0x69, F15 = 0x6A, F16 = 0x6B,
+        F17 = 0x6C, F18 = 0x6D, F19 = 0x6E, F20 = 0x6F,
+        F21 = 0x70, F22 = 0x71, F23 = 0x72, F24 = 0x73,
+        Execute = 0x74,
+        Help = 0x75,
+        Menu = 0x76,
+        Select = 0x77,
+        Stop = 0x78,
+        Again = 0x79,
+        Undo = 0x7A,
+        Cut = 0x7B,
+        Copy = 0x7C,
+        Paste = 0x7D,
+        Find = 0x7E,
+        Mute = 0x7F,
+        VolumeUp = 0x80,
+        VolumeDown = 0x81,
+        LockingCapsLock = 0x82,
+        LockingNumLock = 0x83,
+        LockingScrollLock = 0x84,
+        NumpadComma = 0x85,
+        NumpadEqualSign = 0x86,
+        International1 = 0x87,  // ISO-specific
+        International2 = 0x88,
+        International3 = 0x89,
+        International4 = 0x8A,
+        International5 = 0x8B,
+        International6 = 0x8C,
+        International7 = 0x8D,
+        International8 = 0x8E,
+        International9 = 0x8F,
+
+        // --- Language / Locale keys (0x90–0x98) ---
+        LANG1 = 0x90, LANG2 = 0x91, LANG3 = 0x92, LANG4 = 0x93,
+        LANG5 = 0x94, LANG6 = 0x95, LANG7 = 0x96, LANG8 = 0x97,
+        LANG9 = 0x98,
+
+        // --- Editing / system keys (0x99–0xA4) ---
+        AlternateErase = 0x99,
+        SysReq = 0x9A,
+        Cancel = 0x9B,
+        Clear = 0x9C,
+        Prior = 0x9D,
+        Return = 0x9E,
+        Separator = 0x9F,
+        Out = 0xA0,
+        Oper = 0xA1,
+        ClearAgain = 0xA2,
+        CrSel = 0xA3,
+        ExSel = 0xA4,
+
+        // --- Modifiers (0xE0–0xE7) ---
+        LeftControl = 0xE0,
+        LeftShift   = 0xE1,
+        LeftAlt     = 0xE2,
+        LeftGui     = 0xE3,   // Windows / Command key
+        RightControl= 0xE4,
+        RightShift  = 0xE5,
+        RightAlt    = 0xE6,
+        RightGui    = 0xE7,   // Windows / Command key
     };
-#else
-    enum class KeyboardKey
-    {
-        A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
-        _1, _2, _3, _4, _5, _6, _7, _8, _9, _0,
-        Escape, LControl, LShift, LAlt, LSuper, RSuper, Menu, Lmb, Rmb, Mmb,
-        Enter, Tab, Backspace, Space, CapsLock, NumLock, ScrollLock, Pause, PrintScreen,
-        PageUp, PageDown, End, Home, Insert, Delete, Left, Right, Up, Down,
-        Numpad0, Numpad1, Numpad2, Numpad3, Numpad4, Numpad5, Numpad6, Numpad7, Numpad8, Numpad9,
-        Add, Subtract, Multiply, Divide, Decimal, NumpadEnter, NumpadEquals,
-        F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
-        Tilda, Minus, Equals, LBracket, RBracket, Backslash, Semicolon, Apostrophe, Comma, Period, Slash,
-        Unknown,
-        Num
-    };
-#endif
+
+    namespace Detail {
+        static constexpr std::array<KeyboardKey, 1024> s_ps2Set1ScanToKey = []{
+            std::array<KeyboardKey, 1024> map{};
+            map.fill(KeyboardKey::None);
+
+            // --- Normal keys (PS/2 Set1) ---
+            map[0x1E] = KeyboardKey::A;
+            map[0x30] = KeyboardKey::B;
+            map[0x2E] = KeyboardKey::C;
+            map[0x20] = KeyboardKey::D;
+            map[0x12] = KeyboardKey::E;
+            map[0x21] = KeyboardKey::F;
+            map[0x22] = KeyboardKey::G;
+            map[0x23] = KeyboardKey::H;
+            map[0x17] = KeyboardKey::I;
+            map[0x24] = KeyboardKey::J;
+            map[0x25] = KeyboardKey::K;
+            map[0x26] = KeyboardKey::L;
+            map[0x32] = KeyboardKey::M;
+            map[0x31] = KeyboardKey::N;
+            map[0x18] = KeyboardKey::O;
+            map[0x19] = KeyboardKey::P;
+            map[0x10] = KeyboardKey::Q;
+            map[0x13] = KeyboardKey::R;
+            map[0x1F] = KeyboardKey::S;
+            map[0x14] = KeyboardKey::T;
+            map[0x16] = KeyboardKey::U;
+            map[0x2F] = KeyboardKey::V;
+            map[0x11] = KeyboardKey::W;
+            map[0x2D] = KeyboardKey::X;
+            map[0x15] = KeyboardKey::Y;
+            map[0x2C] = KeyboardKey::Z;
+
+            map[0x02] = KeyboardKey::Digit1;
+            map[0x03] = KeyboardKey::Digit2;
+            map[0x04] = KeyboardKey::Digit3;
+            map[0x05] = KeyboardKey::Digit4;
+            map[0x06] = KeyboardKey::Digit5;
+            map[0x07] = KeyboardKey::Digit6;
+            map[0x08] = KeyboardKey::Digit7;
+            map[0x09] = KeyboardKey::Digit8;
+            map[0x0A] = KeyboardKey::Digit9;
+            map[0x0B] = KeyboardKey::Digit0;
+
+            map[0x1C] = KeyboardKey::Enter;
+            map[0x01] = KeyboardKey::Escape;
+            map[0x0E] = KeyboardKey::Backspace;
+            map[0x0F] = KeyboardKey::Tab;
+            map[0x39] = KeyboardKey::Space;
+
+            map[0x0C] = KeyboardKey::Minus;
+            map[0x0D] = KeyboardKey::Equal;
+            map[0x1A] = KeyboardKey::LeftBracket;
+            map[0x1B] = KeyboardKey::RightBracket;
+            map[0x2B] = KeyboardKey::Backslash;
+            map[0x27] = KeyboardKey::Semicolon;
+            map[0x28] = KeyboardKey::Apostrophe;
+            map[0x29] = KeyboardKey::Grave;
+            map[0x33] = KeyboardKey::Comma;
+            map[0x34] = KeyboardKey::Period;
+            map[0x35] = KeyboardKey::Slash;
+
+            // --- Modifiers ---
+            map[0x2A] = KeyboardKey::LeftShift;
+            map[0x36] = KeyboardKey::RightShift;
+            map[0x1D] = KeyboardKey::LeftControl;
+            map[0x38] = KeyboardKey::LeftAlt;
+            map[0x3A] = KeyboardKey::CapsLock;
+            
+            // --- Function keys ---
+            map[0x3B] = KeyboardKey::F1;
+            map[0x3C] = KeyboardKey::F2;
+            map[0x3D] = KeyboardKey::F3;
+            map[0x3E] = KeyboardKey::F4;
+            map[0x3F] = KeyboardKey::F5;
+            map[0x40] = KeyboardKey::F6;
+            map[0x41] = KeyboardKey::F7;
+            map[0x42] = KeyboardKey::F8;
+            map[0x43] = KeyboardKey::F9;
+            map[0x44] = KeyboardKey::F10;
+            map[0x57] = KeyboardKey::F11;
+            map[0x58] = KeyboardKey::F12;
+
+            // --- Extended keys (E0 prefix) ---
+            constexpr uint16_t E0 = 0x100;
+
+            map[E0 | 0x1D] = KeyboardKey::RightControl;
+            map[E0 | 0x38] = KeyboardKey::RightAlt;
+            map[E0 | 0x47] = KeyboardKey::Home;
+            map[E0 | 0x48] = KeyboardKey::Up;
+            map[E0 | 0x49] = KeyboardKey::PageUp;
+            map[E0 | 0x4B] = KeyboardKey::Left;
+            map[E0 | 0x4D] = KeyboardKey::Right;
+            map[E0 | 0x4F] = KeyboardKey::End;
+            map[E0 | 0x50] = KeyboardKey::Down;
+            map[E0 | 0x51] = KeyboardKey::PageDown;
+            map[E0 | 0x52] = KeyboardKey::Insert;
+            map[E0 | 0x53] = KeyboardKey::Delete;
+            map[E0 | 0x1C] = KeyboardKey::NumpadEnter;
+            map[E0 | 0x35] = KeyboardKey::NumpadDivide;
+            map[E0 | 0x37] = KeyboardKey::PrintScreen;
+
+            // --- unique keys (E1 prefix) ---
+            constexpr uint16_t E1 = 0x200;
+            map[E1 | 0x45] = KeyboardKey::Pause;
+
+            // --- ISO / international keys (if present on the keyboard) ---
+            map[0x56] = KeyboardKey::NonUsHash;     // ISO # / ~ key
+            map[0x5D] = KeyboardKey::Application;   // Menu key
+
+            return map;
+        }();
+
+        static inline KeyboardKey translatePS2Set1ToKey(bool isE1, bool isE0, uint16_t scancode) {
+            scancode |= static_cast<uint16_t>(isE0) << 8;
+            scancode |= static_cast<uint16_t>(isE1) << 9;
+            return s_ps2Set1ScanToKey[scancode];
+        }
+    }
 
     enum class MouseButton
     {
-        Lmb,            // Left mouse button
-        Rmb,            // Right mouse button
-        Mmb,            // Middle mouse button
+        Lmb,           // Left mouse button
+        Rmb,           // Right mouse button
+        Mmb,           // Middle mouse button
         Button4,       // Usually Browser Back button
         Button5,       // Usually Browser Forward button
-        Button6,       // Additional buttons some mice have
+
+        Button6,       // Additional buttons some mice have, currently not supported
         Button7,
         Button8,
+
         Unknown,
         Count
     };
@@ -150,8 +298,8 @@ namespace Platform
     enum class KeyboardKeyState
     {
         Pressed,
-        Released,
         Repeated,
+        Changed,
         Count
     };
 
@@ -166,17 +314,28 @@ namespace Platform
         MouseLeftButtonPressed,
         MouseRightButtonPressed,
         MouseMiddleButtonPressed,
-        MouseExtraButtonPressed,
+
+        MouseButton4Pressed,
+        MouseButton5Pressed,
+        MouseButton6Pressed,
+        MouseButton7Pressed,
+        MouseButton8Pressed,
 
         MouseButtonReleased,
         MouseLeftButtonReleased,
         MouseRightButtonReleased,
         MouseMiddleButtonReleased,
-        MouseExtraButtonReleased,
 
-        MouseMoved,
-        MouseScrolled,
-        MouseEntered,
+        MouseButton4Released,
+        MouseButton5Released,
+        MouseButton6Released,
+        MouseButton7Released,
+        MouseButton8Released,
+
+        MouseMovedScreen,   // for when the mouse visible moves on the screen
+        MouseMovedDelta,    // for any, even invisible, mouse movement 
+        MouseWhellScrolled,
+        //MouseEntered,
         MouseLeft,
         Count
     };
@@ -188,26 +347,26 @@ namespace Platform
         struct Trait {};
 
         template <Type T>
-        static void handleError(...) {
+        static void handleError(std::exception_ptr) {
             std::cerr << "[Platform] Exception in IO event callback: " << Trait<T>::s_name << std::endl;
         }
     };
 
     template<>
     struct IOEventPolicy::Trait<IOEvents::KeyPressed> {
-        using Signature = void(KeyboardKey key, uint32_t scanCode);
+        using Signature = void(KeyboardKey key);
         static inline const std::string s_name = "KeyPressed";
     };
 
     template<>
     struct IOEventPolicy::Trait<IOEvents::KeyReleased> {
-        using Signature = void(KeyboardKey key, uint32_t scanCode);
+        using Signature = void(KeyboardKey key);
         static inline const std::string s_name = "KeyReleased";
     };
 
     template<>
     struct IOEventPolicy::Trait<IOEvents::KeyRepeated> {
-        using Signature = void(KeyboardKey key, uint32_t scanCode);
+        using Signature = void(KeyboardKey key);
         static inline const std::string s_name = "KeyRepeated";
     };
 
@@ -219,81 +378,135 @@ namespace Platform
 
     template<>
     struct IOEventPolicy::Trait<IOEvents::MouseButtonPressed> {
-        using Signature = void(MouseButton button, int32_t x, int32_t y);
+        using Signature = void(MouseButton button, Position mousePosition);
         static inline const std::string s_name = "MouseButtonPressed";
     };
 
     template<>
     struct IOEventPolicy::Trait<IOEvents::MouseLeftButtonPressed> {
-        using Signature = void(int32_t x, int32_t y);
+        using Signature = void(Position mousePosition);
         static inline const std::string s_name = "MouseLeftButtonPressed";
     };
 
     template<>
     struct IOEventPolicy::Trait<IOEvents::MouseRightButtonPressed> {
-        using Signature = void(int32_t x, int32_t y);
+        using Signature = void(Position mousePosition);
         static inline const std::string s_name = "MouseRightButtonPressed";
     };
 
     template<>
     struct IOEventPolicy::Trait<IOEvents::MouseMiddleButtonPressed> {
-        using Signature = void(int32_t x, int32_t y);
+        using Signature = void(Position mousePosition);
         static inline const std::string s_name = "MouseMiddleButtonPressed";
     };
 
     template<>
-    struct IOEventPolicy::Trait<IOEvents::MouseExtraButtonPressed> {
-        using Signature = void(MouseButton button, int32_t x, int32_t y);
-        static inline const std::string s_name = "MouseExtraButtonPressed";
+    struct IOEventPolicy::Trait<IOEvents::MouseButton4Pressed> {
+        using Signature = void(Position mousePosition);
+        static inline const std::string s_name = "MouseButton4Pressed";
+    };
+
+    template<>
+    struct IOEventPolicy::Trait<IOEvents::MouseButton5Pressed> {
+        using Signature = void(Position mousePosition);
+        static inline const std::string s_name = "MouseButton5Pressed";
+    };
+
+    template<>
+    struct IOEventPolicy::Trait<IOEvents::MouseButton6Pressed> {
+        using Signature = void(Position mousePosition);
+        static inline const std::string s_name = "MouseButton6Pressed";
+    };
+
+    template<>
+    struct IOEventPolicy::Trait<IOEvents::MouseButton7Pressed> {
+        using Signature = void(Position mousePosition);
+        static inline const std::string s_name = "MouseButton7Pressed";
+    };
+
+    template<>
+    struct IOEventPolicy::Trait<IOEvents::MouseButton8Pressed> {
+        using Signature = void(Position mousePosition);
+        static inline const std::string s_name = "MouseButton8Pressed";
     };
 
     template<>
     struct IOEventPolicy::Trait<IOEvents::MouseButtonReleased> {
-        using Signature = void(MouseButton button, int32_t x, int32_t y);
+        using Signature = void(MouseButton button, Position mousePosition);
         static inline const std::string s_name = "MouseButtonReleased";
     };
 
     template<>
     struct IOEventPolicy::Trait<IOEvents::MouseLeftButtonReleased> {
-        using Signature = void(int32_t x, int32_t y);
+        using Signature = void(Position mousePosition);
         static inline const std::string s_name = "MouseLeftButtonReleased";
     };
 
     template<>
     struct IOEventPolicy::Trait<IOEvents::MouseRightButtonReleased> {
-        using Signature = void(int32_t x, int32_t y);
+        using Signature = void(Position mousePosition);
         static inline const std::string s_name = "MouseRightButtonReleased";
     };
 
     template<>
     struct IOEventPolicy::Trait<IOEvents::MouseMiddleButtonReleased> {
-        using Signature = void(int32_t x, int32_t y);
+        using Signature = void(Position mousePosition);
         static inline const std::string s_name = "MouseMiddleButtonReleased";
     };
 
     template<>
-    struct IOEventPolicy::Trait<IOEvents::MouseExtraButtonReleased> {
-        using Signature = void(MouseButton button, int32_t x, int32_t y);
-        static inline const std::string s_name = "MouseExtraButtonReleased";
+    struct IOEventPolicy::Trait<IOEvents::MouseButton4Released> {
+        using Signature = void(Position mousePosition);
+        static inline const std::string s_name = "MouseButton4Released";
     };
 
     template<>
-    struct IOEventPolicy::Trait<IOEvents::MouseMoved> {
-        using Signature = void(int32_t x, int32_t y);
-        static inline const std::string s_name = "MouseMoved";
+    struct IOEventPolicy::Trait<IOEvents::MouseButton5Released> {
+        using Signature = void(Position mousePosition);
+        static inline const std::string s_name = "MouseButton5Released";
     };
 
     template<>
-    struct IOEventPolicy::Trait<IOEvents::MouseScrolled> {
-        using Signature = void(int32_t xoffset, int32_t yoffset);
-        static inline const std::string s_name = "MouseScrolled";
+    struct IOEventPolicy::Trait<IOEvents::MouseButton6Released> {
+        using Signature = void(Position mousePosition);
+        static inline const std::string s_name = "MouseButton6Released";
     };
 
     template<>
-    struct IOEventPolicy::Trait<IOEvents::MouseEntered> {
-        using Signature = void(int32_t x, int32_t y);
-        static inline const std::string s_name = "MouseEntered";
+    struct IOEventPolicy::Trait<IOEvents::MouseButton7Released> {
+        using Signature = void(Position mousePosition);
+        static inline const std::string s_name = "MouseButton7Released";
     };
+
+    template<>
+    struct IOEventPolicy::Trait<IOEvents::MouseButton8Released> {
+        using Signature = void(Position mousePosition);
+        static inline const std::string s_name = "MouseButton8Released";
+    };
+
+    template<>
+    struct IOEventPolicy::Trait<IOEvents::MouseMovedScreen> {
+        using Signature = void(Position mousePosition);
+        static inline const std::string s_name = "MouseMovedScreen";
+    };
+
+    template<>
+    struct IOEventPolicy::Trait<IOEvents::MouseMovedDelta> {
+        using Signature = void(int32_t deltaX, int32_t deltaY);
+        static inline const std::string s_name = "MouseMovedDelta";
+    };
+
+    template<>
+    struct IOEventPolicy::Trait<IOEvents::MouseWhellScrolled> {
+        using Signature = void(int32_t xoffset, int32_t yoffset, Position mousePosition);
+        static inline const std::string s_name = "MouseWhellScrolled";
+    };
+
+    // template<>
+    // struct IOEventPolicy::Trait<IOEvents::MouseEntered> {
+    //     using Signature = void(Position mousePosition);
+    //     static inline const std::string s_name = "MouseEntered";
+    // };
 
     template<>
     struct IOEventPolicy::Trait<IOEvents::MouseLeft> {

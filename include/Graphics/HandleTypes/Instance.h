@@ -21,7 +21,7 @@ namespace Graphics
             this->pApplicationName = appName.data();
             this->applicationVersion = appVersion;
             this->pEngineName = engineName.data();
-            engineVersion = engineVersion;
+            this->engineVersion = engineVersion;
         }
 
         AppInfo& setEngineName(const std::string& engineName) {

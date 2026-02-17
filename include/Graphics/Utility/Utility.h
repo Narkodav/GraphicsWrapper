@@ -106,7 +106,9 @@ namespace Graphics::Utility
     void transferData(const DeviceFunctionTable& deviceFunctions, CommandBuffer& commandBuffer,
         const BufferRef& srcBuffer, const BufferRef& dstBuffer, size_t size, size_t srcOffset = 0, size_t dstOffset = 0);
 
-    MemoryRequirements initBufferMemoryPairFirstFit(const DeviceFunctionTable& deviceFunctions, DeviceRef device,
+    uint32_t calculateMipLevelCount(uint32_t width, uint32_t height);
+
+    MemoryRequirements createBufferMemoryPairFirstFit(const DeviceFunctionTable& deviceFunctions, DeviceRef device,
         const PhysicalDeviceMemoryProperties& deviceMemoryProps, Buffer& buffer, Memory& memory,
         size_t size, Flags::BufferUsage bufferUsage, Flags::MemoryProperty requiredProperties,
         Flags::MemoryProperty forbiddenProperties = Flags::MemoryProperty::Bits::None, 

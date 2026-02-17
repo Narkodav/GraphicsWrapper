@@ -1,13 +1,21 @@
 #pragma once
 #include <string>
 #include <iostream>
-#include "WindowEvents.h"
-#include "IOEvents.h"
-//#include "Mouse.h"
+
+#include "Graphics/PlatformManagement/Structs.h"
+#include "Graphics/PlatformManagement/WindowEvents.h"
+#include "Graphics/PlatformManagement/IOEvents.h"
+#include "Graphics/PlatformManagement/Mouse.h"
+
 //#include "Keyboard.h"
 #include "Utilities/EventSystems/MultiEventSystem.h"
 #include "Utilities/EventSystems/SingleCallbackEventSystem.h"
 
+#if defined(_ARM_) || defined(_ARM64_)
+    #define PLATFORM_WIN32_WINPROC_CALLBACK
+#else
+    #define PLATFORM_WIN32_WINPROC_CALLBACK __stdcall
+#endif
 
 namespace Platform::Win32
 {
@@ -17,41 +25,35 @@ namespace Platform::Win32
     private:
         class ClassRegistrator;
 
-#ifdef _MAC
-        static LongResult PASCAL windowProc(WindowHandle windowHandle, UnsignedInt unsignedMessage, WideParameter wideParameter, LongParameter longParameter);
-#elif (_MSC_VER >= 800) || defined(_STDCALL_SUPPORTED)
-        static LongResult __stdcall windowProc(WindowHandle windowHandle, UnsignedInt unsignedMessage, WideParameter wideParameter, LongParameter longParameter);
-#else
-        static LongResult windowProc(WindowHandle windowHandle, UnsignedInt unsignedMessage, WideParameter wideParameter, LongParameter longParameter);
-#endif
+        static MessageResult PLATFORM_WIN32_WINPROC_CALLBACK windowProc(WindowHandle windowHandle, 
+            uint32_t message, MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
 
     public:
         using EventManager = Utils::MultiEventSystem<Utils::SingleCallbackEventSystem, WindowEventPolicy, IOEventPolicy>;
 
     private:
-        WindowHandle m_windowHandle = nullptr;        
-        bool m_mouseInWindow = false;
-        Position m_cursorPos;
+        WindowHandle m_windowHandle = nullptr;
         bool m_shouldClose = false;
-
+        std::vector<uint8_t> m_rawInputBuffer;
         WindowAttributes m_attr;
-
-        thread_local static inline Position s_cursorPosGlobal = { 0,0 };
-        thread_local static inline size_t s_windowCounter = 0;        
+        thread_local static inline size_t s_windowCounter = 0;
+        Position m_ClientRelativeMousePosition = { 0, 0 };
+        
     protected:
         EventManager m_windowEvents;
 
     public:
-        Window() noexcept : m_windowHandle(nullptr), m_mouseInWindow(false), 
-        m_cursorPos({0, 0}), m_shouldClose(false), m_windowEvents() {};
+        Window() noexcept { Mouse::getInstance(); };
         Window(Extent extent, std::string_view title, WindowAttributes attr = WindowAttributes::defaultAtr());
         ~Window();
 
-        Window(Window&& other) noexcept : m_windowHandle(nullptr), m_mouseInWindow(false), 
-        m_cursorPos({0, 0}), m_shouldClose(false), m_windowEvents() {
+        Window(Window&& other) noexcept {
             m_windowHandle = std::exchange(other.m_windowHandle, nullptr);
+            m_shouldClose = std::exchange(other.m_shouldClose, false);
+            m_rawInputBuffer = std::exchange(other.m_rawInputBuffer, std::vector<uint8_t>());
+            m_attr = std::exchange(other.m_attr, WindowAttributes());
+            m_ClientRelativeMousePosition = std::exchange(other.m_ClientRelativeMousePosition, { 0, 0 });
             m_windowEvents = std::exchange(other.m_windowEvents, EventManager());
-            m_mouseInWindow = std::exchange(other.m_mouseInWindow, false);
             if (m_windowHandle) {
                 setThisPointer();
             }
@@ -63,8 +65,11 @@ namespace Platform::Win32
                 return *this;
             destroy();
             m_windowHandle = std::exchange(other.m_windowHandle, nullptr);
+            m_shouldClose = std::exchange(other.m_shouldClose, false);
+            m_rawInputBuffer = std::exchange(other.m_rawInputBuffer, std::vector<uint8_t>());
+            m_attr = std::exchange(other.m_attr, WindowAttributes());
+            m_ClientRelativeMousePosition = std::exchange(other.m_ClientRelativeMousePosition, { 0, 0 });
             m_windowEvents = std::exchange(other.m_windowEvents, EventManager());
-            m_mouseInWindow = std::exchange(other.m_mouseInWindow, false);
             if (m_windowHandle) {
                 setThisPointer();
             }
@@ -79,8 +84,6 @@ namespace Platform::Win32
 
         void pollEvents();
         static void pollEventsGlobal();
-        bool popEvent();
-        static bool popEventGlobal();
         void show();
         void hide();
         void minimise();
@@ -126,6 +129,12 @@ namespace Platform::Win32
         Extent getFrameBufferExtent() const;
         Position getWindowPosition() const;
         float getDPIScale() const;
+        float getAspectRatio() const { 
+            auto extent = getWindowExtent();
+            return static_cast<float>(extent.width) / static_cast<float>(extent.height); 
+        };
+
+        Mouse& getMouse() const { return Mouse::getInstanceUnsafe(); }
 
         static InstanceHandle getInstanceHandle();
 
@@ -133,46 +142,67 @@ namespace Platform::Win32
         void setThisPointer();
         static Window* getThisPointer(WindowHandle windowHandle);
 
-        template <LongResult(Window::* func)(WideParameter, LongParameter)>
-        static inline LongResult callEvent(WindowHandle windowHandle, UnsignedInt unsignedMessage, WideParameter wideParameter, LongParameter longParameter) {
+        template <MessageResult(Window::* func)(MessageValueUnsigned, MessageValueSigned)>
+        static inline MessageResult callEvent(WindowHandle windowHandle, 
+            uint32_t message, MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData) {
             Window* window = getThisPointer(windowHandle);
             if (window)
             {
-                window->m_windowEvents.emit<WindowEvents::Native>(windowHandle, unsignedMessage, wideParameter, longParameter);
-                return (window->*func)(wideParameter, longParameter);
+                window->m_windowEvents.emit<WindowEvents::Native>(windowHandle, message, auxiliaryData, payloadData);
+                return (window->*func)(auxiliaryData, payloadData);
             }
             return 0;
         }
 
-        static LongResult onNull(WideParameter WideParameter, LongParameter LongParameter);
-        static LongResult onCreate(WindowHandle WindowHandle, WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onDestroy(WideParameter WideParameter, LongParameter LongParameter);
+        static MessageResult onNull(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        static MessageResult onCreate(WindowHandle WindowHandle, MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        MessageResult onDestroy(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
 
-        LongResult onWindowResized(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onWindowMoved(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onWindowFocused(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onWindowUnfocused(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onWindowClosed(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onWindowRefresh(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onWindowContentScaleChanged(WideParameter WideParameter, LongParameter LongParameter);
+        MessageResult onWindowResized(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        MessageResult onWindowMoved(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        MessageResult onWindowFocused(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        MessageResult onWindowUnfocused(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        MessageResult onWindowClosed(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        MessageResult onWindowRefresh(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        MessageResult onWindowContentScaleChanged(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
 
-        LongResult onKeyPressed(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onKeyReleased(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onChar(WideParameter WideParameter, LongParameter LongParameter);
+        // MessageResult onLeftMouseButtonPressed(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        // MessageResult onRightMouseButtonPressed(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        // MessageResult onMiddleMouseButtonPressed(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        // MessageResult onExtraMouseButtonPressed(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
 
-        LongResult onLeftMouseButtonPressed(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onRightMouseButtonPressed(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onMiddleMouseButtonPressed(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onExtraMouseButtonPressed(WideParameter WideParameter, LongParameter LongParameter);
+        // MessageResult onLeftMouseButtonReleased(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        // MessageResult onRightMouseButtonReleased(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        // MessageResult onMiddleMouseButtonReleased(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        // MessageResult onExtraButtonReleased(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
 
-        LongResult onLeftMouseButtonReleased(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onRightMouseButtonReleased(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onMiddleMouseButtonReleased(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onExtraButtonReleased(WideParameter WideParameter, LongParameter LongParameter);
+        MessageResult onMouseMoved(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        //MessageResult onMouseScrolled(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+        MessageResult onMouseLeft(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
 
-        LongResult onMouseMoved(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onMouseScrolled(WideParameter WideParameter, LongParameter LongParameter);
-        LongResult onMouseLeft(WideParameter WideParameter, LongParameter LongParameter);
+        MessageResult onRawInput(MessageValueUnsigned auxiliaryData, MessageValueSigned payloadData);
+
+        MessageResult onKeyboardInput(std::vector<uint8_t>& input);
+        MessageResult onMouseInput(std::vector<uint8_t>& input);
+
+        template<IOEvents eventPress, IOEvents eventRelease>
+        void checkMouseButton(uint16_t buttonDownFlag, uint16_t buttonUpFlag, uint16_t flags, MouseButton button) {
+            auto& mouse = Mouse::getInstanceUnsafe();
+            if (flags & buttonDownFlag) {
+                mouse.m_buttonStateChanged = true;
+                mouse.m_buttonStates.setInputState<MouseButtonState::Pressed>(button, true);
+                mouse.m_buttonStates.setInputState<MouseButtonState::Changed>(button, true);
+                m_windowEvents.emit<IOEvents::MouseButtonPressed>(button, mouse.m_mousePos);
+                m_windowEvents.emit<eventPress>(mouse.m_mousePos);
+            }
+            else if (flags & buttonUpFlag) {
+                mouse.m_buttonStateChanged = true;
+                mouse.m_buttonStates.setInputState<MouseButtonState::Pressed>(button, false);
+                mouse.m_buttonStates.setInputState<MouseButtonState::Changed>(button, true);
+                m_windowEvents.emit<IOEvents::MouseButtonReleased>(button, mouse.m_mousePos);
+                m_windowEvents.emit<eventRelease>(mouse.m_mousePos);
+            }
+        }
 
     protected:
         void updateCursorState();        

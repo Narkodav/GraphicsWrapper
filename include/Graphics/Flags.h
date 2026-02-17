@@ -183,22 +183,22 @@ namespace Graphics::Flags
         }
 
         template <typename Bits>
-        constexpr inline bool operator==(const uint32_t& a, const Bits& b) {
+        constexpr inline bool operator==(const uint32_t& a, const Bits& b) requires std::is_enum_v<Bits> {
             return a == static_cast<uint32_t>(b);
         }
 
         template <typename Bits>
-        constexpr inline bool operator!=(const uint32_t& a, const Bits& b) {
+        constexpr inline bool operator!=(const uint32_t& a, const Bits& b) requires std::is_enum_v<Bits> {
             return a != static_cast<uint32_t>(b);
         }
 
         template <typename Bits>
-        constexpr inline bool operator==(const Bits& a, const uint32_t& b) {
+        constexpr inline bool operator==(const Bits& a, const uint32_t& b) requires std::is_enum_v<Bits> {
             return b == static_cast<uint32_t>(a);
         }
 
         template <typename Bits>
-        constexpr inline bool operator!=(const Bits& a, const uint32_t& b) {
+        constexpr inline bool operator!=(const Bits& a, const uint32_t& b) requires std::is_enum_v<Bits> {
             return b != static_cast<uint32_t>(a);
         }
     }
@@ -1196,6 +1196,17 @@ namespace Graphics::Flags
             using VulkanCFlags = VkDescriptorBindingFlags;
             using VulkanCBits = VkDescriptorBindingFlagBits;
         };
+
+        struct DeviceCreate {
+            enum class Bits : uint32_t {
+                None = 0
+            };
+
+            using VulkanFlags = vk::DeviceCreateFlags;
+            using VulkanBits = vk::DeviceCreateFlagBits;
+            using VulkanCFlags = VkDeviceCreateFlags;
+            using VulkanCBits = void;
+        };
     }
 
     // Type aliases using FlagsBase with traits
@@ -1248,6 +1259,7 @@ namespace Graphics::Flags
     using ImageCreate = FlagsBase<Traits::ImageCreate>;
     using SurfaceCreate = FlagsBase<Traits::SurfaceCreate>;
     using DescriptorBinding = FlagsBase<Traits::DescriptorBinding>;
+    using DeviceCreate = FlagsBase<Traits::DeviceCreate>;
 
     // DebugUtils namespace
     namespace DebugUtils {
@@ -1304,4 +1316,5 @@ namespace Graphics::Flags
     template<> struct BitTraits<ImageCreate::Bits> { using ParentType = ImageCreate; };
     template<> struct BitTraits<SurfaceCreate::Bits> { using ParentType = SurfaceCreate; };
     template<> struct BitTraits<DescriptorBinding::Bits> { using ParentType = DescriptorBinding; };
+    template<> struct BitTraits<DeviceCreate::Bits> { using ParentType = DeviceCreate; };
 }

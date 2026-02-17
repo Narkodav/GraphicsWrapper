@@ -3,77 +3,10 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "Graphics/PlatformManagement/Structs.h"
+
 namespace Platform
 {
-    enum class CursorMode {
-        Normal,
-        Hidden,
-        Disabled  // For raw motion input
-    };
-
-    struct Position
-    {
-        int32_t x, y;
-    };
-
-    struct Extent
-    {
-        int32_t width, height;
-    };
-
-    struct WindowAttributes
-    {
-        enum class Type {
-            // Window behavior
-            Resizable,                  // bool
-            Visible,                    // bool
-            Decorated,                  // bool
-            Focused,                    // bool
-            AutoIconify,                // bool
-            Floating,                   // bool
-            Maximized,                  // bool
-            CenterCursor,               // bool
-            TransparentFramebuffer,     // bool
-            FocusOnShow,                // bool
-
-            // Input mode
-            CursorMode,                 // CursorMode enum
-        };
-
-        // Window behavior
-        bool resizable = true;                  // GLFW_RESIZABLE
-        bool visible = true;                    // GLFW_VISIBLE
-        bool decorated = true;                  // GLFW_DECORATED (title bar, borders)
-        bool focused = true;                    // GLFW_FOCUSED
-        bool autoIconify = true;                // GLFW_AUTO_ICONIFY
-        bool floating = false;                  // GLFW_FLOATING (always on top)
-        bool maximized = false;                 // GLFW_MAXIMIZED
-        bool centerCursor = false;              // GLFW_CENTER_CURSOR
-        bool transparentFramebuffer = false;    // GLFW_TRANSPARENT_FRAMEBUFFER
-        bool focusOnShow = true;                // GLFW_FOCUS_ON_SHOW
-
-        CursorMode cursorMode = CursorMode::Normal;
-
-        static WindowAttributes defaultAtr() {
-            return WindowAttributes();
-        }
-
-        static WindowAttributes firstPersonGameMaximisedAtr() {
-            WindowAttributes atr;
-            atr.centerCursor = true;
-            atr.cursorMode = CursorMode::Disabled;
-            atr.maximized = true;
-            return atr;
-        }
-
-        static WindowAttributes firstPersonGameMinimisedAtr() {
-            WindowAttributes atr;
-            atr.centerCursor = true;
-            atr.cursorMode = CursorMode::Disabled;
-            return atr;
-        }
-    };
-
     enum class WindowEvents
     {
         WindowResized,
@@ -94,10 +27,9 @@ namespace Platform
     {
         using WindowHandle = void*;
         using InstanceHandle = void*;
-        using LongResult = long long;               // matches LongResult (long long on 64-bit)
-        using UnsignedInt = unsigned int;           // matches UnsignedInt  
-        using WideParameter = unsigned long long;   // matches WideParameter (unsigned long long on 64-bit)
-        using LongParameter = long long;            // matches LongParameter (long long on 64-bit)
+        using MessageResult = intptr_t;                     // matches LRESULT
+        using MessageValueUnsigned = uintptr_t;             // matches WPARAM
+        using MessageValueSigned = intptr_t;                // matches LPARAM
     }
 
     struct WindowEventPolicy {
@@ -107,17 +39,16 @@ namespace Platform
         struct Trait {};
 
         template <Type T>
-        static void handleError(...) {
+        static void handleError(std::exception_ptr) {
             std::cerr << "[Platform] Exception in window event callback: " << Trait<T>::s_name << std::endl;
         }
-
     };
 
 #ifdef _WIN32
     template<>
     struct WindowEventPolicy::Trait<WindowEvents::Native> {
-        using Signature = void(Win32::WindowHandle windowHandle, Win32::UnsignedInt unsignedMessage,
-            Win32::WideParameter wideParameter, Win32::LongParameter longParameter);
+        using Signature = void(Win32::WindowHandle windowHandle, uint32_t message,
+            Win32::MessageValueUnsigned auxiliaryData, Win32::MessageValueSigned payloadData);
         static constexpr const char* s_name = "Native";
     };
 #else

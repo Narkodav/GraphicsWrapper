@@ -70,7 +70,6 @@ namespace Graphics::MemoryManagement
 		uint32_t m_chunkCapacity = 0;
 		BufferCreateInfo m_bufferInfo;
 		PhysicalDeviceMemoryProperties m_deviceMemoryProps;
-		std::function<void(Memory& memory, Buffer& buffer, size_t bufferIndex)> m_onBufferAlloc;
 
 		// memory type is reasonably guaranteed to be identical for identical alloc infos,
 		// doesnt depend on size or alignment
@@ -80,12 +79,40 @@ namespace Graphics::MemoryManagement
 
 		MemoryPool() = default;
 
-		MemoryPool(const DeviceFunctionTable& functions, DeviceRef device, PhysicalDeviceMemoryProperties deviceMemoryProps,
-			uint32_t memoryChunkCapacity, Flags::BufferUsage usageFlags, Flags::MemoryProperty requiredProperties, 
-			Flags::MemoryProperty forbiddenProperties, SharingMode sharingMode, std::function<void(Memory&, Buffer&, size_t)>&& onBufferAlloc =
-			[](Memory&, Buffer&, size_t) {})
+		MemoryPool(MemoryPool&& other) noexcept
 		{
-			m_onBufferAlloc = std::move(onBufferAlloc);
+			m_memoryChunks = std::exchange(other.m_memoryChunks, {});
+			m_chunkCapacity = std::exchange(other.m_chunkCapacity, 0);
+			m_bufferInfo = std::exchange(other.m_bufferInfo, {});
+			m_deviceMemoryProps = std::exchange(other.m_deviceMemoryProps, {});
+			m_memoryTypeIndex = std::exchange(other.m_memoryTypeIndex, 0);
+		}
+
+		MemoryPool& operator=(MemoryPool&& other)
+		{
+			if (this == &other)
+				return *this;
+
+			m_memoryChunks = std::exchange(other.m_memoryChunks, {});
+			m_chunkCapacity = std::exchange(other.m_chunkCapacity, 0);
+			m_bufferInfo = std::exchange(other.m_bufferInfo, {});
+			m_deviceMemoryProps = std::exchange(other.m_deviceMemoryProps, {});
+			m_memoryTypeIndex = std::exchange(other.m_memoryTypeIndex, 0);
+
+			return *this;
+		}
+
+		MemoryPool(const MemoryPool&) noexcept = delete;
+		MemoryPool& operator=(const MemoryPool&) noexcept = delete;
+
+		~MemoryPool() { GRAPHICS_VERIFY(m_memoryChunks.empty(), "MemoryPool was dont destroyed"); };
+
+		template<typename Func>
+		void create(const DeviceFunctionTable& functions, DeviceRef device, PhysicalDeviceMemoryProperties deviceMemoryProps,
+			uint32_t memoryChunkCapacity, Flags::BufferUsage usageFlags, Flags::MemoryProperty requiredProperties, 
+			Flags::MemoryProperty forbiddenProperties, SharingMode sharingMode, 
+			Func&& onBufferAlloc = [](Memory&, Buffer&, size_t) {}) {
+			
 			m_deviceMemoryProps = deviceMemoryProps;
 			m_chunkCapacity = memoryChunkCapacity;
 			m_memoryChunks.push_back({});
@@ -102,43 +129,15 @@ namespace Graphics::MemoryManagement
 			chunk.memory.create(functions, device, { memoryRequirements.getSize(), m_memoryTypeIndex });
 			chunk.memory.bindBuffer(functions, device, chunk.buffer);
 
-			m_onBufferAlloc(chunk.memory, chunk.buffer, 0);
+			onBufferAlloc(chunk.memory, chunk.buffer, 0);
 
 			chunk.buddyAlloc.assign(0, m_chunkCapacity);
 			chunk.allocatedSize = 0;
 		}
 
-		MemoryPool(MemoryPool&& other) noexcept
-		{
-			m_memoryChunks = std::exchange(other.m_memoryChunks, {});
-			m_chunkCapacity = std::exchange(other.m_chunkCapacity, 0);
-			m_bufferInfo = std::exchange(other.m_bufferInfo, {});
-			m_deviceMemoryProps = std::exchange(other.m_deviceMemoryProps, {});
-			m_onBufferAlloc = std::exchange(other.m_onBufferAlloc, [](Memory&, Buffer&, size_t) {});
-			m_memoryTypeIndex = std::exchange(other.m_memoryTypeIndex, 0);
-		}
-
-		MemoryPool& operator=(MemoryPool&& other)
-		{
-			if (this == &other)
-				return *this;
-
-			m_memoryChunks = std::exchange(other.m_memoryChunks, {});
-			m_chunkCapacity = std::exchange(other.m_chunkCapacity, 0);
-			m_bufferInfo = std::exchange(other.m_bufferInfo, {});
-			m_deviceMemoryProps = std::exchange(other.m_deviceMemoryProps, {});
-			m_onBufferAlloc = std::exchange(other.m_onBufferAlloc, [](Memory&, Buffer&, size_t) {});
-			m_memoryTypeIndex = std::exchange(other.m_memoryTypeIndex, 0);
-
-			return *this;
-		}
-
-		MemoryPool(const MemoryPool&) noexcept = delete;
-		MemoryPool& operator=(const MemoryPool&) noexcept = delete;
-
-		~MemoryPool() { GRAPHICS_VERIFY(m_memoryChunks.empty(), "MemoryPool was dont destroyed"); };
-
-		Allocation allocate( const DeviceFunctionTable& functions, const Device& device, size_t size)
+		template<typename Func>
+		Allocation allocate(const DeviceFunctionTable& functions, DeviceRef device, size_t size, 
+			Func&& onBufferAlloc = [](MemoryRef, BufferRef, size_t) {})
 		{
 			if (size > m_chunkCapacity)
 				throw std::runtime_error("Allocation size exceeds chunk capacity");
@@ -147,12 +146,12 @@ namespace Graphics::MemoryManagement
 			{
 				auto ptr = m_memoryChunks[i].buddyAlloc.allocate(size);
 				if(ptr != std::numeric_limits<uintptr_t>::max())
-					return Allocation{static_cast<uint32_t>(ptr), static_cast<uint32_t>(size), static_cast<uint32_t>(i) };
+					return Allocation{static_cast<uint32_t>(ptr), static_cast<uint32_t>(size), static_cast<uint32_t>(i)};
 			}
-			addBuffer(functions, device);
+			addBuffer(functions, device, std::forward<Func>(onBufferAlloc));
 			auto ptr = m_memoryChunks.back().buddyAlloc.allocate(size);
 			return Allocation{static_cast<uint32_t>(ptr), static_cast<uint32_t>(size), 
-				static_cast<uint32_t>(m_memoryChunks.size() - 1) };
+				static_cast<uint32_t>(m_memoryChunks.size() - 1)};
 		}
 
 		void free(Allocation& allocation)
@@ -160,11 +159,10 @@ namespace Graphics::MemoryManagement
 			m_memoryChunks[allocation.bufferIndex].buddyAlloc.deallocate(allocation.region.offset);
 		}
 
-		auto& getBuffer(size_t chunkIndex) { return m_memoryChunks[chunkIndex].buffer; };
-		auto& getMemory(size_t chunkIndex) { return m_memoryChunks[chunkIndex].memory; };
+		BufferRef getBuffer(size_t chunkIndex) const { return m_memoryChunks[chunkIndex].buffer; };
+		MemoryRef getMemory(size_t chunkIndex) const { return m_memoryChunks[chunkIndex].memory; };
 
-		const auto& getBuffer(size_t chunkIndex) const { return m_memoryChunks[chunkIndex].buffer; };
-		const auto& getMemory(size_t chunkIndex) const { return m_memoryChunks[chunkIndex].memory; };
+		size_t getMemoryChunkCount() const { return m_memoryChunks.size(); }
 
 		// const auto& getFreeRegions(size_t chunkIndex) const { return m_freeRegions[chunkIndex];  };
 		// const auto& getAllocations(size_t chunkIndex) const { return m_allocations[chunkIndex]; };
@@ -175,7 +173,7 @@ namespace Graphics::MemoryManagement
 		size_t getChunkAllocatedSize(size_t chunkIndex) const { return m_memoryChunks[chunkIndex].allocatedSize; };
 		size_t getChunkFreeSize(size_t chunkIndex) const { return m_chunkCapacity - m_memoryChunks[chunkIndex].allocatedSize; };
 
-		void destroy(const DeviceFunctionTable& functions, const Device& device) {
+		void destroy(const DeviceFunctionTable& functions, DeviceRef device) {
 			if (m_memoryChunks.empty())
 				return;
 
@@ -189,7 +187,9 @@ namespace Graphics::MemoryManagement
 
 	private:
 
-		void addBuffer(const DeviceFunctionTable& functions, const Device& device)
+		template<typename Func>
+		void addBuffer(const DeviceFunctionTable& functions, DeviceRef device, 
+			Func&& onBufferAlloc = [](Memory&, Buffer&, size_t) {})
 		{
 			m_memoryChunks.push_back({});
 			auto& chunk = m_memoryChunks.back();
@@ -203,7 +203,7 @@ namespace Graphics::MemoryManagement
 			chunk.memory.bindBuffer(functions, device, chunk.buffer);
 			chunk.buddyAlloc.assign(0, m_chunkCapacity);
 			chunk.allocatedSize = 0;
-			m_onBufferAlloc(chunk.memory, chunk.buffer, m_memoryChunks.size() - 1);
+			onBufferAlloc(chunk.memory, chunk.buffer, m_memoryChunks.size() - 1);
 		}
 	};
 }

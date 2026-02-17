@@ -1,8 +1,8 @@
 #pragma once
 #ifdef _WIN32
-#include "WindowWin32.h"
+#include "Graphics/PlatformManagement/WindowWin32.h"
 #else
-#include "WindowXlib.h"
+#include "Graphics/PlatformManagement/WindowXlib.h"
 #endif
 
 namespace Platform
@@ -20,17 +20,17 @@ namespace Platform
 
 		using WindowImpl::WindowImpl;
 
-		template<auto E>
-		Window& registerCallback(auto callback)
+		template<auto E, typename Callback>
+		Window& registerCallback(Callback&& callback)
 		{
-			m_windowEvents.set<E>(std::move(callback));
+			m_windowEvents.set<E>(std::forward<Callback>(callback));
 			return *this;
 		}
 
-		template<auto E>
+		template<auto E, typename Callback>
 		Window& registerCallback(auto callback, auto& handler)
 		{
-			m_windowEvents.set<E>(std::move(callback), handler);
+			m_windowEvents.set<E>(std::forward<Callback>(callback), handler);
 			return *this;
 		}
 

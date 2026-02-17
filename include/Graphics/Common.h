@@ -8,6 +8,7 @@
 //#include <vma/vk_mem_alloc.h>
 
 //glm
+#define GLM_ENABLE_EXPERIMENTAL
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_FORCE_RIGHT_HANDED
@@ -73,16 +74,12 @@ else { \
 #error "GRAPHICS_NO_VERIFY and GRAPHICS_ALWAYS_VERIFY cannot be defined at the same time"
 #endif
 
-#if !defined(_DEBUG) && !defined(NODEBUG) 
-#define _DEBUG
-#endif
-
 namespace Graphics {
 
     using DeviceSize = VkDeviceSize;
 
     static inline void verify(bool condition, std::string_view message, const char* function, const char* file, int line, int column) {
-#if defined(_DEBUG) && !defined(GRAPHICS_NO_VERIFY) || defined(GRAPHICS_ALWAYS_VERIFY)
+#if !defined(NODEBUG) && !defined(GRAPHICS_NO_VERIFY) || defined(GRAPHICS_ALWAYS_VERIFY)
         if (!condition) {
             std::stringstream formatted;
             formatted << "[VERIFY FAILED] " << message <<
@@ -128,10 +125,12 @@ namespace Graphics {
     public:
         using T::T;
 
-        constexpr StructBase() : T{}
+        constexpr StructBase()
         {
             // in C++20 C struct types are zero initialized by default
             // GRAPHICS_VERIFY(isZeroInit<T>(), "Struct must be zero initialized");
+            // static_assert(sizeof(T) == sizeof(Derived));
+
             if constexpr (StructHasSType<T>) {
                 this->sType = static_cast<std::remove_const_t<decltype(this->sType)>>(
                     StructToEnumTraits_v<T>
@@ -139,25 +138,28 @@ namespace Graphics {
             }
         }
 
-        constexpr ~StructBase() = default;
+        constexpr StructBase(const StructBase& other) : T(static_cast<const T&>(other)) {}
+        constexpr StructBase(StructBase&& other) : T(std::move(static_cast<T&&>(other))) {}
+
+        constexpr StructBase& operator=(const StructBase& other) { 
+            static_cast<T&>(*this) = static_cast<const T&>(other); return *this; };
+
+        constexpr StructBase& operator=(StructBase&& other) { 
+            static_cast<T&>(*this) = std::move(static_cast<T&&>(other)); return *this; };
+
         constexpr StructBase(const T& other) : T(other) {}
         constexpr StructBase(T&& other) : T(std::move(other)) {}
-        constexpr StructBase(const StructBase&) = default;
-        constexpr StructBase(StructBase&&) = default;
 
-        constexpr StructBase& operator=(const StructBase&) = default;
-        constexpr StructBase& operator=(StructBase&&) = default;
-
-        constexpr StructBase& operator=(const T& other) { T::operator=(other); return *this; };
-        constexpr StructBase& operator=(T&& other) { T::operator=(std::move(other)); return *this; };
+        constexpr StructBase& operator=(const T& other) { static_cast<T&>(*this) = other; return *this; };
+        constexpr StructBase& operator=(T&& other) { static_cast<T&>(*this) = std::move(other); return *this; };
 
         constexpr operator T& () { return static_cast<T&>(*this); }
         constexpr operator const T& () const { return static_cast<const T&>(*this); }
         constexpr const T* getUnderlyingPointer() const { return static_cast<const T*>(this); };
         constexpr T* getUnderlyingPointer() { return static_cast<T*>(this); };
 
-        constexpr const T& getStruct() const { return *this; };
-        constexpr T& getStruct() { return *this; };
+        constexpr const T& getStruct() const { return static_cast<const T&>(*this); };
+        constexpr T& getStruct() { return static_cast<T&>(*this); };
 
         constexpr static const T* underlyingCast(const Derived* ptr) { return static_cast<const T*>(ptr); };
         constexpr static T* underlyingCast(Derived* ptr) { return static_cast<T*>(ptr); };
@@ -168,8 +170,8 @@ namespace Graphics {
         constexpr static const Derived* underlyingCast(const T* ptr) { return static_cast<const Derived*>(ptr); };
         constexpr static Derived* underlyingCast(T* ptr) { return static_cast<Derived*>(ptr); };
 
-        constexpr static const Derived& underlyingCast(const T& ref) { return static_cast<const Derived&>(ref); };
-        constexpr static Derived& underlyingCast(T& ref) { return static_cast<Derived&>(ref); };
+        constexpr static const Derived& underlyingCast(const T& ref) { return *static_cast<const Derived*>(&ref); };
+        constexpr static Derived& underlyingCast(T& ref) { return *static_cast<Derived*>(&ref); };
 
         constexpr const void* getNext() const requires StructHasNext<T> { return this->pNext; };
         constexpr Derived& setNext(void* pNext) requires StructHasNext<T> {

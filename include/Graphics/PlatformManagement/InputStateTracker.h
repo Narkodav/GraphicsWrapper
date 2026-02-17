@@ -3,8 +3,8 @@
 #include <type_traits>
 #include <limits>
 
-template <typename InputEnum, size_t NUM_INPUTS,
-	typename InputStateEnum, size_t NUM_INPUT_STATES,
+template <typename InputEnum, size_t s_numInputs,
+	typename InputStateEnum, size_t s_numInputStates,
 	typename StorageType = uint8_t>
 	requires std::is_enum_v<InputEnum>&&
 std::is_enum_v<InputStateEnum>&&
@@ -13,33 +13,33 @@ std::is_unsigned_v<StorageType>
 class InputStateTracker
 {
 private:
-	//static_assert(NUM_INPUTS > 0, "Number of inputs must be greater than 0");
-	//static_assert(NUM_INPUT_STATES > 0, "Number of input states must be greater than 0");
+	//static_assert(s_numInputs > 0, "Number of inputs must be greater than 0");
+	//static_assert(s_numInputStates > 0, "Number of input states must be greater than 0");
 	//static_assert(sizeof(StorageType) / 8 < std::numeric_limits<size_t>::max(),
 	//	"StorageType size in bits cannot exceed maximum value of size_t");
-	//static_assert(NUM_INPUTS <= std::numeric_limits<size_t>::max() / 8, "NUM_INPUTS too large");
-	//static_assert(NUM_INPUT_STATES <= std::numeric_limits<size_t>::max(), "NUM_INPUT_STATES too large");
+	//static_assert(s_numInputs <= std::numeric_limits<size_t>::max() / 8, "s_numInputs too large");
+	//static_assert(s_numInputStates <= std::numeric_limits<size_t>::max(), "s_numInputStates too large");
 
-	static inline const size_t STORAGE_SIZE = sizeof(StorageType) * 8;
+	static inline const size_t s_storageSize = sizeof(StorageType) * 8;
 
-	using StateArray = std::array<StorageType, (NUM_INPUTS - 1) / STORAGE_SIZE + 1>;
-	std::array<StateArray, NUM_INPUT_STATES> m_stateArrays = { 0 };
+	using StateArray = std::array<StorageType, (s_numInputs - 1) / s_storageSize + 1>;
+	std::array<StateArray, s_numInputStates> m_stateArrays = { 0 };
 
-	static inline constexpr std::array<size_t, NUM_INPUTS> inputByteIndices = []() {
-		std::array<size_t, NUM_INPUTS> InputIndices;
-		for (int i = 0; i < NUM_INPUTS; ++i)
-			InputIndices[i] = i / STORAGE_SIZE;
+	static inline constexpr std::array<size_t, s_numInputs> inputByteIndices = []() {
+		std::array<size_t, s_numInputs> InputIndices;
+		for (size_t i = 0; i < s_numInputs; ++i)
+			InputIndices[i] = i / s_storageSize;
 		return InputIndices;
 		}();
 
-	static inline constexpr std::array<size_t, NUM_INPUTS> inputBitOffsets = []() {
-		std::array<size_t, NUM_INPUTS> InputOffsets;
-		for (int i = 0; i < NUM_INPUTS; ++i)
-			InputOffsets[i] = i % STORAGE_SIZE;
+	static inline constexpr std::array<size_t, s_numInputs> inputBitOffsets = []() {
+		std::array<size_t, s_numInputs> InputOffsets;
+		for (size_t i = 0; i < s_numInputs; ++i)
+			InputOffsets[i] = i % s_storageSize;
 		return InputOffsets;
 		}();
 
-protected:
+public:
 
 	template<InputStateEnum S_E>
 	void setInputState(InputEnum Input, bool state)
@@ -60,7 +60,6 @@ protected:
 			static_cast<StorageType>(1) << inputBitOffsets[static_cast<size_t>(Input)];
 	}
 
-public:
 	template<InputEnum E, InputStateEnum S_E>
 	bool getInputState() const
 	{
