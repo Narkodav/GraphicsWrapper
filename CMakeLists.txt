@@ -34,6 +34,9 @@ target_compile_definitions(${PROJECT_NAME}
 # System dependency
 # ===============================
 
+if(PROJECT_IS_TOP_LEVEL)
+    find_package(Vulkan REQUIRED)
+endif()
 target_link_libraries(GraphicsWrapper PUBLIC Vulkan::Vulkan)
 
 # ===============================
@@ -52,35 +55,39 @@ target_link_libraries(GraphicsWrapper PRIVATE GraphicsWrapper_stb_image)
 # Other libraries
 # ===============================
 
+if(PROJECT_IS_TOP_LEVEL)
+    find_package(CommonApi REQUIRED CONFIG)
+    find_package(Containers REQUIRED CONFIG)
+endif()
 target_link_libraries(GraphicsWrapper PUBLIC CommonApi::CommonApi)
 target_link_libraries(GraphicsWrapper PUBLIC Containers::Containers)
 
-# # =========================
-# # Test executable
-# # =========================
-# file(GLOB_RECURSE TEST_SRC_FILES
-#     ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp
-# )
+# =========================
+# Test executable
+# =========================
+file(GLOB_RECURSE TEST_SRC_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp
+)
 
-# add_executable(GraphicsWrapperTests ${TEST_SRC_FILES})
+add_executable(GraphicsWrapperTests ${TEST_SRC_FILES})
 
-# # Link the library
-# target_link_libraries(GraphicsWrapperTests PRIVATE ${PROJECT_NAME})
+# Link the library
+target_link_libraries(GraphicsWrapperTests PRIVATE ${PROJECT_NAME})
 
-# # Match C++ standard and warnings
-# target_compile_features(GraphicsWrapperTests PUBLIC cxx_std_20)
-# target_compile_options(GraphicsWrapperTests PRIVATE
-#     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic>
-#     $<$<CXX_COMPILER_ID:MSVC>:/W4>
-# )
+# Match C++ standard and warnings
+target_compile_features(GraphicsWrapperTests PUBLIC cxx_std_20)
+target_compile_options(GraphicsWrapperTests PRIVATE
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic>
+    $<$<CXX_COMPILER_ID:MSVC>:/W4>
+)
 
-# target_include_directories(GraphicsWrapperTests PRIVATE
-#     ${CMAKE_CURRENT_SOURCE_DIR}/include
-# )
+target_include_directories(GraphicsWrapperTests PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
 
-# # Enable CTest
-# enable_testing()
-# add_test(NAME GraphicsWrapperTests COMMAND GraphicsWrapperTests)
+# Enable CTest
+enable_testing()
+add_test(NAME GraphicsWrapperTests COMMAND GraphicsWrapperTests)
 
 # ===============================
 # Install & package (TOP-LEVEL ONLY)

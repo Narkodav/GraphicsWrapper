@@ -72,6 +72,7 @@ namespace Graphics {
         BufferCopy& setDstOffset(size_t dstOffset) { this->dstOffset = dstOffset; return *this; }
         BufferCopy& setSize(size_t size) { this->size = size; return *this; }
     };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::BufferCopy, VkBufferCopy);
 
     struct alignas(4) DrawCommand
     {
@@ -102,6 +103,7 @@ namespace Graphics {
         uint32_t getWidth() const { return this->width; };
         uint32_t getHeight() const { return this->height; };
     };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::Extent2D, VkExtent2D);
 
     struct Offset2D : public StructBase<VkOffset2D, Offset2D>
     {
@@ -130,6 +132,7 @@ namespace Graphics {
         int32_t getX() const { return this->x; };
         int32_t getY() const { return this->y; };
     };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::Offset2D, VkOffset2D);
 
     class Extent3D : public StructBase<VkExtent3D, Extent3D>
     {
@@ -168,6 +171,7 @@ namespace Graphics {
         uint32_t getHeight() const { return this->height; };
         uint32_t getDepth() const { return this->depth; };
     };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::Extent3D, VkExtent3D);
 
     struct Offset3D : public StructBase<VkOffset3D, Offset3D>
     {
@@ -202,7 +206,8 @@ namespace Graphics {
         int32_t getX() const { return this->x; };
         int32_t getY() const { return this->y; };
         int32_t getZ() const { return this->z; };
-    };    
+    };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::Offset3D, VkOffset3D);
 
     struct Viewport : public StructBase<VkViewport, Viewport>
     {
@@ -234,6 +239,7 @@ namespace Graphics {
         Viewport& setMinDepth(float minDepth) { this->minDepth = minDepth; return *this; };
         Viewport& setMaxDepth(float maxDepth) { this->maxDepth = maxDepth; return *this; };
     };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::Viewport, VkViewport);
 
     class Rect2D : public StructBase<VkRect2D, Rect2D>
     {
@@ -272,8 +278,8 @@ namespace Graphics {
             this->extent = extent;
             return *this;
 		};
-
     };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::Rect2D, VkRect2D);
 
     using Scissor = Rect2D; //for better readability
 
@@ -354,6 +360,7 @@ namespace Graphics {
         size_t getAlignment() const { return static_cast<size_t>(this->alignment); }
         uint32_t getMemoryTypeBits() const { return this->memoryTypeBits; }
     };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::MemoryRequirements, VkMemoryRequirements);
 
     class PushConstantRange : public StructBase<VkPushConstantRange, PushConstantRange>
     {
@@ -386,6 +393,7 @@ namespace Graphics {
         uint32_t getOffset() const { return this->offset; };
         uint32_t getSize() const { return this->size; };
     };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::PushConstantRange, VkPushConstantRange);
     
     class ClearColorValue : public UnionBase<VkClearColorValue, ClearColorValue,
         std::array<float, 4>, std::array<int32_t, 4>, std::array<uint32_t, 4>>
@@ -423,6 +431,7 @@ namespace Graphics {
         std::span<const int32_t, 4> getInt32() const { return getUnion().int32; }
         std::span<const uint32_t, 4> getUint32() const { return getUnion().uint32; }
     };
+    GRAPHICS_ASSERT_UNION_PROPERTIES(Graphics::ClearColorValue, VkClearColorValue);
 
     class ClearDepthStencilValue : public StructBase<VkClearDepthStencilValue, ClearDepthStencilValue>
     {
@@ -443,6 +452,7 @@ namespace Graphics {
         float getDepth() const { return this->depth; }
         uint32_t getStencil() const { return this->stencil; }
     };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::ClearDepthStencilValue, VkClearDepthStencilValue);
 
     class ClearValue : public UnionBase<VkClearValue, ClearValue,
         ClearColorValue, ClearDepthStencilValue>
@@ -467,10 +477,12 @@ namespace Graphics {
             return ClearDepthStencilValue::underlyingCast(getUnion().depthStencil); 
         }
     };
+    GRAPHICS_ASSERT_UNION_PROPERTIES(Graphics::ClearValue, VkClearValue);
 
-    struct Color : public StructBase<std::array<float, 4>, Color>
+    using ArrayFloat4 = std::array<float, 4>;
+    struct Color : public StructBase<ArrayFloat4, Color>
     {
-        using Base = StructBase<std::array<float, 4>, Color>;
+        using Base = StructBase<ArrayFloat4, Color>;
     public:
         using Base::Base;
 
@@ -522,6 +534,7 @@ namespace Graphics {
         float getB() const { return Base::operator[](2); };
         float getA() const { return Base::operator[](3); };
     };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::Color, ArrayFloat4);
 
     class AllocationCallbacks : public StructBase<VkAllocationCallbacks, AllocationCallbacks>
     {
@@ -576,4 +589,5 @@ namespace Graphics {
         PFN_internalAllocationNotification getInternalAllocationNotification() const { return reinterpret_cast<PFN_internalAllocationNotification>(this->pfnInternalAllocation); }
         PFN_internalFreeNotification getInternalFreeNotification() const { return reinterpret_cast<PFN_internalFreeNotification>(this->pfnInternalFree); }
     };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::AllocationCallbacks, VkAllocationCallbacks);
 }

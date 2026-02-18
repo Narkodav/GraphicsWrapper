@@ -1,0 +1,70 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-f52a8e21d97b4d8c1a51.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.20"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "GraphicsWrapper",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "GraphicsWrapper::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-GraphicsWrapper-Debug-462767577451d87f3119.json",
+					"name" : "GraphicsWrapper",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "GraphicsWrapperTests::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-GraphicsWrapperTests-Debug-5d39b501adc7062c3ffb.json",
+					"name" : "GraphicsWrapperTests",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "E:/Program Files (x86)/Code/C_code/libraries/GraphicsWrapper/build/clang-debug",
+		"source" : "E:/Program Files (x86)/Code/C_code/libraries/GraphicsWrapper"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}

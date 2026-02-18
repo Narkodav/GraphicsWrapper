@@ -17,6 +17,7 @@ namespace Graphics
 
         MemoryRequirements getMemoryRequirements(const DeviceFunctionTable& functions, const DeviceRef& device) const;
     };
+    GRAPHICS_ASSERT_HANDLE_REFERENCE_PROPERTIES(BufferRef);
 
     class BufferCreateInfo : public StructBase<VkBufferCreateInfo, BufferCreateInfo>
     {
@@ -58,6 +59,7 @@ namespace Graphics
             return std::span<const uint32_t>(this->pQueueFamilyIndices, this->queueFamilyIndexCount);
         }
     };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::BufferCreateInfo, VkBufferCreateInfo);
 
     class BufferMemoryBarrier : public StructBase<VkBufferMemoryBarrier, BufferMemoryBarrier>
     {
@@ -105,6 +107,7 @@ namespace Graphics
             return *this;
         }
     };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::BufferMemoryBarrier, VkBufferMemoryBarrier);
 
     class BufferImageCopy : public StructBase<VkBufferImageCopy, BufferImageCopy>
     {
@@ -149,6 +152,7 @@ namespace Graphics
             return *reinterpret_cast<ImageSubresourceLayers*>(&this->imageSubresource);
         }
     };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::BufferImageCopy, VkBufferImageCopy);
 
     class BufferViewRef : public BaseComponent<VkBufferView, BufferViewRef>
     {
@@ -157,6 +161,7 @@ namespace Graphics
         using Base::Base;
         static inline const std::string s_typeName = "Buffer::View";
     };
+    GRAPHICS_ASSERT_HANDLE_REFERENCE_PROPERTIES(BufferViewRef);
 
     class BufferViewCreateInfo : public StructBase<VkBufferViewCreateInfo, BufferViewCreateInfo>
     {
@@ -193,6 +198,7 @@ namespace Graphics
             return *this;
         }
     };
+    GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::BufferViewCreateInfo, VkBufferViewCreateInfo);
 
     class BufferView : public VerificatorComponent<VkBufferView, BufferViewRef>
     {
@@ -203,6 +209,7 @@ namespace Graphics
         void create(const DeviceFunctionTable& functions, const DeviceRef& device, const BufferViewCreateInfo& createInfo);
         void destroy(const DeviceFunctionTable& functions, const DeviceRef& device);
     };
+    GRAPHICS_ASSERT_HANDLE_PROPERTIES(BufferView);
 
     class Buffer : public VerificatorComponent<VkBuffer, BufferRef>
     {
@@ -213,5 +220,6 @@ namespace Graphics
         void create(const DeviceFunctionTable& functions, const DeviceRef& device, const BufferCreateInfo& createInfo);
         void destroy(const DeviceFunctionTable& functions, const DeviceRef& device);
     };
+    GRAPHICS_ASSERT_HANDLE_PROPERTIES(Buffer);
 }
 

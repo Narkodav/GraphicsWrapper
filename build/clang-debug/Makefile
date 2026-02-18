@@ -64,6 +64,16 @@ CMAKE_BINARY_DIR = "E:\Program Files (x86)\Code\C_code\libraries\GraphicsWrapper
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running tests..."
+	"E:\Program Files (x86)\CMake\cmake-3.30.2-windows-x86_64\bin\ctest.exe" --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake cache editor..."
@@ -173,6 +183,19 @@ GraphicsWrapper: cmake_check_build_system
 GraphicsWrapper/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\GraphicsWrapper.dir\build.make CMakeFiles/GraphicsWrapper.dir/build
 .PHONY : GraphicsWrapper/fast
+
+#=============================================================================
+# Target rules for targets named GraphicsWrapperTests
+
+# Build rule for target.
+GraphicsWrapperTests: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 GraphicsWrapperTests
+.PHONY : GraphicsWrapperTests
+
+# fast build rule for target.
+GraphicsWrapperTests/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\GraphicsWrapperTests.dir\build.make CMakeFiles/GraphicsWrapperTests.dir/build
+.PHONY : GraphicsWrapperTests/fast
 
 src/Graphics/HandleTypes/Buffer.obj: src/Graphics/HandleTypes/Buffer.cpp.obj
 .PHONY : src/Graphics/HandleTypes/Buffer.obj
@@ -966,6 +989,30 @@ src/Graphics/Wrappers/InstanceWrapper.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\GraphicsWrapper.dir\build.make CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/InstanceWrapper.cpp.s
 .PHONY : src/Graphics/Wrappers/InstanceWrapper.cpp.s
 
+tests/main.obj: tests/main.cpp.obj
+.PHONY : tests/main.obj
+
+# target to build an object file
+tests/main.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\GraphicsWrapperTests.dir\build.make CMakeFiles/GraphicsWrapperTests.dir/tests/main.cpp.obj
+.PHONY : tests/main.cpp.obj
+
+tests/main.i: tests/main.cpp.i
+.PHONY : tests/main.i
+
+# target to preprocess a source file
+tests/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\GraphicsWrapperTests.dir\build.make CMakeFiles/GraphicsWrapperTests.dir/tests/main.cpp.i
+.PHONY : tests/main.cpp.i
+
+tests/main.s: tests/main.cpp.s
+.PHONY : tests/main.s
+
+# target to generate assembly for a file
+tests/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\GraphicsWrapperTests.dir\build.make CMakeFiles/GraphicsWrapperTests.dir/tests/main.cpp.s
+.PHONY : tests/main.cpp.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -978,7 +1025,9 @@ help:
 	@echo ... install/strip
 	@echo ... list_install_components
 	@echo ... rebuild_cache
+	@echo ... test
 	@echo ... GraphicsWrapper
+	@echo ... GraphicsWrapperTests
 	@echo ... src/Graphics/HandleTypes/Buffer.obj
 	@echo ... src/Graphics/HandleTypes/Buffer.i
 	@echo ... src/Graphics/HandleTypes/Buffer.s
@@ -1078,6 +1127,9 @@ help:
 	@echo ... src/Graphics/Wrappers/InstanceWrapper.obj
 	@echo ... src/Graphics/Wrappers/InstanceWrapper.i
 	@echo ... src/Graphics/Wrappers/InstanceWrapper.s
+	@echo ... tests/main.obj
+	@echo ... tests/main.i
+	@echo ... tests/main.s
 .PHONY : help
 
 

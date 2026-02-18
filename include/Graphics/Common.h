@@ -39,6 +39,7 @@
 #include <unordered_set>
 #include <span>
 #include <source_location>
+#include <type_traits>
 
 #include "StructTraits.h"
 
@@ -73,6 +74,33 @@ else { \
 #if defined(GRAPHICS_NO_VERIFY) && defined(GRAPHICS_ALWAYS_VERIFY)
 #error "GRAPHICS_NO_VERIFY and GRAPHICS_ALWAYS_VERIFY cannot be defined at the same time"
 #endif
+
+//asserts trivially copyable and layout identity for structs
+#define GRAPHICS_ASSERT_STRUCT_PROPERTIES(GraphicsStruct, VulkanStruct) \
+static_assert(sizeof(GraphicsStruct) == sizeof(VulkanStruct)); \
+static_assert(alignof(GraphicsStruct) == alignof(VulkanStruct)); \
+static_assert(std::is_trivially_copyable_v<GraphicsStruct>); \
+static_assert(std::is_standard_layout_v<GraphicsStruct>) \
+
+//asserts trivially copyable and trivially default constructible and layout identity for unions
+#define GRAPHICS_ASSERT_UNION_PROPERTIES(GraphicsUnion, VulkanUnion) \
+static_assert(sizeof(GraphicsUnion) == sizeof(VulkanUnion)); \
+static_assert(alignof(GraphicsUnion) == alignof(VulkanUnion)); \
+static_assert(std::is_trivially_copyable_v<GraphicsUnion>); \
+static_assert(std::is_trivially_default_constructible_v<GraphicsUnion>); \
+static_assert(std::is_standard_layout_v<GraphicsUnion>) \
+
+//assert object binary layout
+#define GRAPHICS_ASSERT_HANDLE_PROPERTIES(GraphicsHandle) \
+static_assert(sizeof(GraphicsHandle) == sizeof(uintptr_t)); \
+static_assert(alignof(GraphicsHandle) == alignof(uintptr_t)); \
+static_assert(std::is_standard_layout_v<GraphicsHandle>) \
+
+//assert object reference binary layout
+#define GRAPHICS_ASSERT_HANDLE_REFERENCE_PROPERTIES(GraphicsHandleRef) \
+GRAPHICS_ASSERT_HANDLE_PROPERTIES(GraphicsHandleRef); \
+static_assert(std::is_trivially_copyable_v<GraphicsHandleRef>); \
+static_assert(std::is_trivially_default_constructible_v<GraphicsHandleRef>) \
 
 namespace Graphics {
 
@@ -110,27 +138,13 @@ namespace Graphics {
         std::is_trivially_copyable_v<T> &&
         std::is_aggregate_v<T>;
 
-    template<CStruct T>
-    constexpr bool isZeroInit()
-    {
-        T t{};
-        uint8_t* p = reinterpret_cast<uint8_t*>(&t);
-        for (size_t i = 0; i < sizeof(T); ++i)
-            if (p[i] != 0) return false;
-        return true;
-    }
-
     template<CStruct T, typename Derived>
     class StructBase : public T {
     public:
         using T::T;
 
-        constexpr StructBase()
+        constexpr StructBase() : T{}
         {
-            // in C++20 C struct types are zero initialized by default
-            // GRAPHICS_VERIFY(isZeroInit<T>(), "Struct must be zero initialized");
-            // static_assert(sizeof(T) == sizeof(Derived));
-
             if constexpr (StructHasSType<T>) {
                 this->sType = static_cast<std::remove_const_t<decltype(this->sType)>>(
                     StructToEnumTraits_v<T>
@@ -138,14 +152,11 @@ namespace Graphics {
             }
         }
 
-        constexpr StructBase(const StructBase& other) : T(static_cast<const T&>(other)) {}
-        constexpr StructBase(StructBase&& other) : T(std::move(static_cast<T&&>(other))) {}
+        constexpr StructBase(const StructBase& other) = default;
+        constexpr StructBase(StructBase&& other) = default;
 
-        constexpr StructBase& operator=(const StructBase& other) { 
-            static_cast<T&>(*this) = static_cast<const T&>(other); return *this; };
-
-        constexpr StructBase& operator=(StructBase&& other) { 
-            static_cast<T&>(*this) = std::move(static_cast<T&&>(other)); return *this; };
+        constexpr StructBase& operator=(const StructBase& other)  = default;
+        constexpr StructBase& operator=(StructBase&& other)  = default;
 
         constexpr StructBase(const T& other) : T(other) {}
         constexpr StructBase(T&& other) : T(std::move(other)) {}
@@ -236,7 +247,7 @@ namespace Graphics {
     template<typename T, typename Derived>
     class BaseComponent {
     protected:
-        T m_handle = nullptr;
+        T m_handle;
 
         template<typename U>
         constexpr void setHandle(U&& newHandle) { m_handle = std::forward<U>(newHandle); };
@@ -249,26 +260,25 @@ namespace Graphics {
     public:
         using VulkanType = T;
 
-        constexpr BaseComponent() = default;
+        constexpr BaseComponent() noexcept = default;
+        constexpr ~BaseComponent() noexcept = default;
 
-        constexpr ~BaseComponent() = default;
+        constexpr BaseComponent(BaseComponent&&) noexcept = default;
+        constexpr BaseComponent& operator=(BaseComponent&&) noexcept = default;
 
-        constexpr BaseComponent(BaseComponent&&) = default;
-        constexpr BaseComponent& operator=(BaseComponent&&) = default;
+        constexpr BaseComponent(const BaseComponent&) noexcept = default;
+        constexpr BaseComponent& operator=(const BaseComponent&) noexcept = default;
 
-        constexpr BaseComponent(const BaseComponent&) = default;
-        constexpr BaseComponent& operator=(const BaseComponent&) = default;
+        constexpr BaseComponent(T&& handle) noexcept : m_handle(std::move(handle)) {}
 
-        constexpr BaseComponent(T&& handle) : m_handle(std::move(handle)) {}
-
-        constexpr BaseComponent& operator=(T&& handle) {
+        constexpr BaseComponent& operator=(T&& handle) noexcept {
             m_handle = std::move(handle);
             return *this;
         };
 
-        constexpr BaseComponent(const T& handle) : m_handle(handle) {}
+        constexpr BaseComponent(const T& handle) noexcept : m_handle(handle) {}
 
-        constexpr BaseComponent& operator=(const T& handle) {
+        constexpr BaseComponent& operator=(const T& handle) noexcept {
             m_handle = handle;
             return *this;
         };
@@ -289,9 +299,6 @@ namespace Graphics {
         constexpr static Derived* underlyingCast(T* ptr) { return reinterpret_cast<Derived*>(ptr); };
 
         constexpr bool isSet() const { return m_handle != nullptr; };
-
-        // this is an identifier for concepts, returns true if type has the same memory layout as uint64_t
-        static inline const bool hasIdenticalMemoryLayoutToInteger = true;
     };
 
     template <typename T>

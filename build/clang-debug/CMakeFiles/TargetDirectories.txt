@@ -1,4 +1,6 @@
 E:/Program Files (x86)/Code/C_code/libraries/GraphicsWrapper/build/clang-debug/CMakeFiles/GraphicsWrapper.dir
+E:/Program Files (x86)/Code/C_code/libraries/GraphicsWrapper/build/clang-debug/CMakeFiles/GraphicsWrapperTests.dir
+E:/Program Files (x86)/Code/C_code/libraries/GraphicsWrapper/build/clang-debug/CMakeFiles/test.dir
 E:/Program Files (x86)/Code/C_code/libraries/GraphicsWrapper/build/clang-debug/CMakeFiles/edit_cache.dir
 E:/Program Files (x86)/Code/C_code/libraries/GraphicsWrapper/build/clang-debug/CMakeFiles/rebuild_cache.dir
 E:/Program Files (x86)/Code/C_code/libraries/GraphicsWrapper/build/clang-debug/CMakeFiles/list_install_components.dir

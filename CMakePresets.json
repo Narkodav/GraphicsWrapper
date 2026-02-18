@@ -17,7 +17,8 @@
                 "CMAKE_C_COMPILER": "C:/Users/user/.utils/llvm-mingw/bin/clang.exe",
                 "CMAKE_CXX_COMPILER": "C:/Users/user/.utils/llvm-mingw/bin/clang++.exe",
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/clang-debug"
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/clang-debug",
+                "CommonApi_DIR": "E:/Program Files (x86)/Code/C_code/libraries/CommonApi/install/clang-debug/lib/cmake/CommonApi"
             }
         },
         {
@@ -29,7 +30,8 @@
                 "CMAKE_C_COMPILER": "C:/Users/user/.utils/llvm-mingw/bin/clang.exe",
                 "CMAKE_CXX_COMPILER": "C:/Users/user/.utils/llvm-mingw/bin/clang++.exe",
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/clang-release"
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/clang-release",
+                "CommonApi_DIR": "E:/Program Files (x86)/Code/C_code/libraries/CommonApi/install/clang-release/lib/cmake/CommonApi"
             }
         },
         

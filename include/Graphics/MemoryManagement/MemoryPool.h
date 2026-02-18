@@ -146,11 +146,11 @@ namespace Graphics::MemoryManagement
 			{
 				auto ptr = m_memoryChunks[i].buddyAlloc.allocate(size);
 				if(ptr != std::numeric_limits<uintptr_t>::max())
-					return Allocation{static_cast<uint32_t>(ptr), static_cast<uint32_t>(size), static_cast<uint32_t>(i)};
+					return {static_cast<uint32_t>(ptr), static_cast<uint32_t>(size), static_cast<uint32_t>(i)};
 			}
 			addBuffer(functions, device, std::forward<Func>(onBufferAlloc));
 			auto ptr = m_memoryChunks.back().buddyAlloc.allocate(size);
-			return Allocation{static_cast<uint32_t>(ptr), static_cast<uint32_t>(size), 
+			return {static_cast<uint32_t>(ptr), static_cast<uint32_t>(size), 
 				static_cast<uint32_t>(m_memoryChunks.size() - 1)};
 		}
 

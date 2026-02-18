@@ -63,6 +63,7 @@ CMAKE_BINARY_DIR = "E:\Program Files (x86)\Code\C_code\libraries\GraphicsWrapper
 
 # The main recursive "all" target.
 all: CMakeFiles/GraphicsWrapper.dir/all
+all: CMakeFiles/GraphicsWrapperTests.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -71,6 +72,7 @@ preinstall:
 
 # The main recursive "clean" target.
 clean: CMakeFiles/GraphicsWrapper.dir/clean
+clean: CMakeFiles/GraphicsWrapperTests.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -98,6 +100,32 @@ GraphicsWrapper: CMakeFiles/GraphicsWrapper.dir/rule
 CMakeFiles/GraphicsWrapper.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\GraphicsWrapper.dir\build.make CMakeFiles/GraphicsWrapper.dir/clean
 .PHONY : CMakeFiles/GraphicsWrapper.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/GraphicsWrapperTests.dir
+
+# All Build rule for target.
+CMakeFiles/GraphicsWrapperTests.dir/all: CMakeFiles/GraphicsWrapper.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\GraphicsWrapperTests.dir\build.make CMakeFiles/GraphicsWrapperTests.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\GraphicsWrapperTests.dir\build.make CMakeFiles/GraphicsWrapperTests.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir="E:\Program Files (x86)\Code\C_code\libraries\GraphicsWrapper\build\clang-debug\CMakeFiles" --progress-num=35,36 "Built target GraphicsWrapperTests"
+.PHONY : CMakeFiles/GraphicsWrapperTests.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/GraphicsWrapperTests.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start "E:\Program Files (x86)\Code\C_code\libraries\GraphicsWrapper\build\clang-debug\CMakeFiles" 36
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 CMakeFiles/GraphicsWrapperTests.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start "E:\Program Files (x86)\Code\C_code\libraries\GraphicsWrapper\build\clang-debug\CMakeFiles" 0
+.PHONY : CMakeFiles/GraphicsWrapperTests.dir/rule
+
+# Convenience name for target.
+GraphicsWrapperTests: CMakeFiles/GraphicsWrapperTests.dir/rule
+.PHONY : GraphicsWrapperTests
+
+# clean rule for target.
+CMakeFiles/GraphicsWrapperTests.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\GraphicsWrapperTests.dir\build.make CMakeFiles/GraphicsWrapperTests.dir/clean
+.PHONY : CMakeFiles/GraphicsWrapperTests.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

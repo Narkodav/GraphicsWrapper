@@ -574,16 +574,25 @@
 //     return 0;
 // }
 
-// #include "Multithreading/ThreadPool.h"
+#include "Multithreading/ThreadPool.h"
 
-// #include <iostream>
+#include "Graphics/Graphics.h"
 
-// int main()
-// {
-// 	MT::ThreadPool pool;
-// 	try {
-// 		pool.init(16);
-// 	} catch(const std::runtime_error& e) {
-// 		std::cout << e.what() << std::endl;
-// 	}
-// }
+#include <iostream>
+
+int main()
+{
+	MT::ThreadPool pool;
+	try {
+		pool.init(16);
+	} catch(const std::runtime_error& e) {
+		std::cout << e.what() << std::endl;
+	}
+
+	constexpr Graphics::DeviceCreateInfo dc;
+
+	const auto* bytes = reinterpret_cast<const uint8_t*>(&dc);
+	for(size_t i = 0; i < sizeof(Graphics::DeviceCreateInfo); ++i) {
+		std::cout << static_cast<uint64_t>(bytes[i]) << " ";
+	}
+}
