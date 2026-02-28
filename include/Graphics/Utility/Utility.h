@@ -71,11 +71,11 @@ namespace Graphics::Utility
 
     void recreateBasicSwapChain(SwapChainData& data,
         const DeviceFunctionTable& deviceFunctions,
-        const DeviceRef& device,
-        const RenderPassRef& renderPass,
+        DeviceRef device, RenderPassRef renderPass,
+        const PhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties,
         const Extent2D& preferredExtent);
 
-    void destroySwapChainDaTa(const DeviceFunctionTable& deviceFunctions,
+    void destroySwapChainData(const DeviceFunctionTable& deviceFunctions,
         const DeviceRef& device, SwapChainData& data);
 
     void createBasicGraphicsPipeline(GraphicsPipelineData& data,
@@ -86,7 +86,7 @@ namespace Graphics::Utility
         PrimitiveTopology desiredTopology,
         PolygonMode desiredPolygonMode, Flags::CullMode desiredCullMode,
         FrontFace desiredFrontFace, CompareOp depthCompareOp,
-        bool depthWriteEnable);
+        bool depthTestEnable, bool depthWriteEnable);
 
     ShaderModuleData createShaderModules(const DeviceFunctionTable& deviceFunctions,
         const DeviceRef& device, std::span<const std::string> shaderFilePaths);

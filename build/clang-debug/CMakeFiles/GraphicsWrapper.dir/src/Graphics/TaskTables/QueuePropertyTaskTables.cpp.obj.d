@@ -1253,6 +1253,9 @@ CMakeFiles/GraphicsWrapper.dir/src/Graphics/TaskTables/QueuePropertyTaskTables.c
   C:/Users/user/.utils/llvm-mingw/include/c++/v1/source_location \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/StructTraits.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/Enums.h \
+  E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Utilities/TemplateUnion.h \
+  E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Utilities/Concepts.h \
+  E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Utilities/Macros.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/Structs.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/Flags.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/TaskTables/FeatureEnum.h \

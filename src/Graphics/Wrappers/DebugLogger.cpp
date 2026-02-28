@@ -7,11 +7,23 @@ namespace Graphics::Wrappers {
 		const DebugUtils::CallbackData* pCallbackData) {
 		std::unique_lock<std::shared_mutex> lock(m_mutex);
 
-		m_messages.push_back({ messageSeverity, messageType,
-			pCallbackData->getMessage().data(),
-			pCallbackData->getMessageIdName().data(),
-			std::chrono::steady_clock::now()
-			});
+		m_messages.push_back({});
+		m_messages.back().messageSeverity = messageSeverity;
+		m_messages.back().messageType = messageType;
+		m_messages.back().messageIdName = pCallbackData->getMessageIdName();
+		m_messages.back().message = pCallbackData->getMessage();
+		m_messages.back().timestamp = std::chrono::steady_clock::now();
+		
+		auto objectInfos = pCallbackData->getObjectInfos();
+		m_messages.back().objects.resize(objectInfos.size());
+		for(size_t i = 0; i < objectInfos.size(); ++i) {
+			if(objectInfos[i].hasObjectName())
+				m_messages.back().objects[i].objectName = objectInfos[i].getName();
+			else m_messages.back().objects[i].objectName = "Unknown";
+			m_messages.back().objects[i].type = objectInfos[i].getType();
+			m_messages.back().objects[i].handle = objectInfos[i].getHandle();
+		}
+
 		addMessageBySeverity(m_messages.back(), m_messages.size() - 1);
 		addMessageByType(m_messages.back(), m_messages.size() - 1);
 	}

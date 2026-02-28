@@ -84,23 +84,28 @@ namespace Graphics
 			const DescriptorSetCopy& descriptorCopy);
 
 		void write(const DeviceFunctionTable& functions, DeviceRef device,
-			uint32_t dstBinding, uint32_t dstArrayElement, std::span<const DescriptorBufferInfo> bufferInfo);
+			uint32_t dstBinding, uint32_t dstArrayElement, std::span<const DescriptorBufferInfo> bufferInfo,
+			DescriptorType descriptorType);
 
 		void write(const DeviceFunctionTable& functions, DeviceRef device,
-			uint32_t dstBinding, uint32_t dstArrayElement, std::span<const DescriptorImageInfo> imageInfo);
+			uint32_t dstBinding, uint32_t dstArrayElement, std::span<const DescriptorImageInfo> imageInfo,
+			DescriptorType descriptorType);
 
 		void write(const DeviceFunctionTable& functions, DeviceRef device,
-			uint32_t dstBinding, uint32_t dstArrayElement,
-			std::span<const BufferViewRef> texelBufferViews);
+			uint32_t dstBinding, uint32_t dstArrayElement, std::span<const BufferViewRef> texelBufferViews,
+			DescriptorType descriptorType);
 
 		void write(const DeviceFunctionTable& functions, DeviceRef device,
-			uint32_t dstBinding, uint32_t dstArrayElement, const DescriptorBufferInfo& bufferInfo);
+			uint32_t dstBinding, uint32_t dstArrayElement, const DescriptorBufferInfo& bufferInfo,
+			DescriptorType descriptorType);
 
 		void write(const DeviceFunctionTable& functions, DeviceRef device,
-			uint32_t dstBinding, uint32_t dstArrayElement, const DescriptorImageInfo& imageInfo);
+			uint32_t dstBinding, uint32_t dstArrayElement, const DescriptorImageInfo& imageInfo,
+			DescriptorType descriptorType);
 
 		void write(const DeviceFunctionTable& functions, DeviceRef device,
-			uint32_t dstBinding, uint32_t dstArrayElement, BufferViewRef texelBufferViews);
+			uint32_t dstBinding, uint32_t dstArrayElement, BufferViewRef texelBufferViews,
+			DescriptorType descriptorType);
 
 		void copy(const DeviceFunctionTable& functions, DeviceRef device, DescriptorSet srcSet,
 			uint32_t srcBinding, uint32_t dstBinding, uint32_t srcArrayElement, uint32_t dstArrayElement,
@@ -256,7 +261,8 @@ namespace Graphics
 		using Base::Base;
 
 		DescriptorSetWrite(const DescriptorSet& dstSet, uint32_t dstBinding,
-			uint32_t dstArrayElement, std::span<const DescriptorImageInfo> imageInfo) : Base() {
+			uint32_t dstArrayElement, std::span<const DescriptorImageInfo> imageInfo,
+			DescriptorType descriptorType) : Base() {
 			this->dstSet = dstSet;
 			this->dstBinding = dstBinding;
 			this->dstArrayElement = dstArrayElement;
@@ -264,10 +270,12 @@ namespace Graphics
 			this->descriptorCount = imageInfo.size();
 			this->pTexelBufferView = nullptr;
 			this->pBufferInfo = nullptr;
+			this->descriptorType = convertCEnum(descriptorType);
 		}
 
 		DescriptorSetWrite(const DescriptorSet& dstSet, uint32_t dstBinding,
-			uint32_t dstArrayElement, std::span<const DescriptorBufferInfo> bufferInfo) : Base() {
+			uint32_t dstArrayElement, std::span<const DescriptorBufferInfo> bufferInfo,
+			DescriptorType descriptorType) : Base() {
 			this->dstSet = dstSet;
 			this->dstBinding = dstBinding;
 			this->dstArrayElement = dstArrayElement;
@@ -275,10 +283,12 @@ namespace Graphics
 			this->descriptorCount = bufferInfo.size();
 			this->pTexelBufferView = nullptr;
 			this->pImageInfo = nullptr;
+			this->descriptorType = convertCEnum(descriptorType);
 		}
 
 		DescriptorSetWrite(const DescriptorSet& dstSet, uint32_t dstBinding,
-			uint32_t dstArrayElement, std::span<const BufferViewRef> texelBufferView) : Base() {
+			uint32_t dstArrayElement, std::span<const BufferViewRef> texelBufferView,
+			DescriptorType descriptorType) : Base() {
 			this->dstSet = dstSet;
 			this->dstBinding = dstBinding;
 			this->dstArrayElement = dstArrayElement;
@@ -286,10 +296,12 @@ namespace Graphics
 			this->descriptorCount = texelBufferView.size();
 			this->pImageInfo = nullptr;
 			this->pBufferInfo = nullptr;
+			this->descriptorType = convertCEnum(descriptorType);
 		}
 
 		DescriptorSetWrite(const DescriptorSet& dstSet, uint32_t dstBinding,
-			uint32_t dstArrayElement, const DescriptorImageInfo& imageInfo) : Base() {
+			uint32_t dstArrayElement, const DescriptorImageInfo& imageInfo,
+			DescriptorType descriptorType) : Base() {
 			this->dstSet = dstSet;
 			this->dstBinding = dstBinding;
 			this->dstArrayElement = dstArrayElement;
@@ -297,10 +309,12 @@ namespace Graphics
 			this->descriptorCount = 1;
 			this->pTexelBufferView = nullptr;
 			this->pBufferInfo = nullptr;
+			this->descriptorType = convertCEnum(descriptorType);
 		}
 
 		DescriptorSetWrite(const DescriptorSet& dstSet, uint32_t dstBinding,
-			uint32_t dstArrayElement, const DescriptorBufferInfo& bufferInfo) : Base() {
+			uint32_t dstArrayElement, const DescriptorBufferInfo& bufferInfo,
+			DescriptorType descriptorType) : Base() {
 			this->dstSet = dstSet;
 			this->dstBinding = dstBinding;
 			this->dstArrayElement = dstArrayElement;
@@ -308,10 +322,12 @@ namespace Graphics
 			this->descriptorCount = 1;
 			this->pTexelBufferView = nullptr;
 			this->pImageInfo = nullptr;
+			this->descriptorType = convertCEnum(descriptorType);
 		}
 
 		DescriptorSetWrite(const DescriptorSet& dstSet, uint32_t dstBinding,
-			uint32_t dstArrayElement, const BufferViewRef& texelBufferView) : Base() {
+			uint32_t dstArrayElement, const BufferViewRef& texelBufferView,
+			DescriptorType descriptorType) : Base() {
 			this->dstSet = dstSet;
 			this->dstBinding = dstBinding;
 			this->dstArrayElement = dstArrayElement;
@@ -319,6 +335,7 @@ namespace Graphics
 			this->descriptorCount = 1;
 			this->pImageInfo = nullptr;
 			this->pBufferInfo = nullptr;
+			this->descriptorType = convertCEnum(descriptorType);
 		}
 
 		DescriptorSetWrite& setDescriptorType(DescriptorType descriptorType) {

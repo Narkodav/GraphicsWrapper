@@ -2,8 +2,7 @@
 
 namespace Graphics::DebugUtils
 {
-    void Messenger::create(const InstanceFunctionTable& functions,
-        const Graphics::InstanceRef& instance,
+    void Messenger::create(const InstanceFunctionTable& functions, InstanceRef instance,
         const MessengerCreateInfo& debugCreateInfo)
     {
         GRAPHICS_VERIFY(!isValid(), "Trying to create an already existing debug messenger");
@@ -16,8 +15,7 @@ namespace Graphics::DebugUtils
         GRAPHICS_VERIFY_RESULT(result, "Failed to create a debug messenger");
     };
 
-    void Messenger::destroy(const InstanceFunctionTable& functions,
-        const Graphics::InstanceRef& instance)
+    void Messenger::destroy(const InstanceFunctionTable& functions, InstanceRef instance)
     {
         GRAPHICS_VERIFY(isValid(), "Trying to destroy an invalid debug messenger");
         GRAPHICS_VERIFY(instance.isSet(),

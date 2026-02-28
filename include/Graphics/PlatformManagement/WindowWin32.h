@@ -6,6 +6,7 @@
 #include "Graphics/PlatformManagement/WindowEvents.h"
 #include "Graphics/PlatformManagement/IOEvents.h"
 #include "Graphics/PlatformManagement/Mouse.h"
+#include "Graphics/PlatformManagement/Keyboard.h"
 
 //#include "Keyboard.h"
 #include "Utilities/EventSystems/MultiEventSystem.h"
@@ -135,6 +136,7 @@ namespace Platform::Win32
         };
 
         Mouse& getMouse() const { return Mouse::getInstanceUnsafe(); }
+        Keyboard& getKeyboard() const { return Keyboard::getInstanceUnsafe(); }
 
         static InstanceHandle getInstanceHandle();
 

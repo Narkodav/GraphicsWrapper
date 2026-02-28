@@ -179,20 +179,23 @@ namespace Graphics::Utility
     {
         RenderPassData data;
 
-        for (size_t i = 0; i < formats.size(); i++) {
+        size_t i = 0;
+        for (; i < formats.size(); i++) {
             if (formats[i].getFormat() == PixelFormat::B8G8R8A8Srgb &&
                 formats[i].getColorSpace() == ColorSpace::SrgbNonlinear) {
                 data.surfaceFormat = formats[i];
+                break;
             }
         }
+        if(i == formats.size()) throw std::runtime_error("No compatible surface format found");
 
-        for (size_t i = 0; i < presentModes.size(); i++) {
+        for (i = 0; i < presentModes.size(); i++) {
             if (presentModes[i] == PresentMode::Mailbox) {
                 data.presentMode = presentModes[i];
+                break;
             }
         }
-
-
+        if(i == presentModes.size()) throw std::runtime_error("No compatible present mode found");
 
         data.attachments.resize(2);
 
@@ -213,6 +216,7 @@ namespace Graphics::Utility
         data.subpasses[0].setBindPoint(PipelineBindPoint::Graphics)
             .setColorAttachments(data.colorAttachmentRefs);
 
+        data.subpassDependencies.resize(2);
         data.subpassDependencies[0].setSrcSubpass(Subpass::s_externalSubpass)
             .setDstSubpass(0)
             .setSrcStageMask(Flags::PipelineStage::Bits::ColorAttachmentOutput)
@@ -233,7 +237,10 @@ namespace Graphics::Utility
 
         data.subpasses[0].setDepthStencilAttachment(data.depthAttachmentRef);
 
-        data.subpassDependencies[0].setSrcStageMask(Flags::PipelineStage::Bits::EarlyFragmentTests)
+        data.subpassDependencies[1]
+            .setSrcSubpass(Subpass::s_externalSubpass)
+            .setDstSubpass(0)
+            .setSrcStageMask(Flags::PipelineStage::Bits::EarlyFragmentTests)
             .setSrcAccessMask(Flags::Access::Bits::None)
             .setDstStageMask(Flags::PipelineStage::Bits::EarlyFragmentTests)
             .setDstAccessMask(Flags::Access::Bits::DepthStencilAttachmentWrite);
@@ -339,7 +346,7 @@ namespace Graphics::Utility
 		return swapChainData;
     }
 
-    void destroySwapChainDaTa(const DeviceFunctionTable& deviceFunctions,
+    void destroySwapChainData(const DeviceFunctionTable& deviceFunctions,
         const DeviceRef& device, SwapChainData& data)
     {
         for (auto& framebuffer : data.swapChainFrameBuffers) {
@@ -362,8 +369,8 @@ namespace Graphics::Utility
 
     void recreateBasicSwapChain(SwapChainData& data,
         const DeviceFunctionTable& deviceFunctions,
-        const DeviceRef& device,
-        const RenderPassRef& renderPass,
+        DeviceRef device, RenderPassRef renderPass,
+        const PhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties,
         const Extent2D& preferredExtent)
     {
         data.swapChainInfo.setImageExtent(preferredExtent);
@@ -387,6 +394,14 @@ namespace Graphics::Utility
 
         data.depthImageCreateInfo.setExtent(Extent3D(preferredExtent, 1));
         data.depthImage.create(deviceFunctions, device, data.depthImageCreateInfo);
+        data.depthImageMemory.destroy(deviceFunctions, device);
+
+        auto memRequirements = data.depthImage.getMemoryRequirements(deviceFunctions, device);
+        data.depthImageMemoryCreateInfo.setAllocationSize(memRequirements.getSize())
+            .setMemoryTypeIndex(findMemoryTypeFirstFit(physicalDeviceMemoryProperties,
+                memRequirements.getMemoryTypeBits(), Flags::MemoryProperty::Bits::DeviceLocal));
+        data.depthImageMemory.create(deviceFunctions, device, data.depthImageMemoryCreateInfo);
+        data.depthImageMemory.bindImage(deviceFunctions, device, data.depthImage);
 
         data.depthImageViewCreateInfo.setImage(data.depthImage);
         data.depthImageView.create(deviceFunctions, device, data.depthImageViewCreateInfo);
@@ -428,7 +443,7 @@ namespace Graphics::Utility
         PrimitiveTopology desiredTopology,
         PolygonMode desiredPolygonMode, Flags::CullMode desiredCullMode,
         FrontFace desiredFrontFace, CompareOp depthCompareOp,
-        bool depthWriteEnable)
+        bool depthTestEnable, bool depthWriteEnable)
     {
         data.colorBlendAttachmentStates.push_back(PipelineColorBlendAttachmentState(false,
             BlendFactor::One, BlendFactor::Zero,
@@ -436,7 +451,7 @@ namespace Graphics::Utility
             BlendFactor::Zero, BlendOp::Add,
             Flags::ColorComponent::Bits::R | Flags::ColorComponent::Bits::G |
             Flags::ColorComponent::Bits::B | Flags::ColorComponent::Bits::A));
-
+            
         data.graphicsPipelineInfo.setLayout(data.pipelineLayout)
             .setRenderPass(renderPass)
             .setSubpass(subpassIndex)
@@ -450,9 +465,9 @@ namespace Graphics::Utility
             .setMultisampleState(PipelineMultisampleStateCreateInfo(
                 false, Flags::SampleCount::Bits::SC1, 1.0f, {}, false, false))
             .setColorBlendState(PipelineColorBlendStateCreateInfo(data.colorBlendAttachmentStates,
-                false, LogicOp::Copy, Color::Empty()))
+                false, LogicOp::Copy, Color::empty()))
             .setDepthStencilState(PipelineDepthStencilStateCreateInfo(StencilOpState(), StencilOpState(),
-                depthCompareOp, false, false, depthWriteEnable, 0, 1));
+                depthCompareOp, false, false, depthTestEnable, depthWriteEnable, 0, 1));
         data.graphicsPipeline.create(deviceFunctions, device, data.graphicsPipelineInfo);
     }
 

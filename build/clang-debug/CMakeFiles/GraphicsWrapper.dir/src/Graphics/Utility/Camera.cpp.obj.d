@@ -1252,4 +1252,7 @@ CMakeFiles/GraphicsWrapper.dir/src/Graphics/Utility/Camera.cpp.obj: \
   C:/Users/user/.utils/llvm-mingw/include/c++/v1/unordered_set \
   C:/Users/user/.utils/llvm-mingw/include/c++/v1/source_location \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/StructTraits.h \
-  E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/Enums.h
+  E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/Enums.h \
+  E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Utilities/TemplateUnion.h \
+  E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Utilities/Concepts.h \
+  E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Utilities/Macros.h

@@ -2037,4 +2037,24 @@ namespace Graphics {
         static constexpr auto s_type = StructureType::CommandBufferAllocateInfo;
         static constexpr auto s_name = "VkCommandBufferAllocateInfo";
     };
+
+    // PipelineTessellationStateCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::PipelineTessellationStateCreateInfo> {
+        using Type = vk::PipelineTessellationStateCreateInfo;
+        using CType = VkPipelineTessellationStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineTessellationStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::PipelineTessellationStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineTessellationStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineTessellationStateCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkPipelineTessellationStateCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineTessellationStateCreateInfo;
+        static constexpr auto s_name = "VkPipelineTessellationStateCreateInfo";
+    };
 }

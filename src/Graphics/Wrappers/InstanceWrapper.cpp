@@ -78,8 +78,9 @@ namespace Graphics::Wrappers {
         createImpl(appInfo, requiredExtensions, requiredLayers);
     }
     void Instance::destroy() {
-        if (m_instance.isValid())
-            m_instance.destroy(m_instanceFunctionTable);
+        if (!m_instance.isValid()) return;
+        m_debugMessenger.destroy(m_instanceFunctionTable, m_instance);
+        m_instance.destroy(m_instanceFunctionTable);
     }
 
     void Instance::createImpl(const AppInfo& appInfo,

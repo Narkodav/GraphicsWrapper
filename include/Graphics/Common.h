@@ -43,6 +43,8 @@
 
 #include "StructTraits.h"
 
+#include "Utilities/TemplateUnion.h"
+
 #define GRAPHICS_API_ATTR VKAPI_ATTR
 #define GRAPHICS_API_CALL VKAPI_CALL
 #define GRAPHICS_API_PTR  VKAPI_PTR
@@ -87,8 +89,8 @@ static_assert(std::is_standard_layout_v<GraphicsStruct>) \
 static_assert(sizeof(GraphicsUnion) == sizeof(VulkanUnion)); \
 static_assert(alignof(GraphicsUnion) == alignof(VulkanUnion)); \
 static_assert(std::is_trivially_copyable_v<GraphicsUnion>); \
-static_assert(std::is_trivially_default_constructible_v<GraphicsUnion>); \
 static_assert(std::is_standard_layout_v<GraphicsUnion>) \
+
 
 //assert object binary layout
 #define GRAPHICS_ASSERT_HANDLE_PROPERTIES(GraphicsHandle) \
@@ -209,36 +211,27 @@ namespace Graphics {
     template<typename T, typename... Ts>
     static constexpr bool TupleHasTypeTrait_v = TupleHasTypeTrait<T, Ts...>::value;
 
-    template<typename T, typename Derived, typename... Ts>
+    template<typename T, typename Derived>
     class UnionBase {
-    protected:
-        T m_data;
-
     public:
-
         constexpr UnionBase() = default;
         constexpr ~UnionBase() = default;
-        constexpr UnionBase(const T& other) : m_data(other) {}
-        constexpr UnionBase(T&& other) : m_data(std::move(other)) {}
         constexpr UnionBase(const UnionBase&) = default;
         constexpr UnionBase(UnionBase&&) = default;
 
         constexpr UnionBase& operator=(const UnionBase&) = default;
         constexpr UnionBase& operator=(UnionBase&&) = default;
 
-        constexpr UnionBase& operator=(const T& other) { m_data = other; return *this; };
-        constexpr UnionBase& operator=(T&& other) { m_data = std::exchange(other, T()); return *this; };
-
-        constexpr operator T& () { return m_data; }
-        constexpr operator const T& () const { return m_data; }
-        constexpr const T* getUnderlyingPointer() const { return &m_data; };
-        constexpr T* getUnderlyingPointer() { return &m_data; };
+        constexpr operator T& () { return getUnion(); }
+        constexpr operator const T& () const { return getUnion(); }
+        constexpr const T* getUnderlyingPointer() const { return reinterpret_cast<const T*>(this); };
+        constexpr T* getUnderlyingPointer() { return reinterpret_cast<T*>(this); };
 
         static const T* underlyingCast(const Derived* ptr) { return reinterpret_cast<const T*>(ptr); };
         static T* underlyingCast(Derived* ptr) { return reinterpret_cast<T*>(ptr); };
 
-        constexpr const T& getUnion() const { return m_data; };
-        constexpr T& getUnion() { return m_data; };
+        const T& getUnion() const { return *reinterpret_cast<const T*>(this); };
+        T& getUnion() { return *reinterpret_cast<T*>(this); };
 
         static const Derived* underlyingCast(const T* ptr) { return reinterpret_cast<const Derived*>(ptr); };
         static Derived* underlyingCast(T* ptr) { return reinterpret_cast<Derived*>(ptr); };
@@ -284,6 +277,7 @@ namespace Graphics {
         };
 
         constexpr const T& getHandle() const { return m_handle; };
+        constexpr uintptr_t getNumerical() const { return reinterpret_cast<uintptr_t>(m_handle); };
 
         constexpr bool operator==(const BaseComponent& other) const { return this->getHandle() == other.getHandle(); };
         constexpr bool operator!=(const BaseComponent& other) const { return this->getHandle() != other.getHandle(); };
@@ -442,6 +436,73 @@ namespace Graphics {
 
         static std::string_view getResultMessage(vk::Result result) {
             return getResultMessage(static_cast<Result>(result));
+        }
+    };
+
+    class ObjectTypeManager {
+    public:
+        static inline const std::unordered_map<ObjectType, std::string> s_objectTypeNames = {
+            {ObjectType::Unknown, "Unknown"},
+            {ObjectType::Instance, "Instance"},
+            {ObjectType::PhysicalDevice, "PhysicalDevice"},
+            {ObjectType::Device, "Device"},
+            {ObjectType::Queue, "Queue"},
+            {ObjectType::Semaphore, "Semaphore"},
+            {ObjectType::CommandBuffer, "CommandBuffer"},
+            {ObjectType::Fence, "Fence"},
+            {ObjectType::DeviceMemory, "DeviceMemory"},
+            {ObjectType::Buffer, "Buffer"},
+            {ObjectType::Image, "Image"},
+            {ObjectType::Event, "Event"},
+            {ObjectType::QueryPool, "QueryPool"},
+            {ObjectType::BufferView, "BufferView"},
+            {ObjectType::ImageView, "ImageView"},
+            {ObjectType::ShaderModule, "ShaderModule"},
+            {ObjectType::PipelineCache, "PipelineCache"},
+            {ObjectType::PipelineLayout, "PipelineLayout"},
+            {ObjectType::RenderPass, "RenderPass"},
+            {ObjectType::Pipeline, "Pipeline"},
+            {ObjectType::DescriptorSetLayout, "DescriptorSetLayout"},
+            {ObjectType::Sampler, "Sampler"},
+            {ObjectType::DescriptorPool, "DescriptorPool"},
+            {ObjectType::DescriptorSet, "DescriptorSet"},
+            {ObjectType::Framebuffer, "Framebuffer"},
+            {ObjectType::CommandPool, "CommandPool"},
+            {ObjectType::SurfaceKHR, "SurfaceKHR"},
+            {ObjectType::SwapchainKHR, "SwapchainKHR"},
+            {ObjectType::DisplayKHR, "DisplayKHR"},
+            {ObjectType::DisplayModeKHR, "DisplayModeKHR"},
+            {ObjectType::DebugReportCallbackEXT, "DebugReportCallbackEXT"},
+            {ObjectType::DebugUtilsMessengerEXT, "DebugUtilsMessengerEXT"},
+            {ObjectType::ValidationCacheEXT, "ValidationCacheEXT"},
+            {ObjectType::AccelerationStructureKHR, "AccelerationStructureKHR"},
+            {ObjectType::AccelerationStructureNV, "AccelerationStructureNV"},
+            {ObjectType::PerformanceConfigurationINTEL, "PerformanceConfigurationINTEL"},
+            {ObjectType::DeferredOperationKHR, "DeferredOperationKHR"},
+            {ObjectType::IndirectCommandsLayoutNV, "IndirectCommandsLayoutNV"},
+            {ObjectType::PrivateDataSlot, "PrivateDataSlot"},
+            {ObjectType::VideoSessionKHR, "VideoSessionKHR"},
+            {ObjectType::VideoSessionParametersKHR, "VideoSessionParametersKHR"},
+            {ObjectType::CuModuleNVX, "CuModuleNVX"},
+            {ObjectType::CuFunctionNVX, "CuFunctionNVX"},
+            {ObjectType::OpticalFlowSessionNV, "OpticalFlowSessionNV"},
+            {ObjectType::MicromapEXT, "MicromapEXT"},
+            {ObjectType::ShaderEXT, "ShaderEXT"}
+        };
+
+        static std::string_view getObjectTypeName(ObjectType objectType) {
+            if (s_objectTypeNames.find(objectType) != s_objectTypeNames.end())
+                return s_objectTypeNames.at(objectType);
+            else
+                return s_objectTypeNames.at(ObjectType::Unknown);
+        }
+
+        static std::string_view getObjectTypeName(VkObjectType objectType) {
+            return getObjectTypeName(static_cast<ObjectType>(objectType));
+        }
+
+        static std::string_view getObjectTypeName(vk::ObjectType objectType) {
+            return getObjectTypeName(static_cast<ObjectType>(objectType));
         }
     };
 

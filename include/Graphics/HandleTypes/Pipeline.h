@@ -494,7 +494,7 @@ namespace Graphics
 		using Base::Base;
 		constexpr PipelineDepthStencilStateCreateInfo(const StencilOpState& front, const StencilOpState& back,
 			CompareOp depthCompareOp, bool depthBoundsTestEnable,
-			bool stencilTestEnable, bool depthWriteEnable,
+			bool stencilTestEnable, bool depthTestEnable, bool depthWriteEnable,
 			float minDepthBounds, float maxDepthBounds,
 			Flags::PipelineDepthStencilStateCreate flags = Flags::PipelineDepthStencilStateCreate::Bits::None) : Base() {
 			this->flags = flags;

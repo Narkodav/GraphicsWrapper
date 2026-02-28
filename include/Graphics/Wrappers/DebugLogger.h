@@ -9,12 +9,19 @@
 namespace Graphics::Wrappers {
 	class DebugLogger {
 	public:
+		struct Object {
+			std::string objectName;
+			ObjectType type;
+			uint64_t handle;
+		};
+
 		struct Message {
 			Flags::DebugMessageSeverity::Bits messageSeverity;
 			Flags::DebugMessageType messageType;
 			std::string message;
-			std::string messageIDName;
+			std::string messageIdName;			
 			std::chrono::steady_clock::time_point timestamp;
+			std::vector<Object> objects;
 		};
 
 	private:
@@ -57,11 +64,23 @@ namespace Graphics::Wrappers {
 		void logMessage(Flags::DebugMessageType messageType, const DebugUtils::CallbackData* pCallbackData) {
 			std::unique_lock<std::shared_mutex> lock(m_mutex);
 
-			m_messages.push_back({ severity, messageType,
-				pCallbackData->getMessage().data(),
-				pCallbackData->getMessageIdName().data(),
-				std::chrono::steady_clock::now()
-				});
+			m_messages.push_back({});
+			m_messages.back().messageSeverity = severity;
+			m_messages.back().messageType = messageType;
+			m_messages.back().messageIdName = pCallbackData->getMessageIdName();
+			m_messages.back().message = pCallbackData->getMessage();
+			m_messages.back().timestamp = std::chrono::steady_clock::now();
+			
+			auto objectInfos = pCallbackData->getObjectInfos();
+			m_messages.back().objects.resize(objectInfos.size());
+			for(size_t i = 0; i < objectInfos.size(); ++i) {
+				if(objectInfos[i].hasObjectName())
+					m_messages.back().objects[i].objectName = objectInfos[i].getName();
+				else m_messages.back().objects[i].objectName = "Unknown";
+				m_messages.back().objects[i].type = objectInfos[i].getType();
+				m_messages.back().objects[i].handle = objectInfos[i].getHandle();
+			}
+			
 			addMessageByType(m_messages.back(), m_messages.size() - 1);
 			m_messageIndicesBySeverity[messageSeverityToIndex<severity>()].push_back(m_messages.size() - 1);
 		}
@@ -104,25 +123,30 @@ namespace Graphics::Wrappers {
 				case Flags::DebugMessageSeverity::Bits::Verbose:
 					// Diagnostic messages
 					stream << "VERBOSE: " << message.message << '\n';
+					dumpObjectDataToStream(stream, message.objects);
 					break;
 
 				case Flags::DebugMessageSeverity::Bits::Info:
 					// Informational messages like resource creation
 					stream << "INFO: " << message.message << '\n';
+					dumpObjectDataToStream(stream, message.objects);
 					break;
 
 				case Flags::DebugMessageSeverity::Bits::Warning:
 					// Warning messages like use of deprecated functions
 					stream << "WARNING: " << message.message << '\n';
+					dumpObjectDataToStream(stream, message.objects);
 					break;
 
 				case Flags::DebugMessageSeverity::Bits::Error:
 					// Error messages for invalid behavior
 					stream << "ERROR: " << message.message << '\n';
+					dumpObjectDataToStream(stream, message.objects);
 					break;
 
 				default:
 					stream << "UNKNOWN SEVERITY: " << message.message << '\n';
+					dumpObjectDataToStream(stream, message.objects);
 					break;
 				}
 			}
@@ -136,6 +160,16 @@ namespace Graphics::Wrappers {
 		}
 
 	private:
+		
+		void dumpObjectDataToStream(std::ostream& stream, const std::vector<Object>& objects) const {
+			for(size_t i = 0; i < objects.size(); ++i) {
+				stream << "	OBJECT[" << i << "]:\n";
+				stream << "	NAME: " << objects[i].objectName << "\n";
+				stream << "	TYPE: " << ObjectTypeManager::getObjectTypeName(objects[i].type) << "\n";
+				stream << "	HANDLE: " << objects[i].handle << "\n";
+			}
+		}
+
 		void addMessageBySeverity(Message& message, size_t index);
 		void addMessageByType(Message& message, size_t index);
 

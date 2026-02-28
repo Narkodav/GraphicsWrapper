@@ -1270,6 +1270,9 @@ CMakeFiles/GraphicsWrapperTests.dir/tests/main.cpp.obj: \
   C:/Users/user/.utils/llvm-mingw/include/c++/v1/source_location \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/HandleTypes/../StructTraits.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/HandleTypes/../Enums.h \
+  E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Utilities/TemplateUnion.h \
+  E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Utilities/Concepts.h \
+  E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Utilities/Macros.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/HandleTypes/../Structs.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/HandleTypes/../Flags.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/HandleTypes/../TaskTables/FeatureEnum.h \
@@ -1335,8 +1338,6 @@ CMakeFiles/GraphicsWrapperTests.dir/tests/main.cpp.obj: \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/Utility/../HandleTypes/Pipeline.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/Utility/../HandleTypes/DescriptorSet.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Memory/ExternalMetadataAllocators/BuddyAllocator.h \
-  E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Utilities/Concepts.h \
-  E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Utilities/Macros.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/PointerStorage/Vector.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Utilities/ByteArray.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/PointerStorage/InitializerList.h \

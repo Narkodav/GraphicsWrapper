@@ -9,6 +9,17 @@
 #include "FunctionPointers.h"
 
 namespace Graphics {
+
+    // template<typename T, size_t N>
+    // static constexpr void constCopySpanToArray(std::array<T, N> dst, std::span<const T, N> src) {
+    //     if constexpr (std::is_constant_evaluated()) {
+    //         for (size_t i = 0; i < N; ++i) dst[i] = src[i];
+    //     }
+    //     else {
+    //         std::copy(src.begin(), src.end(), dst.begin());
+    //     }
+    // }
+
     struct Version
     {
         uint32_t version;
@@ -395,41 +406,60 @@ namespace Graphics {
     };
     GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::PushConstantRange, VkPushConstantRange);
     
-    class ClearColorValue : public UnionBase<VkClearColorValue, ClearColorValue,
-        std::array<float, 4>, std::array<int32_t, 4>, std::array<uint32_t, 4>>
+    class ClearColorValue : public UnionBase<VkClearColorValue, ClearColorValue>
     {
-        using Base = UnionBase<VkClearColorValue, ClearColorValue,
-            std::array<float, 4>, std::array<int32_t, 4>, std::array<uint32_t, 4>>;
     public:
+        union Storage {
+            std::array<float, 4> float32;
+            std::array<int32_t, 4> int32;
+            std::array<uint32_t, 4> uint32;
+
+            constexpr Storage() noexcept {};
+            constexpr ~Storage() noexcept = default;
+
+            constexpr Storage(const Storage&) noexcept = default;
+            constexpr Storage(Storage&&) noexcept = default;
+
+            constexpr Storage& operator=(const Storage&) noexcept = default;
+            constexpr Storage& operator=(Storage&&) noexcept = default;
+        } m_storage;
+
+        using Base = UnionBase<VkClearColorValue, ClearColorValue>;
+    
         using Base::Base;
 
-        ClearColorValue& setClearValue(const std::array<float, 4>& value) {
-            getUnion().float32[0] = value[0];
-            getUnion().float32[1] = value[1];
-            getUnion().float32[2] = value[2];
-            getUnion().float32[3] = value[3];
+        constexpr ClearColorValue() noexcept {};
+
+        constexpr ClearColorValue(std::span<const float, 4> value) noexcept {
+            for (size_t i = 0; i < 4; ++i) m_storage.float32[i] = value[i];
+        }
+
+        constexpr ClearColorValue(std::span<const int32_t, 4> value) noexcept {
+            for (size_t i = 0; i < 4; ++i) m_storage.int32[i] = value[i];
+        }
+
+        constexpr ClearColorValue(std::span<const uint32_t, 4> value) noexcept {
+            for (size_t i = 0; i < 4; ++i) m_storage.uint32[i] = value[i];
+        }
+
+        constexpr ClearColorValue& setClearValue(const std::array<float, 4>& value) {
+            m_storage.float32 = value;
             return *this;
         }
 
-        ClearColorValue& setClearValue(const std::array<int32_t, 4>& value) {
-            getUnion().int32[0] = value[0];
-            getUnion().int32[1] = value[1];
-            getUnion().int32[2] = value[2];
-            getUnion().int32[3] = value[3];
+        constexpr ClearColorValue& setClearValue(const std::array<int32_t, 4>& value) {
+            m_storage.int32 = value;
             return *this;
         }
 
-        ClearColorValue& setClearValue(const std::array<uint32_t, 4>& value) {
-            getUnion().uint32[0] = value[0];
-            getUnion().uint32[1] = value[1];
-            getUnion().uint32[2] = value[2];
-            getUnion().uint32[3] = value[3];
+        constexpr ClearColorValue& setClearValue(const std::array<uint32_t, 4>& value) {
+            m_storage.uint32 = value;
             return *this;
         }
 
-        std::span<const float, 4> getFloat32() const { return getUnion().float32; }
-        std::span<const int32_t, 4> getInt32() const { return getUnion().int32; }
-        std::span<const uint32_t, 4> getUint32() const { return getUnion().uint32; }
+        constexpr std::span<const float, 4> getFloat32() const { return m_storage.float32; }
+        constexpr std::span<const int32_t, 4> getInt32() const { return m_storage.int32; }
+        constexpr std::span<const uint32_t, 4> getUint32() const { return m_storage.uint32; }
     };
     GRAPHICS_ASSERT_UNION_PROPERTIES(Graphics::ClearColorValue, VkClearColorValue);
 
@@ -438,6 +468,11 @@ namespace Graphics {
         using Base = StructBase<VkClearDepthStencilValue, ClearDepthStencilValue>;
     public:
         using Base::Base;
+
+        ClearDepthStencilValue(float depth, uint32_t stencil) {
+            this->depth = depth;
+            this->stencil = stencil;
+        };
 
         ClearDepthStencilValue& setDepth(float depth) {
             this->depth = depth;
@@ -454,28 +489,46 @@ namespace Graphics {
     };
     GRAPHICS_ASSERT_STRUCT_PROPERTIES(Graphics::ClearDepthStencilValue, VkClearDepthStencilValue);
 
-    class ClearValue : public UnionBase<VkClearValue, ClearValue,
-        ClearColorValue, ClearDepthStencilValue>
+    class ClearValue : public UnionBase<VkClearValue, ClearValue>
     {
-        using Base = UnionBase<VkClearValue, ClearValue,
-            ClearColorValue, ClearDepthStencilValue>;
     public:
+        union Storage {
+            ClearColorValue color;
+            ClearDepthStencilValue depthStencil;
+
+            constexpr Storage() noexcept {};
+            constexpr ~Storage() noexcept = default;
+
+            constexpr Storage(const Storage&) noexcept = default;
+            constexpr Storage(Storage&&) noexcept = default;
+
+            constexpr Storage& operator=(const Storage&) noexcept = default;
+            constexpr Storage& operator=(Storage&&) noexcept = default;
+        } m_storage;
+
+        using Base = UnionBase<VkClearValue, ClearValue>;
         using Base::Base;
 
-        ClearValue& setClearValue(const ClearColorValue& color) {
-            getUnion().color = color;
+        constexpr ClearValue(const ClearColorValue& value) noexcept {
+            m_storage.color = value;
+        }
+
+        constexpr ClearValue(const ClearDepthStencilValue& value) noexcept {
+            m_storage.depthStencil = value;
+        }
+
+        constexpr ClearValue& setClearValue(const ClearColorValue& color) {
+            m_storage.color = color;
             return *this;
         }
 
-        ClearValue& setClearValue(const ClearDepthStencilValue& depthStencil) {
-            getUnion().depthStencil = depthStencil;
+        constexpr ClearValue& setClearValue(const ClearDepthStencilValue& depthStencil) {
+            m_storage.depthStencil = depthStencil;
             return *this;
         }
 
-        const ClearColorValue& getClearColor() const { return *ClearColorValue::underlyingCast(&getUnion().color); }
-        const ClearDepthStencilValue& getClearDepthStencil() const { 
-            return ClearDepthStencilValue::underlyingCast(getUnion().depthStencil); 
-        }
+        constexpr const ClearColorValue& getClearColor() const { return m_storage.color; }
+        constexpr const ClearDepthStencilValue& getClearDepthStencil() const { return m_storage.depthStencil; }
     };
     GRAPHICS_ASSERT_UNION_PROPERTIES(Graphics::ClearValue, VkClearValue);
 
@@ -496,18 +549,12 @@ namespace Graphics {
             (static_cast<float>(a) / 255.f) }) {
         };
 
-        operator const glm::vec4& () const { return *reinterpret_cast<const glm::vec4*>(this); };
-        operator glm::vec4& () { return *reinterpret_cast<glm::vec4*>(this); };
-
-        operator const ClearValue& () const { return *reinterpret_cast<const ClearValue*>(this); };
-        operator ClearValue& () { return *reinterpret_cast<ClearValue*>(this); };
-
-        static Color Empty() { return Color(0.0f, 0.0f, 0.0f, 0.0f); }
-        static Color Black() { return Color(0.0f, 0.0f, 0.0f); }
-        static Color White() { return Color(1.0f, 1.0f, 1.0f); }
-        static Color Red() { return Color(1.0f, 0.0f, 0.0f); }
-        static Color Green() { return Color(0.0f, 1.0f, 0.0f); }
-        static Color Blue() { return Color(0.0f, 0.0f, 1.0f); }
+        static Color empty() { return Color(0.0f, 0.0f, 0.0f, 0.0f); }
+        static Color black() { return Color(0.0f, 0.0f, 0.0f); }
+        static Color white() { return Color(1.0f, 1.0f, 1.0f); }
+        static Color red() { return Color(1.0f, 0.0f, 0.0f); }
+        static Color green() { return Color(0.0f, 1.0f, 0.0f); }
+        static Color blue() { return Color(0.0f, 0.0f, 1.0f); }
 
         Color& setR(float r) {
             Base::operator[](0) = r;

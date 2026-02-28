@@ -90,6 +90,28 @@ namespace Platform {
 				m_buttonStates.getInputState<MouseButtonState::Changed>(Button);
 		}
 
+		template<MouseButton E>
+		bool buttonPressed() const
+		{
+			return m_buttonStates.getInputState<E, MouseButtonState::Pressed>();
+		}
+
+		bool buttonPressed(MouseButton Button) const
+		{
+			return m_buttonStates.getInputState<MouseButtonState::Pressed>(Button);
+		}
+
+		template<MouseButton E>
+		bool buttonReleased() const
+		{
+			return !m_buttonStates.getInputState<E, MouseButtonState::Pressed>();
+		}
+
+		bool buttonReleased(MouseButton Button) const
+		{
+			return !m_buttonStates.getInputState<MouseButtonState::Pressed>(Button);
+		}
+
 		const Position& getMousePos() const { return m_mousePos; };
 		const Position& getMouseDeltaPos() const { return m_mouseDeltaPos; };
 		const Position& getScrollOffsets() const { return m_scrollOffsets; };

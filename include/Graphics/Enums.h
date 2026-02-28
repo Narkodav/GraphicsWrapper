@@ -511,7 +511,7 @@ namespace Graphics {
         using CorrespondingType = Result;
     };
 
-   enum class DescriptorType : uint32_t
+    enum class DescriptorType : uint32_t
     {
         UniformBuffer = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
         Sampler = VK_DESCRIPTOR_TYPE_SAMPLER,

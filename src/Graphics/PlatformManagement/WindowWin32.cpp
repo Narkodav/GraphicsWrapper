@@ -146,6 +146,7 @@ namespace Platform::Win32
         }
 
         auto& mouse = Mouse::getInstance();
+        auto& keyboard = Keyboard::getInstance();
         GetCursorPos(reinterpret_cast<POINT*>(&mouse.m_mousePos));
         
         // Create the window
@@ -215,9 +216,8 @@ namespace Platform::Win32
         }
 
         setCursorMode(attr.cursorMode);
-
-        if (m_attr.centerCursor || m_attr.cursorMode == CursorMode::Disabled) {
-            centerCursor();
+        if (m_attr.centerCursor) {
+            centerCursor();            
         }
 
         UpdateWindow(reinterpret_cast<HWND>(m_windowHandle));
@@ -242,6 +242,7 @@ namespace Platform::Win32
 
     void Window::pollEvents() {
         Mouse::getInstanceUnsafe().refreshState();
+        Keyboard::getInstanceUnsafe().refreshState();
         MSG msg;
         while (PeekMessage(&msg, reinterpret_cast<HWND>(m_windowHandle), 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
@@ -251,6 +252,7 @@ namespace Platform::Win32
 
     void Window::pollEventsGlobal() {
         Mouse::getInstanceUnsafe().refreshState();
+        Keyboard::getInstanceUnsafe().refreshState();
         MSG msg;
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
@@ -458,13 +460,28 @@ namespace Platform::Win32
         bool isE0 = (kb.Flags & RI_KEY_E0) != 0;
         bool isE1 = (kb.Flags & RI_KEY_E1) != 0;
         bool isBreak = (kb.Flags & RI_KEY_BREAK) != 0;
+        auto& keyboard = Keyboard::getInstanceUnsafe();
+        auto keyCode = Detail::translatePS2Set1ToKey(isE1, isE0, static_cast<uint16_t>(kb.MakeCode));
 
         if (isBreak)
-            m_windowEvents.emit<IOEvents::KeyReleased>(
-                Detail::translatePS2Set1ToKey(isE1, isE0, static_cast<uint16_t>(kb.MakeCode)));
+        {
+            keyboard.m_keyStateChanged = true;
+            keyboard.m_keyStates.setInputState<KeyboardKeyState::Pressed>(keyCode, false);
+            keyboard.m_keyStates.setInputState<KeyboardKeyState::Changed>(keyCode, true);
+            m_windowEvents.emit<IOEvents::KeyReleased>(keyCode);
+        }
         else
-            m_windowEvents.emit<IOEvents::KeyPressed>(
+        {
+            if(!keyboard.keyPressed(keyCode)) {
+                keyboard.m_keyStateChanged = true;
+                keyboard.m_keyStates.setInputState<KeyboardKeyState::Pressed>(keyCode, true);
+                keyboard.m_keyStates.setInputState<KeyboardKeyState::Changed>(keyCode, true);
+                m_windowEvents.emit<IOEvents::KeyPressed>(
+                    Detail::translatePS2Set1ToKey(isE1, isE0, static_cast<uint16_t>(kb.MakeCode)));
+            }
+            else m_windowEvents.emit<IOEvents::KeyRepeated>(
                 Detail::translatePS2Set1ToKey(isE1, isE0, static_cast<uint16_t>(kb.MakeCode)));
+        }
         return 0;
     }
 

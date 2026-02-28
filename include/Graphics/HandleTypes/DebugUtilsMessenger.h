@@ -15,6 +15,7 @@ namespace Graphics::DebugUtils
         using Base = StructBase<VkDebugUtilsObjectNameInfoEXT, ObjectNameInfo>;
     public:
         using Base::Base;
+        bool hasObjectName() const { return this->pObjectName != nullptr; }
         std::string_view getName() const { return std::string_view(this->pObjectName); };
         ObjectType getType() const { return convertCEnum(this->objectType); };
         uint64_t getHandle() const { return this->objectHandle; };
@@ -128,12 +129,10 @@ namespace Graphics::DebugUtils
     public:
         using Base::Base;        
 
-        void create(const InstanceFunctionTable& functions,
-            const Graphics::InstanceRef& instance,
+        void create(const InstanceFunctionTable& functions, InstanceRef instance,
             const MessengerCreateInfo& debugCreateInfo);
 
-        void destroy(const InstanceFunctionTable& functions,
-            const Graphics::InstanceRef& instance);
+        void destroy(const InstanceFunctionTable& functions, InstanceRef instance);
     };
 
 }

@@ -56,45 +56,50 @@ namespace Graphics
 	}
 
 	void DescriptorSet::write(const DeviceFunctionTable& functions, DeviceRef device,
-		uint32_t dstBinding, uint32_t dstArrayElement, std::span<const DescriptorBufferInfo> bufferInfo)
+		uint32_t dstBinding, uint32_t dstArrayElement, std::span<const DescriptorBufferInfo> bufferInfo,
+		DescriptorType descriptorType)
 	{
-		DescriptorSetWrite descriptorWrite(*this, dstBinding, dstArrayElement, bufferInfo);
+		DescriptorSetWrite descriptorWrite(*this, dstBinding, dstArrayElement, bufferInfo, descriptorType);
 		DescriptorSet::update(functions, device, descriptorWrite);
 	}
 
 	void DescriptorSet::write(const DeviceFunctionTable& functions, DeviceRef device,
-		uint32_t dstBinding, uint32_t dstArrayElement, std::span<const DescriptorImageInfo> imageInfo)
+		uint32_t dstBinding, uint32_t dstArrayElement, std::span<const DescriptorImageInfo> imageInfo,
+		DescriptorType descriptorType)
 	{
-		DescriptorSetWrite descriptorWrite(*this, dstBinding, dstArrayElement, imageInfo);
+		DescriptorSetWrite descriptorWrite(*this, dstBinding, dstArrayElement, imageInfo, descriptorType);
 		DescriptorSet::update(functions, device, descriptorWrite);
 	}
 
 	void DescriptorSet::write(const DeviceFunctionTable& functions, DeviceRef device,
-		uint32_t dstBinding, uint32_t dstArrayElement,
-		std::span<const BufferViewRef> texelBufferViews)
+		uint32_t dstBinding, uint32_t dstArrayElement, std::span<const BufferViewRef> texelBufferViews,
+		DescriptorType descriptorType)
 	{
-		DescriptorSetWrite descriptorWrite(*this, dstBinding, dstArrayElement, texelBufferViews);
+		DescriptorSetWrite descriptorWrite(*this, dstBinding, dstArrayElement, texelBufferViews, descriptorType);
 		DescriptorSet::update(functions, device, descriptorWrite);
 	}
 
 	void DescriptorSet::write(const DeviceFunctionTable& functions, DeviceRef device,
-		uint32_t dstBinding, uint32_t dstArrayElement, const DescriptorBufferInfo& bufferInfo)
+		uint32_t dstBinding, uint32_t dstArrayElement, const DescriptorBufferInfo& bufferInfo,
+		DescriptorType descriptorType)
 	{
-		DescriptorSetWrite descriptorWrite(*this, dstBinding, dstArrayElement, bufferInfo);
+		DescriptorSetWrite descriptorWrite(*this, dstBinding, dstArrayElement, bufferInfo, descriptorType);
 		DescriptorSet::update(functions, device, descriptorWrite);
 	}
 
 	void DescriptorSet::write(const DeviceFunctionTable& functions, DeviceRef device,
-		uint32_t dstBinding, uint32_t dstArrayElement, const DescriptorImageInfo& imageInfo)
+		uint32_t dstBinding, uint32_t dstArrayElement, const DescriptorImageInfo& imageInfo,
+		DescriptorType descriptorType)
 	{
-		DescriptorSetWrite descriptorWrite(*this, dstBinding, dstArrayElement, imageInfo);
+		DescriptorSetWrite descriptorWrite(*this, dstBinding, dstArrayElement, imageInfo, descriptorType);
 		DescriptorSet::update(functions, device, descriptorWrite);
 	}
 
 	void DescriptorSet::write(const DeviceFunctionTable& functions, DeviceRef device,
-		uint32_t dstBinding, uint32_t dstArrayElement, BufferViewRef texelBufferView)
+		uint32_t dstBinding, uint32_t dstArrayElement, BufferViewRef texelBufferView,
+		DescriptorType descriptorType)
 	{
-		DescriptorSetWrite descriptorWrite(*this, dstBinding, dstArrayElement, texelBufferView);
+		DescriptorSetWrite descriptorWrite(*this, dstBinding, dstArrayElement, texelBufferView, descriptorType);
 		DescriptorSet::update(functions, device, descriptorWrite);
 	}
 

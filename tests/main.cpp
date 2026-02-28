@@ -573,7 +573,6 @@
 //     window.destroy();
 //     return 0;
 // }
-
 #include "Multithreading/ThreadPool.h"
 
 #include "Graphics/Graphics.h"
@@ -595,4 +594,16 @@ int main()
 	for(size_t i = 0; i < sizeof(Graphics::DeviceCreateInfo); ++i) {
 		std::cout << static_cast<uint64_t>(bytes[i]) << " ";
 	}
+
+	VkClearDepthStencilValue s = Graphics::ClearDepthStencilValue{0,0};
+	//Graphics::ClearValue s1 = VkClearValue();
+	VkClearValue s2 = Graphics::ClearValue{};
+	// Graphics::ClearColorValue v = std::array<float, 4>{};
+	// v = std::array<uint32_t, 4>{};
+	// v = std::array<int32_t, 4>{};
+
+	Graphics::ClearValue v1 = Graphics::ClearColorValue(Graphics::Color::green());
+	Graphics::ClearValue v2 = Graphics::ClearDepthStencilValue{0,0};
+
+	
 }

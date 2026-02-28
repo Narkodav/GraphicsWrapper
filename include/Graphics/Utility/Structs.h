@@ -34,6 +34,16 @@ namespace Graphics::Utility
     struct GraphicsPipelineData {
         Pipeline graphicsPipeline;
         PipelineCreateInfo graphicsPipelineInfo;
+
+        PipelineVertexInputStateCreateInfo vertexInputState;
+		PipelineInputAssemblyStateCreateInfo inputAssemblyState;
+		PipelineTessellationStateCreateInfo tessellationState;
+		PipelineViewportStateCreateInfo viewportState;
+		PipelineRasterizationStateCreateInfo rasterizationState;
+		PipelineMultisampleStateCreateInfo multisampleState;
+		PipelineDepthStencilStateCreateInfo depthStencilState;
+        PipelineColorBlendStateCreateInfo colorBlendState;
+		PipelineDynamicStateCreateInfo dynamicState;
         std::vector<PipelineColorBlendAttachmentState> colorBlendAttachmentStates;
 
         //these are populated beforehand

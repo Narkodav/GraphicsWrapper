@@ -8,7 +8,7 @@
 
 namespace Platform
 {
-    // Mirrors HID usage codes, de facto native standard for modern keyboards
+    // Mirrors HID usage codes, de facto native standard for modern keyboards, QWERTY layout
     enum class KeyboardKey : uint16_t
     {
         None = 0x00, // No key pressed / reserved
@@ -150,9 +150,182 @@ namespace Platform
         RightShift  = 0xE5,
         RightAlt    = 0xE6,
         RightGui    = 0xE7,   // Windows / Command key
+        Count
     };
 
     namespace Detail {
+        static constexpr std::array<KeyboardKey, 172> s_keyCodeEnumValues = {
+            KeyboardKey::A,                  // 0x04
+            KeyboardKey::B,                  // 0x05
+            KeyboardKey::C,                  // 0x06
+            KeyboardKey::D,                  // 0x07
+            KeyboardKey::E,                  // 0x08
+            KeyboardKey::F,                  // 0x09
+            KeyboardKey::G,                  // 0x0A
+            KeyboardKey::H,                  // 0x0B
+            KeyboardKey::I,                  // 0x0C
+            KeyboardKey::J,                  // 0x0D
+            KeyboardKey::K,                  // 0x0E
+            KeyboardKey::L,                  // 0x0F
+            KeyboardKey::M,                  // 0x10
+            KeyboardKey::N,                  // 0x11
+            KeyboardKey::O,                  // 0x12
+            KeyboardKey::P,                  // 0x13
+            KeyboardKey::Q,                  // 0x14
+            KeyboardKey::R,                  // 0x15
+            KeyboardKey::S,                  // 0x16
+            KeyboardKey::T,                  // 0x17
+            KeyboardKey::U,                  // 0x18
+            KeyboardKey::V,                  // 0x19
+            KeyboardKey::W,                  // 0x1A
+            KeyboardKey::X,                  // 0x1B
+            KeyboardKey::Y,                  // 0x1C
+            KeyboardKey::Z,                  // 0x1D
+            KeyboardKey::Digit1,             // 0x1E
+            KeyboardKey::Digit2,             // 0x1F
+            KeyboardKey::Digit3,             // 0x20
+            KeyboardKey::Digit4,             // 0x21
+            KeyboardKey::Digit5,             // 0x22
+            KeyboardKey::Digit6,             // 0x23
+            KeyboardKey::Digit7,             // 0x24
+            KeyboardKey::Digit8,             // 0x25
+            KeyboardKey::Digit9,             // 0x26
+            KeyboardKey::Digit0,             // 0x27
+            KeyboardKey::Enter,              // 0x28
+            KeyboardKey::Escape,             // 0x29
+            KeyboardKey::Backspace,          // 0x2A
+            KeyboardKey::Tab,                // 0x2B
+            KeyboardKey::Space,              // 0x2C
+            KeyboardKey::Minus,              // 0x2D
+            KeyboardKey::Equal,              // 0x2E
+            KeyboardKey::LeftBracket,        // 0x2F
+            KeyboardKey::RightBracket,       // 0x30
+            KeyboardKey::Backslash,          // 0x31
+            KeyboardKey::NonUsHash,          // 0x32
+            KeyboardKey::Semicolon,          // 0x33
+            KeyboardKey::Apostrophe,         // 0x34
+            KeyboardKey::Grave,              // 0x35
+            KeyboardKey::Comma,              // 0x36
+            KeyboardKey::Period,             // 0x37
+            KeyboardKey::Slash,              // 0x38
+            KeyboardKey::CapsLock,           // 0x39
+            KeyboardKey::F1,                 // 0x3A
+            KeyboardKey::F2,                 // 0x3B
+            KeyboardKey::F3,                 // 0x3C
+            KeyboardKey::F4,                 // 0x3D
+            KeyboardKey::F5,                 // 0x3E
+            KeyboardKey::F6,                 // 0x3F
+            KeyboardKey::F7,                 // 0x40
+            KeyboardKey::F8,                 // 0x41
+            KeyboardKey::F9,                 // 0x42
+            KeyboardKey::F10,                // 0x43
+            KeyboardKey::F11,                // 0x44
+            KeyboardKey::F12,                // 0x45
+            KeyboardKey::PrintScreen,        // 0x46
+            KeyboardKey::ScrollLock,         // 0x47
+            KeyboardKey::Pause,              // 0x48
+            KeyboardKey::Insert,             // 0x49
+            KeyboardKey::Home,               // 0x4A
+            KeyboardKey::PageUp,             // 0x4B
+            KeyboardKey::Delete,             // 0x4C
+            KeyboardKey::End,                // 0x4D
+            KeyboardKey::PageDown,           // 0x4E
+            KeyboardKey::Right,              // 0x4F
+            KeyboardKey::Left,               // 0x50
+            KeyboardKey::Down,               // 0x51
+            KeyboardKey::Up,                 // 0x52
+            KeyboardKey::NumLock,            // 0x53
+            KeyboardKey::NumpadDivide,       // 0x54
+            KeyboardKey::NumpadMultiply,     // 0x55
+            KeyboardKey::NumpadMinus,        // 0x56
+            KeyboardKey::NumpadPlus,         // 0x57
+            KeyboardKey::NumpadEnter,        // 0x58
+            KeyboardKey::Numpad1,            // 0x59
+            KeyboardKey::Numpad2,            // 0x5A
+            KeyboardKey::Numpad3,            // 0x5B
+            KeyboardKey::Numpad4,            // 0x5C
+            KeyboardKey::Numpad5,            // 0x5D
+            KeyboardKey::Numpad6,            // 0x5E
+            KeyboardKey::Numpad7,            // 0x5F
+            KeyboardKey::Numpad8,            // 0x60
+            KeyboardKey::Numpad9,            // 0x61
+            KeyboardKey::Numpad0,            // 0x62
+            KeyboardKey::NumpadDecimal,      // 0x63
+            KeyboardKey::NonUsBackslash,     // 0x64
+            KeyboardKey::Application,        // 0x65
+            KeyboardKey::Power,              // 0x66
+            KeyboardKey::NumpadEqual,        // 0x67
+            KeyboardKey::F13,                // 0x68
+            KeyboardKey::F14,                // 0x69
+            KeyboardKey::F15,                // 0x6A
+            KeyboardKey::F16,                // 0x6B
+            KeyboardKey::F17,                // 0x6C
+            KeyboardKey::F18,                // 0x6D
+            KeyboardKey::F19,                // 0x6E
+            KeyboardKey::F20,                // 0x6F
+            KeyboardKey::F21,                // 0x70
+            KeyboardKey::F22,                // 0x71
+            KeyboardKey::F23,                // 0x72
+            KeyboardKey::F24,                // 0x73
+            KeyboardKey::Execute,            // 0x74
+            KeyboardKey::Help,               // 0x75
+            KeyboardKey::Menu,               // 0x76
+            KeyboardKey::Select,             // 0x77
+            KeyboardKey::Stop,               // 0x78
+            KeyboardKey::Again,              // 0x79
+            KeyboardKey::Undo,               // 0x7A
+            KeyboardKey::Cut,                // 0x7B
+            KeyboardKey::Copy,               // 0x7C
+            KeyboardKey::Paste,              // 0x7D
+            KeyboardKey::Find,               // 0x7E
+            KeyboardKey::Mute,               // 0x7F
+            KeyboardKey::VolumeUp,           // 0x80
+            KeyboardKey::VolumeDown,         // 0x81
+            KeyboardKey::LockingCapsLock,    // 0x82
+            KeyboardKey::LockingNumLock,     // 0x83
+            KeyboardKey::LockingScrollLock,  // 0x84
+            KeyboardKey::NumpadComma,        // 0x85
+            KeyboardKey::NumpadEqualSign,    // 0x86
+            KeyboardKey::International1,     // 0x87
+            KeyboardKey::International2,     // 0x88
+            KeyboardKey::International3,     // 0x89
+            KeyboardKey::International4,     // 0x8A
+            KeyboardKey::International5,     // 0x8B
+            KeyboardKey::International6,     // 0x8C
+            KeyboardKey::International7,     // 0x8D
+            KeyboardKey::International8,     // 0x8E
+            KeyboardKey::International9,     // 0x8F
+            KeyboardKey::LANG1,              // 0x90
+            KeyboardKey::LANG2,              // 0x91
+            KeyboardKey::LANG3,              // 0x92
+            KeyboardKey::LANG4,              // 0x93
+            KeyboardKey::LANG5,              // 0x94
+            KeyboardKey::LANG6,              // 0x95
+            KeyboardKey::LANG7,              // 0x96
+            KeyboardKey::LANG8,              // 0x97
+            KeyboardKey::LANG9,              // 0x98
+            KeyboardKey::AlternateErase,     // 0x99
+            KeyboardKey::SysReq,             // 0x9A
+            KeyboardKey::Cancel,             // 0x9B
+            KeyboardKey::Clear,              // 0x9C
+            KeyboardKey::Prior,              // 0x9D
+            KeyboardKey::Return,             // 0x9E
+            KeyboardKey::Separator,          // 0x9F
+            KeyboardKey::Out,                // 0xA0
+            KeyboardKey::Oper,               // 0xA1
+            KeyboardKey::ClearAgain,         // 0xA2
+            KeyboardKey::CrSel,              // 0xA3
+            KeyboardKey::ExSel,              // 0xA4
+            KeyboardKey::LeftControl,        // 0xE0
+            KeyboardKey::LeftShift,          // 0xE1
+            KeyboardKey::LeftAlt,            // 0xE2
+            KeyboardKey::LeftGui,            // 0xE3
+            KeyboardKey::RightControl,       // 0xE4
+            KeyboardKey::RightShift,         // 0xE5
+            KeyboardKey::RightAlt,           // 0xE6
+            KeyboardKey::RightGui            // 0xE7
+        };
+
         static constexpr std::array<KeyboardKey, 1024> s_ps2Set1ScanToKey = []{
             std::array<KeyboardKey, 1024> map{};
             map.fill(KeyboardKey::None);

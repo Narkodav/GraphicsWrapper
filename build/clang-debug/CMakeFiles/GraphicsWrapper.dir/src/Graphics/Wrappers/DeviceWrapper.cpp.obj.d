@@ -1254,6 +1254,9 @@ CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/DeviceWrapper.cpp.obj: \
   C:/Users/user/.utils/llvm-mingw/include/c++/v1/source_location \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/Wrappers/../HandleTypes/../StructTraits.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/Wrappers/../HandleTypes/../Enums.h \
+  E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Utilities/TemplateUnion.h \
+  E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Utilities/Concepts.h \
+  E:/Program\ Files\ (x86)/Code/C_code/libraries/Containers/include/Utilities/Macros.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/Wrappers/../HandleTypes/../Structs.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/Wrappers/../HandleTypes/../Flags.h \
   E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/include/Graphics/Wrappers/../HandleTypes/../TaskTables/FeatureEnum.h \
