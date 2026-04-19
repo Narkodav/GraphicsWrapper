@@ -4,7 +4,7 @@
 #include <vector>
 #include <shared_mutex>
 #include <mutex>
-#include "../HandleTypes/DebugUtilsMessenger.h"
+#include "Graphics/HandleTypes/DebugUtilsMessenger.h"
 
 namespace Graphics::Wrappers {
 	class DebugLogger {

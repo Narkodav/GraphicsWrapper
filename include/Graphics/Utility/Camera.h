@@ -132,7 +132,7 @@ namespace Graphics::Utility {
 
 		void updateProjection() {
 			m_projection = glm::perspective(
-				glm::radians(m_fov),
+				m_fov,
 				m_aspectRatio,
 				m_near,
 				m_far
@@ -141,7 +141,7 @@ namespace Graphics::Utility {
 		}
 
 	public:
-		Camera(float fov = 45.0f, float aspect = 16.0f / 9.0f,
+		Camera(float fov = glm::radians(90.f), float aspect = 16.0f / 9.0f,
 			float nearPlane = 0.1f, float farPlane = 100.0f)
 			: CameraBase(glm::perspective(fov, aspect, nearPlane, farPlane))
 			, m_fov(fov)
@@ -152,10 +152,10 @@ namespace Graphics::Utility {
 		}
 
 		Camera(glm::vec3 worldUpVector, glm::vec3 position, float pitch, float yaw,
-			float fov = 45.0f, float aspect = 16.0f / 9.0f,
+			float fov = glm::radians(90.f), float aspect = 16.0f / 9.0f,
 			float nearPlane = 0.1f, float farPlane = 100.0f)
 			: CameraBase(worldUpVector, position, pitch, yaw,
-				glm::perspective(glm::radians(fov), aspect, nearPlane, farPlane))
+				glm::perspective(fov, aspect, nearPlane, farPlane))
 			, m_fov(fov)
 			, m_aspectRatio(aspect)
 			, m_near(nearPlane)

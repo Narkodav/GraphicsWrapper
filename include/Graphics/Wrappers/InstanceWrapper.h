@@ -1,9 +1,9 @@
 #pragma once
 #include <mutex>
 
-#include "../HandleTypes/Instance.h"
-#include "../HandleTypes/Surface.h"
-#include "../HandleTypes/PhysicalDeviceCache.h"
+#include "Graphics/HandleTypes/Instance.h"
+#include "Graphics/HandleTypes/Surface.h"
+#include "Graphics/HandleTypes/PhysicalDeviceCache.h"
 #include "DebugLogger.h"
 
 //1. Instance & Device Management

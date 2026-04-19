@@ -2,7 +2,7 @@
 
 namespace Graphics {
 	void Pipeline::create(const DeviceFunctionTable& functions,
-		const DeviceRef& device, const PipelineCreateInfo& createInfo)
+		DeviceRef device, const PipelineCreateInfo& createInfo)
 	{
 		GRAPHICS_VERIFY(!isValid(), "Trying to create a valid pipeline");
 		auto result = functions.execute<DeviceFunction::CreateGraphicsPipelines>(
@@ -10,7 +10,7 @@ namespace Graphics {
 			createInfo.getUnderlyingPointer(), nullptr, getUnderlyingPointer());
 		GRAPHICS_VERIFY_RESULT(result, "Failed to create a graphics pipeline");
 	}
-	void Pipeline::destroy(const DeviceFunctionTable& functions, const DeviceRef& device)
+	void Pipeline::destroy(const DeviceFunctionTable& functions, DeviceRef device)
 	{
 		GRAPHICS_VERIFY(isValid(), "Trying to destroy an invalid pipeline");
 		functions.execute<DeviceFunction::DestroyPipeline>(device.getHandle(), getHandle(), nullptr);
@@ -18,7 +18,7 @@ namespace Graphics {
 	}
 
 	std::vector<Pipeline> Pipeline::create(const DeviceFunctionTable& functions,
-		const DeviceRef& device, std::span<const PipelineCreateInfo> createInfos)
+		DeviceRef device, std::span<const PipelineCreateInfo> createInfos)
 	{
 		std::vector<Pipeline> pipelines(createInfos.size());
 		auto result = functions.execute<DeviceFunction::CreateGraphicsPipelines>(
@@ -29,7 +29,7 @@ namespace Graphics {
 	}
 
 	void PipelineLayout::create(const DeviceFunctionTable& functions,
-		const DeviceRef& device, const PipelineLayoutCreateInfo& createInfo)
+		DeviceRef device, const PipelineLayoutCreateInfo& createInfo)
 	{
 		GRAPHICS_VERIFY(!isValid(), "Trying to create a valid pipeline layout");
 		auto result = functions.execute<DeviceFunction::CreatePipelineLayout>(
@@ -37,7 +37,7 @@ namespace Graphics {
 			nullptr, getUnderlyingPointer());
 		GRAPHICS_VERIFY_RESULT(result, "Failed to create a pipeline layout");
 	}
-	void PipelineLayout::destroy(const DeviceFunctionTable& functions, const DeviceRef& device)
+	void PipelineLayout::destroy(const DeviceFunctionTable& functions, DeviceRef device)
 	{
 		GRAPHICS_VERIFY(isValid(), "Trying to destroy an invalid pipeline layout");
 		functions.execute<DeviceFunction::DestroyPipelineLayout>(device.getHandle(), getHandle(), nullptr);

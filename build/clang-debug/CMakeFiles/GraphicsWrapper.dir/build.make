@@ -563,6 +563,21 @@ CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/InstanceWrapper.cpp.s: cmak
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/InstanceWrapper.cpp.s"
 	C:\Users\user\.utils\llvm-mingw\bin\clang++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "E:\Program Files (x86)\Code\C_code\libraries\GraphicsWrapper\src\Graphics\Wrappers\InstanceWrapper.cpp" -o CMakeFiles\GraphicsWrapper.dir\src\Graphics\Wrappers\InstanceWrapper.cpp.s
 
+CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/PipelineWrapper.cpp.obj: CMakeFiles/GraphicsWrapper.dir/flags.make
+CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/PipelineWrapper.cpp.obj: CMakeFiles/GraphicsWrapper.dir/includes_CXX.rsp
+CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/PipelineWrapper.cpp.obj: E:/Program\ Files\ (x86)/Code/C_code/libraries/GraphicsWrapper/src/Graphics/Wrappers/PipelineWrapper.cpp
+CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/PipelineWrapper.cpp.obj: CMakeFiles/GraphicsWrapper.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="E:\Program Files (x86)\Code\C_code\libraries\GraphicsWrapper\build\clang-debug\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_34) "Building CXX object CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/PipelineWrapper.cpp.obj"
+	C:\Users\user\.utils\llvm-mingw\bin\clang++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/PipelineWrapper.cpp.obj -MF CMakeFiles\GraphicsWrapper.dir\src\Graphics\Wrappers\PipelineWrapper.cpp.obj.d -o CMakeFiles\GraphicsWrapper.dir\src\Graphics\Wrappers\PipelineWrapper.cpp.obj -c "E:\Program Files (x86)\Code\C_code\libraries\GraphicsWrapper\src\Graphics\Wrappers\PipelineWrapper.cpp"
+
+CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/PipelineWrapper.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/PipelineWrapper.cpp.i"
+	C:\Users\user\.utils\llvm-mingw\bin\clang++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "E:\Program Files (x86)\Code\C_code\libraries\GraphicsWrapper\src\Graphics\Wrappers\PipelineWrapper.cpp" > CMakeFiles\GraphicsWrapper.dir\src\Graphics\Wrappers\PipelineWrapper.cpp.i
+
+CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/PipelineWrapper.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/PipelineWrapper.cpp.s"
+	C:\Users\user\.utils\llvm-mingw\bin\clang++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "E:\Program Files (x86)\Code\C_code\libraries\GraphicsWrapper\src\Graphics\Wrappers\PipelineWrapper.cpp" -o CMakeFiles\GraphicsWrapper.dir\src\Graphics\Wrappers\PipelineWrapper.cpp.s
+
 # Object files for target GraphicsWrapper
 GraphicsWrapper_OBJECTS = \
 "CMakeFiles/GraphicsWrapper.dir/src/Graphics/HandleTypes/Buffer.cpp.obj" \
@@ -597,7 +612,8 @@ GraphicsWrapper_OBJECTS = \
 "CMakeFiles/GraphicsWrapper.dir/src/Graphics/Utility/Utility.cpp.obj" \
 "CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/DebugLogger.cpp.obj" \
 "CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/DeviceWrapper.cpp.obj" \
-"CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/InstanceWrapper.cpp.obj"
+"CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/InstanceWrapper.cpp.obj" \
+"CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/PipelineWrapper.cpp.obj"
 
 # External object files for target GraphicsWrapper
 GraphicsWrapper_EXTERNAL_OBJECTS =
@@ -635,9 +651,10 @@ libGraphicsWrapper.a: CMakeFiles/GraphicsWrapper.dir/src/Graphics/Utility/Utilit
 libGraphicsWrapper.a: CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/DebugLogger.cpp.obj
 libGraphicsWrapper.a: CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/DeviceWrapper.cpp.obj
 libGraphicsWrapper.a: CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/InstanceWrapper.cpp.obj
+libGraphicsWrapper.a: CMakeFiles/GraphicsWrapper.dir/src/Graphics/Wrappers/PipelineWrapper.cpp.obj
 libGraphicsWrapper.a: CMakeFiles/GraphicsWrapper.dir/build.make
 libGraphicsWrapper.a: CMakeFiles/GraphicsWrapper.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="E:\Program Files (x86)\Code\C_code\libraries\GraphicsWrapper\build\clang-debug\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_34) "Linking CXX static library libGraphicsWrapper.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="E:\Program Files (x86)\Code\C_code\libraries\GraphicsWrapper\build\clang-debug\CMakeFiles" --progress-num=$(CMAKE_PROGRESS_35) "Linking CXX static library libGraphicsWrapper.a"
 	$(CMAKE_COMMAND) -P CMakeFiles\GraphicsWrapper.dir\cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\GraphicsWrapper.dir\link.txt --verbose=$(VERBOSE)
 

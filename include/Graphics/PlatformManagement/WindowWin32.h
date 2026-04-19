@@ -9,8 +9,8 @@
 #include "Graphics/PlatformManagement/Keyboard.h"
 
 //#include "Keyboard.h"
-#include "Utilities/EventSystems/MultiEventSystem.h"
-#include "Utilities/EventSystems/SingleCallbackEventSystem.h"
+#include "CommonApi/Utilities/EventSystems/MultiEventSystem.h"
+#include "CommonApi/Utilities/EventSystems/SingleCallbackEventSystem.h"
 
 #if defined(_ARM_) || defined(_ARM64_)
     #define PLATFORM_WIN32_WINPROC_CALLBACK

@@ -220,8 +220,8 @@ namespace Graphics
 		using Base::Base;		
 
 		void create(const DeviceFunctionTable& functions,
-			const DeviceRef& device, const PipelineLayoutCreateInfo& createInfo);
-		void destroy(const DeviceFunctionTable& functions, const DeviceRef& device);
+			DeviceRef device, const PipelineLayoutCreateInfo& createInfo);
+		void destroy(const DeviceFunctionTable& functions, DeviceRef device);
 	};
 
 	class PipelineShaderStageCreateInfo : public StructBase<VkPipelineShaderStageCreateInfo, PipelineShaderStageCreateInfo>
@@ -748,10 +748,10 @@ namespace Graphics
 		using Base::Base;
 
 		void create(const DeviceFunctionTable& functions,
-			const DeviceRef& device, const PipelineCreateInfo& createInfo);
-		void destroy(const DeviceFunctionTable& functions, const DeviceRef& device);
+			DeviceRef device, const PipelineCreateInfo& createInfo);
+		void destroy(const DeviceFunctionTable& functions, DeviceRef device);
 
 		static std::vector<Pipeline> create(const DeviceFunctionTable& functions,
-			const DeviceRef& device, std::span<const PipelineCreateInfo> createInfos);
+			DeviceRef device, std::span<const PipelineCreateInfo> createInfos);
 	};
 }

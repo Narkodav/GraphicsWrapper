@@ -1,5 +1,5 @@
 #pragma once
-#include "../HandleTypes/Device.h"
+#include "Graphics/HandleTypes/Device.h"
 #include "InstanceWrapper.h"
 
 namespace Graphics::Wrappers {
