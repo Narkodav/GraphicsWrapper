@@ -22,8 +22,7 @@ namespace Graphics
         reset();
     }
 
-    MemoryRequirements ImageRef::getMemoryRequirements(const DeviceFunctionTable& functions, DeviceRef device) const
-    {
+    MemoryRequirements ImageRef::getMemoryRequirements(const DeviceFunctionTable& functions, DeviceRef device) const {
         GRAPHICS_VERIFY(isSet(), "Cannot get memory requirements for an invalid image");
         MemoryRequirements memRequirements;
         functions.execute<DeviceFunction::GetImageMemoryRequirements>(
@@ -31,17 +30,22 @@ namespace Graphics
         return memRequirements;
     }
 
-    void ImageView::create(const DeviceFunctionTable& functions, DeviceRef device,
-        const ImageViewCreateInfo& createInfo)
-    {
+    SubresourceLayout ImageRef::getSubresourceLayout(const DeviceFunctionTable& functions, 
+        DeviceRef device, const ImageSubresource& subresource) const {
+        SubresourceLayout layout;
+        functions.execute<DeviceFunction::GetImageSubresourceLayout>(
+            device.getHandle(), getHandle(), subresource.getUnderlyingPointer(), layout.getUnderlyingPointer());
+        return layout;
+    }
+
+    void ImageView::create(const DeviceFunctionTable& functions, DeviceRef device, const ImageViewCreateInfo& createInfo) {
         GRAPHICS_VERIFY(!isValid(), "Trying to create a valid image view");
         auto result = functions.execute<DeviceFunction::CreateImageView>(
             device.getHandle(), createInfo.getUnderlyingPointer(), nullptr, getUnderlyingPointer());
         GRAPHICS_VERIFY_RESULT(result, "Failed to create an image view");
     }
 
-    void ImageView::destroy(const DeviceFunctionTable& functions, DeviceRef device)
-    {
+    void ImageView::destroy(const DeviceFunctionTable& functions, DeviceRef device) {
         GRAPHICS_VERIFY(isValid(), "Trying to destroy an invalid image view");
         functions.execute<DeviceFunction::DestroyImageView>(
             device.getHandle(), getHandle(), nullptr);

@@ -15,7 +15,7 @@ namespace Graphics
 
 		static inline const auto s_unusedAttachment = VK_ATTACHMENT_UNUSED;        
 
-        Attachment(PixelFormat format,
+        Attachment(Format format,
             AttachmentLoadOp loadOp = AttachmentLoadOp::DontCare,
             AttachmentStoreOp storeOp = AttachmentStoreOp::DontCare,
             AttachmentLoadOp stencilLoadOp = AttachmentLoadOp::DontCare,
@@ -35,7 +35,7 @@ namespace Graphics
             this->flags = flags;
             this->samples = static_cast<VkSampleCountFlagBits>(samples);
         }
-        Attachment& setFormat(PixelFormat format) {
+        Attachment& setFormat(Format format) {
             this->format = convertCEnum(format);
             return *this;
         }

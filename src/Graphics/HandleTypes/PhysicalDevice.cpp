@@ -36,8 +36,7 @@ namespace Graphics
         return supported;
     }
 
-    FormatProperties PhysicalDevice::getFormatProperties(const InstanceFunctionTable& functions,
-        PixelFormat format) const
+    FormatProperties PhysicalDevice::getFormatProperties(const InstanceFunctionTable& functions, Format format) const
     {
         FormatProperties props;
         functions.execute<InstanceFunction::GetPhysicalDeviceFormatProperties>(*this, format, &props);

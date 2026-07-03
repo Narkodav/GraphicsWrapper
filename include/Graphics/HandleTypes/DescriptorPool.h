@@ -17,8 +17,8 @@ namespace Graphics
 	public:
 		using Base::Base;
 
-		DescriptorSetAllocateInfo(const DescriptorPoolRef& descriptorPool, std::span<const DescriptorSetLayoutRef> layouts);
-		DescriptorSetAllocateInfo(const DescriptorPoolRef& descriptorPool, std::span<const DescriptorSetLayout> layouts);
+		DescriptorSetAllocateInfo(DescriptorPoolRef descriptorPool, std::span<const DescriptorSetLayoutRef> layouts);
+		DescriptorSetAllocateInfo(DescriptorPoolRef descriptorPool, std::span<const DescriptorSetLayout> layouts);
 
 		template <ContiguousContainer Container>
 		DescriptorSetAllocateInfo& setDescriptorSetLayouts(const Container& layouts) requires
@@ -35,19 +35,13 @@ namespace Graphics
 			return *this;
 		}
 
-		DescriptorSetAllocateInfo& setDescriptorSetLayouts(const DescriptorSetLayoutRef& layout) {
+		DescriptorSetAllocateInfo& setDescriptorSetLayouts(DescriptorSetLayoutRef layout) {
 			this->descriptorSetCount = 1;
 			this->pSetLayouts = DescriptorSetLayout::underlyingCast(&layout);
 			return *this;
 		}
 
-		DescriptorSetAllocateInfo& setDescriptorSetLayouts(const DescriptorSetLayout& layout) {
-			this->descriptorSetCount = 1;
-			this->pSetLayouts = DescriptorSetLayout::underlyingCast(&layout);
-			return *this;
-		}
-
-		DescriptorSetAllocateInfo& setDescriptorPool(const DescriptorPoolRef& descriptorPool);
+		DescriptorSetAllocateInfo& setDescriptorPool(DescriptorPoolRef descriptorPool);
 
 		std::span<const DescriptorSetLayoutRef> getLayouts() const {
 			return std::span<const DescriptorSetLayoutRef>(
@@ -66,14 +60,27 @@ namespace Graphics
 		using Base::Base;
 		static inline const std::string s_typeName = "DescriptorPool";
 
-		void reset(const DeviceFunctionTable& functions, const DeviceRef& device,
+		void reset(const DeviceFunctionTable& functions, DeviceRef device,
 			Flags::DescriptorPoolReset flags = Flags::DescriptorPoolReset::Bits::None);
 
 		static std::vector<DescriptorSet> allocateSets(const DeviceFunctionTable& functions,
-			const DeviceRef& device, const DescriptorSetAllocateInfo& allocateInfo);
+			DeviceRef device, const DescriptorSetAllocateInfo& allocateInfo);
 
-		void freeSets(const DeviceFunctionTable& functions, const DeviceRef& device, std::span<const DescriptorSet> sets);
-		void freeSet(const DeviceFunctionTable& functions, const DeviceRef& device, const DescriptorSet& set);
+		template<size_t count>
+		std::array<DescriptorSet, count> allocateSets(const DeviceFunctionTable& functions,
+			DeviceRef device, const DescriptorSetAllocateInfo& allocateInfo)
+		{
+			GRAPHICS_VERIFY(allocateInfo.getDescriptorSetCount() == count, "descriptor count must match count in allocateInfo");
+			std::array<DescriptorSet, count> sets;
+			auto result = functions.execute<DeviceFunction::AllocateDescriptorSets>(
+				device.getHandle(), allocateInfo.getUnderlyingPointer(),
+				DescriptorSet::underlyingCast(sets.data()));
+			GRAPHICS_VERIFY_RESULT(result, "Failed to allocate sets from descriptor pool");
+			return sets;
+		}
+
+		void freeSets(const DeviceFunctionTable& functions, DeviceRef device, std::span<const DescriptorSet> sets);
+		void freeSet(const DeviceFunctionTable& functions, DeviceRef device, const DescriptorSet& set);
 	};
 
 	class DescriptorPoolSize : public StructBase<VkDescriptorPoolSize, DescriptorPoolSize>
@@ -135,9 +142,9 @@ namespace Graphics
 	public:
 		using Base::Base;
 
-		void create(const DeviceFunctionTable& functions, const DeviceRef& device, 
+		void create(const DeviceFunctionTable& functions, DeviceRef device, 
 		const DescriptorPoolCreateInfo& createInfo);
-		void destroy(const DeviceFunctionTable& functions, const DeviceRef& device);
+		void destroy(const DeviceFunctionTable& functions, DeviceRef device);
 	};
 }
 

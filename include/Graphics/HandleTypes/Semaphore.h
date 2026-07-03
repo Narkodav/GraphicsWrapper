@@ -38,8 +38,8 @@ namespace Graphics
     public:
 		using Base::Base;
 
-		void create(const DeviceFunctionTable& functions, const DeviceRef& device,
+		void create(const DeviceFunctionTable& functions, DeviceRef device,
 			const SemaphoreCreateInfo& createInfo = SemaphoreCreateInfo()); // SemaphoreCreateInfo is currently useless, as there are no flags defined
-        void destroy(const DeviceFunctionTable& functions, const DeviceRef& device);
+        void destroy(const DeviceFunctionTable& functions, DeviceRef device);
     };
 }

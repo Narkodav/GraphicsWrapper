@@ -2057,4 +2057,26 @@ namespace Graphics {
         static constexpr auto s_type = StructureType::PipelineTessellationStateCreateInfo;
         static constexpr auto s_name = "VkPipelineTessellationStateCreateInfo";
     };
+
+
+    // PipelineRenderingCreateInfo
+    template<>
+    struct EnumToStructTraits<StructureType::PipelineRenderingCreateInfo> {
+        using Type = vk::PipelineRenderingCreateInfo;
+        using CType = VkPipelineRenderingCreateInfo;
+        static constexpr auto s_name = "VkPipelineRenderingCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<vk::PipelineRenderingCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineRenderingCreateInfo;
+        static constexpr auto s_name = "VkPipelineRenderingCreateInfo";
+    };
+
+    template<>
+    struct StructToEnumTraits<VkPipelineRenderingCreateInfo> {
+        static constexpr auto s_type = StructureType::PipelineRenderingCreateInfo;
+        static constexpr auto s_name = "VkPipelineRenderingCreateInfo";
+    };
+    
 }

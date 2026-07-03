@@ -909,5 +909,12 @@ namespace Graphics {
         static constexpr const char* name = "vkUpdateDescriptorSets";
     };
 
+    template <>
+    struct DeviceFunctionTraits<DeviceFunction::GetImageSubresourceLayout> {
+        using Type = PFN_vkGetImageSubresourceLayout;
+        static constexpr const char* name = "vkGetImageSubresourceLayout";
+    };
+
+
     using DeviceFunctionTable = FunctionTable<DeviceFunction, DeviceFunctionTraits, VkDevice, PFN_vkGetDeviceProcAddr>;
 }

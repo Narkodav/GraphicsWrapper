@@ -150,8 +150,7 @@ namespace Graphics
             GRAPHICS_VERIFY(!isValid(), "Mapping was not unmapped before being destroyed");
         }
 
-        void unmap(const DeviceFunctionTable& functions, const DeviceRef& device,
-            const MemoryRef& memory) {
+        void unmap(const DeviceFunctionTable& functions, const DeviceRef& device, MemoryRef memory) {
             GRAPHICS_VERIFY(isValid(), "Mapping was not mapped before being unmapped");
             functions.execute<DeviceFunction::UnmapMemory>(device.getHandle(), memory.getHandle());
             m_mapping = nullptr;
@@ -176,13 +175,13 @@ namespace Graphics
             return std::span<const T>(reinterpret_cast<const T*>(static_cast<const std::byte*>(m_mapping) + offset), size);
         }
 
-        template<typename T>
+        template<typename T = void>
         T* get(size_t offset = 0)
         {
             return reinterpret_cast<T*>(static_cast<std::byte*>(m_mapping) + offset);
         }
 
-        template<typename T>
+        template<typename T = void>
         const T* get(size_t offset = 0) const
         {
             return reinterpret_cast<const T*>(static_cast<const std::byte*>(m_mapping) + offset);
@@ -207,8 +206,7 @@ namespace Graphics
             DeviceSize offset = 0, DeviceSize size = MemoryMapping::s_wholeSize,
             Flags::MemoryMap flags = Flags::MemoryMap::Bits::None);
 
-        void unmap(const DeviceFunctionTable& functions, DeviceRef device,
-            MemoryMapping& mapping);
+        void unmap(const DeviceFunctionTable& functions, DeviceRef device, MemoryMapping& mapping);
     };
 }
 

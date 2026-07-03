@@ -33,7 +33,7 @@ namespace Graphics {
             const Extent2D& imageExtent = { 1, 1 },
             uint32_t minImageCount = 2,
             uint32_t imageArrayLayers = 1,
-            PixelFormat imageFormat = PixelFormat::B8G8R8A8Srgb,
+            Format imageFormat = Format::B8G8R8A8Srgb,
             ColorSpace imageColorSpace = ColorSpace::SrgbNonlinear,
             Flags::ImageUsage imageUsage = Flags::ImageUsage::Bits::ColorAttachment,
             SharingMode imageSharingMode = SharingMode::Exclusive,
@@ -105,7 +105,7 @@ namespace Graphics {
             this->imageColorSpace = convertCEnum(imageFormat.getColorSpace());
             return *this;
         }
-        SwapChainCreateInfo& setImageFormat(PixelFormat imageFormat) {
+        SwapChainCreateInfo& setImageFormat(Format imageFormat) {
             this->imageFormat = convertCEnum(imageFormat);
             return *this;
         }
@@ -155,7 +155,7 @@ namespace Graphics {
             return *this;
         }
 
-        PixelFormat getImageFormat() const {
+        Format getImageFormat() const {
             return convertCEnum(this->imageFormat);
         };
         ColorSpace getImageColorSpace() const {

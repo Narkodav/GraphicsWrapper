@@ -102,13 +102,13 @@ namespace Graphics::Utility
     }
 
     //returns a supported format based on tiling and features requirements
-    PixelFormat findSupportedFormat(const InstanceFunctionTable& functions,
-        const PhysicalDevice& device, const std::vector<PixelFormat>& candidates,
+    Format findSupportedFormat(const InstanceFunctionTable& functions,
+        const PhysicalDevice& device, const std::vector<Format>& candidates,
         ImageTiling tiling, Flags::FormatFeature features)
     {
         if (tiling == ImageTiling::Linear)
         {
-            for (PixelFormat format : candidates) {
+            for (Format format : candidates) {
                 FormatProperties props = device.getFormatProperties(functions, format);
                 if (static_cast<uint32_t>(props.getLinearTilingFeatures() & features) == features) {
                     return format;
@@ -118,20 +118,20 @@ namespace Graphics::Utility
 
         if (tiling == ImageTiling::Optimal)
         {
-            for (PixelFormat format : candidates) {
+            for (Format format : candidates) {
                 FormatProperties props = device.getFormatProperties(functions, format);
                 if (static_cast<uint32_t>(props.getOptimalTilingFeatures() & features) == features) {
                     return format;
                 }
             }
         }
-        return PixelFormat::Undefined;
+        return Format::Undefined;
     }
 
-    PixelFormat findDepthFormat(const InstanceFunctionTable& functions,
+    Format findDepthFormat(const InstanceFunctionTable& functions,
         const PhysicalDevice& device) {
         return findSupportedFormat(functions, device,
-            { PixelFormat::D32Sfloat, PixelFormat::D32SfloatS8Uint, PixelFormat::D24UnormS8Uint },
+            { Format::D32Sfloat, Format::D32SfloatS8Uint, Format::D24UnormS8Uint },
             ImageTiling::Optimal,
             Flags::FormatFeature::Bits::DepthStencilAttachment);
     }
@@ -175,13 +175,13 @@ namespace Graphics::Utility
     }
 
     RenderPassData createColorDepthRenderPass(const DeviceFunctionTable& deviceFunctions, const DeviceRef& device,
-        std::span<SurfaceFormat> formats, std::span<PresentMode> presentModes, PixelFormat depthFormat)
+        std::span<SurfaceFormat> formats, std::span<PresentMode> presentModes, Format depthFormat)
     {
         RenderPassData data;
 
         size_t i = 0;
         for (; i < formats.size(); i++) {
-            if (formats[i].getFormat() == PixelFormat::B8G8R8A8Srgb &&
+            if (formats[i].getFormat() == Format::B8G8R8A8Srgb &&
                 formats[i].getColorSpace() == ColorSpace::SrgbNonlinear) {
                 data.surfaceFormat = formats[i];
                 break;
@@ -261,8 +261,8 @@ namespace Graphics::Utility
         const SurfaceRef& surface,
         const RenderPassRef& renderPass,
         const Extent2D& preferredExtent,
-        PixelFormat preferredFormat /*= Format::B8G8R8A8Srgb*/,
-        PixelFormat preferredDepthFormat /*= Format::D32Sfloat*/,
+        Format preferredFormat /*= Format::B8G8R8A8Srgb*/,
+        Format preferredDepthFormat /*= Format::D32Sfloat*/,
         ColorSpace preferredColorSpace /*= ColorSpace::SrgbNonlinear*/,
         Flags::ImageUsage preferredImageUsage /*= Flags::ImageUsage::Bits::ColorAttachment*/,
 		PresentMode preferredPresentMode /*= PresentMode::Mailbox*/,
@@ -288,7 +288,7 @@ namespace Graphics::Utility
         swapChainData.depthImageCreateInfo.setArrayLayers(desiredImageArrayLayerCount)
             .setExtent(Extent3D(preferredExtent, 1))
             .setFormat(preferredDepthFormat)
-            .setImageType(ImageType::Image2D)
+            .setImageType(ImageType::T2D)
             .setInitialLayout(ImageLayout::Undefined)
             .setMipLevels(1)
             .setSamples(Flags::SampleCount::Bits::SC1)

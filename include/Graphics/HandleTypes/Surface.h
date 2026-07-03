@@ -2,7 +2,7 @@
 #include "Graphics/Common.h"
 #include "Graphics/Structs.h"
 #include "Graphics/InstanceFunctionTable.h"
-#include "Graphics/PlatformManagement/Window.h"
+#include "PlatformKit/Window.h"
 
 namespace Graphics
 {
@@ -25,7 +25,7 @@ namespace Graphics
             return convertCEnum(this->colorSpace);
         }
 
-        PixelFormat getFormat() const {
+        Format getFormat() const {
             return convertCEnum(this->format);
         }
     };
@@ -70,7 +70,7 @@ namespace Graphics
     public:
         using Base::Base;
 
-        void create(const InstanceFunctionTable& functions, const InstanceRef& instance, const Platform::Window& window);
+        void create(const InstanceFunctionTable& functions, const InstanceRef& instance, const PlatformKit::Window& window);
         void destroy(const InstanceFunctionTable& functions, const InstanceRef& instance);
     };
 }

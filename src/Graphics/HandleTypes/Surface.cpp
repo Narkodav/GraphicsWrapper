@@ -11,7 +11,7 @@
 namespace Graphics
 { 
     void Surface::create(const InstanceFunctionTable& functions, const InstanceRef& instance,
-        const Platform::Window& window)
+        const PlatformKit::Window& window)
     {
         GRAPHICS_VERIFY(!isValid(), "Trying to create a valid surface");
         
@@ -19,7 +19,7 @@ namespace Graphics
         Win32::SurfaceCreateInfo createInfo;
         createInfo.sType = StructureType::SurfaceCreateInfoWin32;
         createInfo.hwnd = window.getHandle();
-        createInfo.hinstance = Platform::Window::getInstanceHandle();
+        createInfo.hinstance = PlatformKit::Window::getInstanceHandle();
         createInfo.flags = 0;
         createInfo.pNext = nullptr;
 

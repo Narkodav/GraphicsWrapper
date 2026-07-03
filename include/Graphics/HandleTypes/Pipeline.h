@@ -16,7 +16,7 @@ namespace Graphics
 		using Base::Base;
 
 		constexpr VertexInputAttributeDescription(uint32_t location, uint32_t binding,
-			PixelFormat format, uint32_t offset) : Base() {
+			Format format, uint32_t offset) : Base() {
 			this->location = location;
 			this->binding = binding;
 			this->format = convertCEnum(format);
@@ -30,7 +30,7 @@ namespace Graphics
 			this->binding = binding;
 			return *this;
 		}
-		constexpr VertexInputAttributeDescription& setFormat(PixelFormat format) {
+		constexpr VertexInputAttributeDescription& setFormat(Format format) {
 			this->format = convertCEnum(format);
 			return *this;
 		}
@@ -189,6 +189,12 @@ namespace Graphics
 		constexpr PipelineLayoutCreateInfo& setSetLayouts(std::span<const DescriptorSetLayout> setLayouts) {
 			this->setLayoutCount = static_cast<uint32_t>(setLayouts.size());
 			this->pSetLayouts = DescriptorSetLayout::underlyingCast(setLayouts.data());
+			return *this;
+		}
+
+		constexpr PipelineLayoutCreateInfo& setSetLayouts(const DescriptorSetLayout& setLayout) {
+			this->setLayoutCount = 1;
+			this->pSetLayouts = DescriptorSetLayout::underlyingCast(&setLayout);
 			return *this;
 		}
 
@@ -363,6 +369,18 @@ namespace Graphics
 		constexpr PipelineViewportStateCreateInfo& setScissors(std::span<const Rect2D> scissors) {
 			this->scissorCount = scissors.size();
 			this->pScissors = Rect2D::underlyingCast(scissors.data());
+			return *this;
+		}
+
+		// For dynamic state
+		constexpr PipelineViewportStateCreateInfo& setViewportCount(uint32_t count) {
+			this->viewportCount = count;
+			this->pViewports = nullptr;
+			return *this;
+		}
+		constexpr PipelineViewportStateCreateInfo& setScissorCount(uint32_t count) {
+			this->scissorCount = count;
+			this->pScissors = nullptr;
 			return *this;
 		}
 	};
@@ -639,8 +657,17 @@ namespace Graphics
 			this->pAttachments = PipelineColorBlendAttachmentState::underlyingCast(attachments.data());
 			return *this;
 		}
-		PipelineColorBlendStateCreateInfo& setBlendConstants(const Color& blendConstants) {
-			std::memcpy(this->blendConstants, blendConstants.getStruct().data(), sizeof(float) * 4);
+		constexpr PipelineColorBlendStateCreateInfo& setAttachments(const PipelineColorBlendAttachmentState& attachment) {
+			this->attachmentCount = 1;
+			this->pAttachments = PipelineColorBlendAttachmentState::underlyingCast(&attachment);
+			return *this;
+		}
+		constexpr PipelineColorBlendStateCreateInfo& setBlendConstants(const Color& blendConstants) {
+			const auto& constants = blendConstants.getStruct();
+			this->blendConstants[0] = constants[0];
+			this->blendConstants[1] = constants[1];
+			this->blendConstants[2] = constants[2];
+			this->blendConstants[3] = constants[3];
 			return *this;
 		}
 	};
@@ -665,6 +692,36 @@ namespace Graphics
 		constexpr PipelineDynamicStateCreateInfo& setDynamicStates(std::span<const DynamicState> dynamicStates) {
 			this->dynamicStateCount = dynamicStates.size();
 			this->pDynamicStates = convertCEnum(dynamicStates.data());
+			return *this;
+		}
+	};
+
+	class PipelineRenderingCreateInfo : public StructBase<VkPipelineRenderingCreateInfo, PipelineRenderingCreateInfo>
+	{
+		using Base = StructBase<VkPipelineRenderingCreateInfo, PipelineRenderingCreateInfo>;
+	public:
+		using Base::Base;
+
+		constexpr PipelineRenderingCreateInfo& setViewMask(uint32_t mask) {
+			this->viewMask = mask;
+			return *this;
+		}
+		constexpr PipelineRenderingCreateInfo& setColorAttachmentFormats(std::span<const Format> formats) {
+			this->colorAttachmentCount = formats.size();
+			this->pColorAttachmentFormats = convertCEnum(formats.data());
+			return *this;
+		}
+		constexpr PipelineRenderingCreateInfo& setColorAttachmentFormats(const Format& format) {
+			this->colorAttachmentCount = 1;
+			this->pColorAttachmentFormats = convertCEnum(&format);
+			return *this;
+		}
+		constexpr PipelineRenderingCreateInfo& setDepthAttachmentFormat(const Format& format) {
+			this->depthAttachmentFormat = convertCEnum(format);
+			return *this;
+		}
+		constexpr PipelineRenderingCreateInfo& setStencilAttachmentFormat(const Format& format) {
+			this->stencilAttachmentFormat = convertCEnum(format);
 			return *this;
 		}
 	};
@@ -719,19 +776,23 @@ namespace Graphics
 			this->pDynamicState = dynamicState.getUnderlyingPointer();
 			return *this;
 		}
-		constexpr PipelineCreateInfo& setLayout(const PipelineLayoutRef& layout) {
+		constexpr PipelineCreateInfo& setLayout(PipelineLayoutRef layout) {
 			this->layout = layout.getHandle();
 			return *this;
 		}
-		constexpr PipelineCreateInfo& setRenderPass(const RenderPassRef& renderPass) {
+		constexpr PipelineCreateInfo& setRenderPass(RenderPassRef renderPass) {
 			this->renderPass = renderPass.getHandle();
+			return *this;
+		}
+		constexpr PipelineCreateInfo& setRenderPass(std::nullptr_t) {
+			this->renderPass = nullptr;
 			return *this;
 		}
 		constexpr PipelineCreateInfo& setSubpass(uint32_t subpass) {
 			this->subpass = subpass;
 			return *this;
 		}
-		constexpr PipelineCreateInfo& setBasePipelineHandle(const PipelineRef& basePipeline) {
+		constexpr PipelineCreateInfo& setBasePipelineHandle(PipelineRef basePipeline) {
 			this->basePipelineHandle = basePipeline.getHandle();
 			return *this;
 		}

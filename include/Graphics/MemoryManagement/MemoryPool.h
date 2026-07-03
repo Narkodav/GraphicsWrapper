@@ -7,7 +7,8 @@
 #include "Graphics/HandleTypes/Buffer.h"
 #include "Graphics/Utility//Utility.h"
 
-#include "Memory/ExternalMetadataAllocators/BuddyAllocator.h"
+#include "Containers/Memory/ExternalMetadataAllocators/BuddyAllocator.h"
+#include "Containers/Memory/ExternalMetadataAllocators/ListAllocator.h"
 
 #include <vector>
 #include <list>
@@ -61,13 +62,16 @@ namespace Graphics::MemoryManagement
 		struct MemoryChunk {
 			Buffer buffer;
 			Memory memory;
-			Allocators::BuddyAllocatorBase buddyAlloc;
+			Allocators::BuddyAllocatorBase alloc;
+			//Allocators::ListAllocatorBase alloc;
 			uint32_t allocatedSize;
 		};
 
 		std::vector<MemoryChunk> m_memoryChunks;
 
 		uint32_t m_chunkCapacity = 0;
+		uint32_t m_alignment = 0;
+		
 		BufferCreateInfo m_bufferInfo;
 		PhysicalDeviceMemoryProperties m_deviceMemoryProps;
 
@@ -75,6 +79,7 @@ namespace Graphics::MemoryManagement
 		// doesnt depend on size or alignment
 		uint32_t m_memoryTypeIndex; 
 		uint32_t m_memoryTypeBits;
+
 	public:
 
 		MemoryPool() = default;
@@ -109,13 +114,16 @@ namespace Graphics::MemoryManagement
 
 		template<typename Func>
 		void create(const DeviceFunctionTable& functions, DeviceRef device, PhysicalDeviceMemoryProperties deviceMemoryProps,
-			uint32_t memoryChunkCapacity, Flags::BufferUsage usageFlags, Flags::MemoryProperty requiredProperties, 
+			uint32_t memoryChunkCapacity, uint32_t allocationAlignment, Flags::BufferUsage usageFlags, Flags::MemoryProperty requiredProperties, 
 			Flags::MemoryProperty forbiddenProperties, SharingMode sharingMode, 
 			Func&& onBufferAlloc = [](Memory&, Buffer&, size_t) {}) {
 			
 			m_deviceMemoryProps = deviceMemoryProps;
-			m_chunkCapacity = memoryChunkCapacity;
-			m_memoryChunks.push_back({});
+			m_alignment = allocationAlignment;
+			m_chunkCapacity = Allocators::BuddyAllocatorBase::alignHeapSize(memoryChunkCapacity, m_alignment);
+			
+			//m_chunkCapacity = memoryChunkCapacity;
+			m_memoryChunks.emplace_back();
 			auto& chunk = m_memoryChunks.back();
 
 			m_bufferInfo = { m_chunkCapacity, usageFlags, sharingMode };
@@ -131,7 +139,7 @@ namespace Graphics::MemoryManagement
 
 			onBufferAlloc(chunk.memory, chunk.buffer, 0);
 
-			chunk.buddyAlloc.assign(0, m_chunkCapacity);
+			chunk.alloc.assign(0, m_chunkCapacity, m_alignment);
 			chunk.allocatedSize = 0;
 		}
 
@@ -144,19 +152,21 @@ namespace Graphics::MemoryManagement
 
 			for (size_t i = 0; i < m_memoryChunks.size(); ++i)
 			{
-				auto ptr = m_memoryChunks[i].buddyAlloc.allocate(size);
+				auto ptr = m_memoryChunks[i].alloc.allocate(size);
 				if(ptr != std::numeric_limits<uintptr_t>::max())
 					return {static_cast<uint32_t>(ptr), static_cast<uint32_t>(size), static_cast<uint32_t>(i)};
 			}
 			addBuffer(functions, device, std::forward<Func>(onBufferAlloc));
-			auto ptr = m_memoryChunks.back().buddyAlloc.allocate(size);
+			auto ptr = m_memoryChunks.back().alloc.allocate(size);
+			m_memoryChunks.back().alloc.debugPrint();
 			return {static_cast<uint32_t>(ptr), static_cast<uint32_t>(size), 
 				static_cast<uint32_t>(m_memoryChunks.size() - 1)};
 		}
 
 		void free(Allocation& allocation)
 		{
-			m_memoryChunks[allocation.bufferIndex].buddyAlloc.deallocate(allocation.region.offset);
+			if(allocation.region.size == 0) return;
+			m_memoryChunks[allocation.bufferIndex].alloc.deallocate(allocation.region.offset);
 		}
 
 		BufferRef getBuffer(size_t chunkIndex) const { return m_memoryChunks[chunkIndex].buffer; };
@@ -191,7 +201,7 @@ namespace Graphics::MemoryManagement
 		void addBuffer(const DeviceFunctionTable& functions, DeviceRef device, 
 			Func&& onBufferAlloc = [](Memory&, Buffer&, size_t) {})
 		{
-			m_memoryChunks.push_back({});
+			m_memoryChunks.push_back(MemoryChunk{});
 			auto& chunk = m_memoryChunks.back();
 
 			chunk.buffer.create(functions, device, m_bufferInfo);
@@ -201,7 +211,7 @@ namespace Graphics::MemoryManagement
 
 			chunk.memory.create(functions, device, { memoryRequirements.getSize(), m_memoryTypeIndex });
 			chunk.memory.bindBuffer(functions, device, chunk.buffer);
-			chunk.buddyAlloc.assign(0, m_chunkCapacity);
+			chunk.alloc.assign(0, m_chunkCapacity, m_alignment);
 			chunk.allocatedSize = 0;
 			onBufferAlloc(chunk.memory, chunk.buffer, m_memoryChunks.size() - 1);
 		}

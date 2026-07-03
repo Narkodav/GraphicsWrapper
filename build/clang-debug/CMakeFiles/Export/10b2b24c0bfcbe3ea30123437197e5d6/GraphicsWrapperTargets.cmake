@@ -7,7 +7,7 @@ if(CMAKE_VERSION VERSION_LESS "3.0.0")
    message(FATAL_ERROR "CMake >= 3.0.0 required")
 endif()
 cmake_policy(PUSH)
-cmake_policy(VERSION 3.0.0...3.28)
+cmake_policy(VERSION 3.0.0...3.27)
 #----------------------------------------------------------------
 # Generated CMake target import file.
 #----------------------------------------------------------------
@@ -61,7 +61,7 @@ add_library(GraphicsWrapper::GraphicsWrapper STATIC IMPORTED)
 set_target_properties(GraphicsWrapper::GraphicsWrapper PROPERTIES
   INTERFACE_COMPILE_FEATURES "cxx_std_20"
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include"
-  INTERFACE_LINK_LIBRARIES "Vulkan::Vulkan;\$<LINK_ONLY:GraphicsWrapper::GraphicsWrapper_stb_image>;CommonApi::CommonApi;Containers::Containers"
+  INTERFACE_LINK_LIBRARIES "Vulkan::Vulkan;\$<LINK_ONLY:GraphicsWrapper::GraphicsWrapper_stb_image>;CommonApi::CommonApi;Containers::Containers;PlatformKit::PlatformKit"
 )
 
 # Create imported target GraphicsWrapper::GraphicsWrapper_stb_image

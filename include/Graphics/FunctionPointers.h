@@ -118,12 +118,12 @@ namespace Graphics {
     using PFN_createDevice = Result(VKAPI_PTR*)(PhysicalDevice physicalDevice, const DeviceCreateInfo* pCreateInfo, const AllocationCallbacks* pAllocator, Device* pDevice);
     using PFN_enumeratePhysicalDevices = Result(VKAPI_PTR*)(InstanceRef instance, uint32_t* pPhysicalDeviceCount, PhysicalDevice* pPhysicalDevices);
     using PFN_getPhysicalDeviceFeatures = void(VKAPI_PTR*)(PhysicalDevice physicalDevice, PhysicalDeviceFeatures* pFeatures);
-    using PFN_getPhysicalDeviceFormatProperties = void(VKAPI_PTR*)(PhysicalDevice physicalDevice, PixelFormat format, FormatProperties* pFormatProperties);
-    //using PFN_getPhysicalDeviceImageFormatProperties = Result(VKAPI_PTR*)(PhysicalDevice physicalDevice, PixelFormat format, ImageType type, ImageTiling tiling, Flags::ImageUsage usage, Flags::ImageCreate flags, ImageFormatProperties* pImageFormatProperties);
+    using PFN_getPhysicalDeviceFormatProperties = void(VKAPI_PTR*)(PhysicalDevice physicalDevice, Format format, FormatProperties* pFormatProperties);
+    //using PFN_getPhysicalDeviceImageFormatProperties = Result(VKAPI_PTR*)(PhysicalDevice physicalDevice, Format format, ImageType type, ImageTiling tiling, Flags::ImageUsage usage, Flags::ImageCreate flags, ImageFormatProperties* pImageFormatProperties);
     using PFN_getPhysicalDeviceProperties = void(VKAPI_PTR*)(PhysicalDevice physicalDevice, PhysicalDeviceProperties* pProperties);
     using PFN_getPhysicalDeviceQueueFamilyProperties = void(VKAPI_PTR*)(PhysicalDevice physicalDevice, uint32_t* pQueueFamilyPropertyCount, QueueFamilyProperties* pQueueFamilyProperties);
     using PFN_getPhysicalDeviceMemoryProperties = void(VKAPI_PTR*)(PhysicalDevice physicalDevice, PhysicalDeviceMemoryProperties* pMemoryProperties);
-    //using PFN_getPhysicalDeviceSparseImageFormatProperties = void(VKAPI_PTR*)(PhysicalDevice physicalDevice, PixelFormat format, ImageType type, Flags::SampleCount::Bits samples, Flags::ImageUsage usage, ImageTiling tiling, uint32_t* pPropertyCount, SparseImageFormatProperties* pProperties);
+    //using PFN_getPhysicalDeviceSparseImageFormatProperties = void(VKAPI_PTR*)(PhysicalDevice physicalDevice, Format format, ImageType type, Flags::SampleCount::Bits samples, Flags::ImageUsage usage, ImageTiling tiling, uint32_t* pPropertyCount, SparseImageFormatProperties* pProperties);
     using PFN_getDeviceProcAddr = PFN_vkVoidFunction(VKAPI_PTR*)(DeviceRef device, const char* pName);
     using PFN_enumerateDeviceExtensionProperties = Result(VKAPI_PTR*)(PhysicalDevice physicalDevice, const char* pLayerName, uint32_t* pPropertyCount, ExtensionProperties* pProperties);
     using PFN_enumerateDeviceLayerProperties = Result(VKAPI_PTR*)(PhysicalDevice physicalDevice, uint32_t* pPropertyCount, LayerProperties* pProperties);
@@ -142,7 +142,7 @@ namespace Graphics {
     //using PFN_debugReportMessageEXT = void(VKAPI_PTR*)(InstanceRef instance, Flags::DebugReportObject::Bits flags, DebugReportObjectType objectType, uint64_t object, size_t location, int32_t messageCode, const char* pLayerPrefix, const char* pMessage);
     //using PFN_getPhysicalDeviceFeatures2 = void(VKAPI_PTR*)(PhysicalDevice physicalDevice, PhysicalDeviceFeatures2* pFeatures);
     //using PFN_getPhysicalDeviceProperties2 = void(VKAPI_PTR*)(PhysicalDevice physicalDevice, PhysicalDeviceProperties2* pProperties);
-    //using PFN_getPhysicalDeviceFormatProperties2 = void(VKAPI_PTR*)(PhysicalDevice physicalDevice, PixelFormat format, FormatProperties2* pFormatProperties);
+    //using PFN_getPhysicalDeviceFormatProperties2 = void(VKAPI_PTR*)(PhysicalDevice physicalDevice, Format format, FormatProperties2* pFormatProperties);
     //using PFN_getPhysicalDeviceImageFormatProperties2 = Result(VKAPI_PTR*)(PhysicalDevice physicalDevice, const PhysicalDeviceImageFormatInfo2* pImageFormatInfo, ImageFormatProperties2* pImageFormatProperties);
     //using PFN_getPhysicalDeviceQueueFamilyProperties2 = void(VKAPI_PTR*)(PhysicalDevice physicalDevice, uint32_t* pQueueFamilyPropertyCount, QueueFamilyProperties2* pQueueFamilyProperties);
     //using PFN_getPhysicalDeviceMemoryProperties2 = void(VKAPI_PTR*)(PhysicalDevice physicalDevice, PhysicalDeviceMemoryProperties2* pMemoryProperties);

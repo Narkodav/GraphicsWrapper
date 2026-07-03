@@ -41,6 +41,40 @@ namespace Graphics
         }
 	};
 
+    class SubresourceLayout : public StructBase<VkSubresourceLayout, SubresourceLayout>
+    {
+		using Base = StructBase<VkSubresourceLayout, SubresourceLayout>;
+        public:
+        using Base::Base;
+        
+        DeviceSize getOffset()      const { return this->offset; }
+        DeviceSize getSize()        const { return this->size; }
+        DeviceSize getRowPitch()    const { return this->rowPitch; }
+        DeviceSize getArrayPitch()  const { return this->arrayPitch; }
+        DeviceSize getDepthPitch()  const { return this->depthPitch; }
+	};
+
+    class ImageSubresource : public StructBase<VkImageSubresource, ImageSubresource>
+    {
+		using Base = StructBase<VkImageSubresource, ImageSubresource>;
+        public:
+        using Base::Base;
+
+        ImageSubresource& setAspectMask(Flags::ImageAspect aspectMask) { 
+            this->aspectMask = aspectMask; return *this;
+        }
+        ImageSubresource& setMipLevel(uint32_t mipLevel) { 
+            this->mipLevel = mipLevel; return *this;
+        }
+        ImageSubresource& setArrayLayer(uint32_t arrayLayer) { 
+            this->arrayLayer = arrayLayer; return *this;
+        }
+        
+        Flags::ImageAspect getAspectMask()  const { return this->aspectMask; }
+        uint32_t getMipLevel()              const { return this->mipLevel; }
+        uint32_t getArrayLayer()            const { return this->arrayLayer; }
+	};
+
     class ImageRef : public BaseComponent<VkImage, ImageRef>
     {
         using Base = BaseComponent<VkImage, ImageRef>;
@@ -50,6 +84,8 @@ namespace Graphics
 
         MemoryRequirements getMemoryRequirements(const DeviceFunctionTable& functions, 
             DeviceRef device) const;
+        SubresourceLayout getSubresourceLayout(const DeviceFunctionTable& functions, 
+            DeviceRef device, const ImageSubresource& subresource) const;
     };
 
     class ImageCreateInfo : public StructBase<VkImageCreateInfo, ImageCreateInfo>
@@ -58,8 +94,8 @@ namespace Graphics
     public:
         using Base::Base;
 
-        ImageCreateInfo(ImageType imageType = ImageType::Image2D,
-            PixelFormat format = PixelFormat::R8G8B8A8Srgb,
+        ImageCreateInfo(ImageType imageType = ImageType::T2D,
+            Format format = Format::R8G8B8A8Srgb,
             const Extent3D& extent = { 1, 1, 1 },
             uint32_t mipLevels = 1,
             uint32_t arrayLayers = 1,
@@ -89,7 +125,7 @@ namespace Graphics
             this->imageType = convertCEnum(imageType);
             return *this;
         }
-        ImageCreateInfo& setFormat(PixelFormat format) {
+        ImageCreateInfo& setFormat(Format format) {
             this->format = convertCEnum(format);
             return *this;
         }
@@ -137,7 +173,7 @@ namespace Graphics
             return convertCEnum(this->imageType);
         }
 
-        PixelFormat getFormat() const {
+        Format getFormat() const {
             return convertCEnum(this->format);
         }
 
@@ -217,7 +253,7 @@ namespace Graphics
         using Base::Base;
         ImageViewCreateInfo(ImageRef image,
             ImageViewType viewType = ImageViewType::T2D,
-            PixelFormat format = PixelFormat::R8G8B8A8Srgb,
+            Format format = Format::R8G8B8A8Srgb,
             const ComponentMapping& components = ComponentMapping(),
             const ImageSubresourceRange& subresourceRange = ImageSubresourceRange()) : Base() {
             this->image = image.getHandle();
@@ -234,7 +270,7 @@ namespace Graphics
             this->viewType = convertCEnum(viewType);
             return *this;
         }
-        ImageViewCreateInfo& setFormat(PixelFormat format) {
+        ImageViewCreateInfo& setFormat(Format format) {
             this->format = convertCEnum(format);
             return *this;
         }

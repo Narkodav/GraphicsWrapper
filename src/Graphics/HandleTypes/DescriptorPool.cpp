@@ -2,14 +2,14 @@
 
 namespace Graphics
 {
-	DescriptorSetAllocateInfo::DescriptorSetAllocateInfo(const DescriptorPoolRef& descriptorPool,
+	DescriptorSetAllocateInfo::DescriptorSetAllocateInfo(DescriptorPoolRef descriptorPool,
 		std::span<const DescriptorSetLayoutRef> layouts) : Base() {
 		this->descriptorSetCount = layouts.size();
 		this->pSetLayouts = DescriptorSetLayoutRef::underlyingCast(layouts.data());
 		this->descriptorPool = descriptorPool.getHandle();
 	}
 
-	DescriptorSetAllocateInfo::DescriptorSetAllocateInfo(const DescriptorPoolRef& descriptorPool,
+	DescriptorSetAllocateInfo::DescriptorSetAllocateInfo(DescriptorPoolRef descriptorPool,
 		std::span<const DescriptorSetLayout> layouts) : Base() {
 		this->descriptorSetCount = layouts.size();
 		this->pSetLayouts = DescriptorSetLayoutRef::underlyingCast(layouts.data());
@@ -17,13 +17,13 @@ namespace Graphics
 	}
 
 	DescriptorSetAllocateInfo& DescriptorSetAllocateInfo::setDescriptorPool(
-		const DescriptorPoolRef& descriptorPool) {
+		DescriptorPoolRef descriptorPool) {
 		this->descriptorPool = descriptorPool.getHandle();
 		return *this;
 	}
 
 	void DescriptorPool::create(const DeviceFunctionTable& functions,
-		const DeviceRef& device, const DescriptorPoolCreateInfo& createInfo)
+		DeviceRef device, const DescriptorPoolCreateInfo& createInfo)
 	{
 		GRAPHICS_VERIFY(!isValid(), "Trying to create a valid descriptor pool");
 		auto result = functions.execute<DeviceFunction::CreateDescriptorPool>(
@@ -31,7 +31,7 @@ namespace Graphics
 		GRAPHICS_VERIFY_RESULT(result, "Failed to create descriptor pool");
 	}
 
-	void DescriptorPool::destroy(const DeviceFunctionTable& functions, const DeviceRef& device)
+	void DescriptorPool::destroy(const DeviceFunctionTable& functions, DeviceRef device)
 	{
 		GRAPHICS_VERIFY(isValid(), "Trying to destroy an invalid descriptor pool");
 		functions.execute<DeviceFunction::DestroyDescriptorPool>(
@@ -39,7 +39,7 @@ namespace Graphics
 		BaseComponent<VkDescriptorPool, DescriptorPoolRef>::reset();
 	}
 
-	void DescriptorPoolRef::reset(const DeviceFunctionTable& functions, const DeviceRef& device,
+	void DescriptorPoolRef::reset(const DeviceFunctionTable& functions, DeviceRef device,
 		Flags::DescriptorPoolReset flags /*= Flags::DescriptorPoolReset::Bits::None*/)
 	{
 		GRAPHICS_VERIFY(isSet(), "Trying to reset an invalid descriptor pool");
@@ -48,7 +48,7 @@ namespace Graphics
 		GRAPHICS_VERIFY_RESULT(result, "Failed to reset descriptor pool");
 	}
 
-	void DescriptorPoolRef::freeSets(const DeviceFunctionTable& functions, const DeviceRef& device,
+	void DescriptorPoolRef::freeSets(const DeviceFunctionTable& functions, DeviceRef device,
 		std::span<const DescriptorSet> sets) {
 		GRAPHICS_VERIFY(isSet(), "Trying to free sets from an invalid descriptor pool");
 		auto result = functions.execute<DeviceFunction::FreeDescriptorSets>(
@@ -56,7 +56,7 @@ namespace Graphics
 		GRAPHICS_VERIFY_RESULT(result, "Failed to free sets from descriptor pool");
 	}
 
-	void DescriptorPoolRef::freeSet(const DeviceFunctionTable& functions, const DeviceRef& device,
+	void DescriptorPoolRef::freeSet(const DeviceFunctionTable& functions, DeviceRef device,
 		const DescriptorSet& set) {
 		GRAPHICS_VERIFY(isSet(), "Trying to free set from an invalid descriptor pool");
 		auto result = functions.execute<DeviceFunction::FreeDescriptorSets>(
@@ -65,7 +65,7 @@ namespace Graphics
 	}
 
 	std::vector<DescriptorSet> DescriptorPoolRef::allocateSets(const DeviceFunctionTable& functions,
-		const DeviceRef& device, const DescriptorSetAllocateInfo& allocateInfo)
+		DeviceRef device, const DescriptorSetAllocateInfo& allocateInfo)
 	{
 		std::vector<DescriptorSet> sets(allocateInfo.getDescriptorSetCount());
 		auto result = functions.execute<DeviceFunction::AllocateDescriptorSets>(

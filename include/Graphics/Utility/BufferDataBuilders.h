@@ -203,13 +203,13 @@ namespace Graphics::Utility {
             {
                 0,                                      // location
                 0,                                      // binding
-                PixelFormat::R32G32B32A32Sfloat,        // format
+                Format::R32G32B32A32Sfloat,        // format
                 0                                       // offset
             },
             {
                 1,                                      // location
                 0,                                      // binding
-                PixelFormat::R32G32B32A32Sfloat,        // format
+                Format::R32G32B32A32Sfloat,        // format
                 sizeof(glm::vec4)                       // offset
             }
         };
@@ -235,7 +235,7 @@ namespace Graphics::Utility {
             {
                 0,                                      // location
                 0,                                      // binding
-                PixelFormat::R32G32B32A32Sfloat,        // format
+                Format::R32G32B32A32Sfloat,        // format
                 0                                       // offset
             }
         };
@@ -261,7 +261,7 @@ namespace Graphics::Utility {
             {
                 1,                                      // location
                 1,                                      // binding
-                PixelFormat::R32G32Sfloat,              // format
+                Format::R32G32Sfloat,              // format
                 0                                       // offset
             }
         };
@@ -292,25 +292,25 @@ namespace Graphics::Utility {
             {
                 2,                                      // location
                 2,                                      // binding
-                PixelFormat::R32G32B32A32Sfloat,        // format
+                Format::R32G32B32A32Sfloat,        // format
                 0                                       // offset
             },
             {
                 3,                                      // location
                 2,                                      // binding
-                PixelFormat::R32G32B32A32Sfloat,        // format
+                Format::R32G32B32A32Sfloat,        // format
                 sizeof(glm::vec4)                       // offset
             },
             {
                 4,                                      // location
                 2,                                      // binding
-                PixelFormat::R32G32B32A32Sfloat,        // format
+                Format::R32G32B32A32Sfloat,        // format
                 sizeof(glm::vec4) * 2                   // offset
             },
             {
                 5,                                      // location
                 2,                                      // binding
-                PixelFormat::R32G32B32A32Sfloat,        // format
+                Format::R32G32B32A32Sfloat,        // format
                 sizeof(glm::vec4) * 3                   // offset
             }
         };
@@ -336,7 +336,7 @@ namespace Graphics::Utility {
             {
                 6,                                      // location
                 3,                                      // binding
-                PixelFormat::R32Uint,                   // format
+                Format::R32Uint,                   // format
                 0                                       // offset
             },
         };

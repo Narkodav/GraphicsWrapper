@@ -93,7 +93,7 @@ namespace Graphics
             this->pipelineStatistics = queryPipelineStatistic;
         }
 
-        CommandBufferInheritanceInfo& setRenderPass(const RenderPassRef& renderPass)
+        CommandBufferInheritanceInfo& setRenderPass(RenderPassRef renderPass)
         {
             this->renderPass = renderPass.getHandle();
             return *this;
@@ -217,6 +217,9 @@ namespace Graphics
         void bindDescriptorSets(const DeviceFunctionTable& functions, PipelineBindPoint pipelineBindPoint,
             PipelineLayoutRef pipelineLayout, uint32_t firstSet, std::span<const DescriptorSet> descriptorSets,
             std::span<const uint32_t> dynamicOffsets = {});
+
+        void bindDescriptorSets(const DeviceFunctionTable& functions, PipelineBindPoint pipelineBindPoint,
+            PipelineLayoutRef pipelineLayout, DescriptorSet descriptorSet, std::span<const uint32_t> dynamicOffsets = {});
 
         void setPipelineBarrier(const DeviceFunctionTable& functions, Flags::PipelineStage srcStage,
             Flags::PipelineStage dstStage, Flags::Dependency dependencyFlags,

@@ -168,7 +168,7 @@ namespace Graphics
         using Base = StructBase<VkBufferViewCreateInfo, BufferViewCreateInfo>;
     public:
         using Base::Base;
-        BufferViewCreateInfo(const BufferRef& buffer, PixelFormat format, DeviceSize offset, DeviceSize range,
+        BufferViewCreateInfo(const BufferRef& buffer, Format format, DeviceSize offset, DeviceSize range,
             Flags::BufferViewCreate flags = Flags::BufferViewCreate::Bits::None) : Base()
         {
             this->buffer = buffer;
@@ -181,7 +181,7 @@ namespace Graphics
             this->buffer = buffer;
             return *this;
         }
-        BufferViewCreateInfo& setFormat(PixelFormat format) {
+        BufferViewCreateInfo& setFormat(Format format) {
             this->format = convertCEnum(format);
             return *this;
         }

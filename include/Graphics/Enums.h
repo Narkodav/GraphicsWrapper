@@ -190,6 +190,7 @@ namespace Graphics {
         GetBufferMemoryRequirements,
         GetImageMemoryRequirements,
         GetImageSparseMemoryRequirements,
+        GetImageSubresourceLayout,
         QueueSubmit,
         QueueWaitIdle,
         AllocateCommandBuffers,
@@ -592,7 +593,7 @@ namespace Graphics {
         using CorrespondingType = ImageLayout;
     };
 
-    enum class PixelFormat : uint32_t
+    enum class Format : uint32_t
     {
         Undefined = VK_FORMAT_UNDEFINED,
         R4G4UnormPack8 = VK_FORMAT_R4G4_UNORM_PACK8,
@@ -604,6 +605,7 @@ namespace Graphics {
         B5G5R5A1UnormPack16 = VK_FORMAT_B5G5R5A1_UNORM_PACK16,
         A1R5G5B5UnormPack16 = VK_FORMAT_A1R5G5B5_UNORM_PACK16,
         R8Unorm = VK_FORMAT_R8_UNORM,
+        A8Unorm = VK_FORMAT_A8_UNORM,
         R8Snorm = VK_FORMAT_R8_SNORM,
         R8Uscaled = VK_FORMAT_R8_USCALED,
         R8Sscaled = VK_FORMAT_R8_SSCALED,
@@ -840,23 +842,23 @@ namespace Graphics {
     };
 
     template<>
-    struct EnumVulkanConnect<PixelFormat> {
+    struct EnumVulkanConnect<Format> {
         using CorrespondingType = vk::Format;
     };
 
     template<>
     struct EnumVulkanConnect<vk::Format> {
-        using CorrespondingType = PixelFormat;
+        using CorrespondingType = Format;
     };
 
     template<>
-    struct EnumCVulkanConnect<PixelFormat> {
+    struct EnumCVulkanConnect<Format> {
         using CorrespondingType = VkFormat;
     };
 
     template<>
     struct EnumCVulkanConnect<VkFormat> {
-        using CorrespondingType = PixelFormat;
+        using CorrespondingType = Format;
     };
 
     enum class Filter : uint32_t
@@ -1153,6 +1155,7 @@ namespace Graphics {
         PipelineDepthStencilStateCreateInfo = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
         PipelineColorBlendStateCreateInfo = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
         PipelineDynamicStateCreateInfo = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+        PipelineRenderingCreateInfo = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO,
         GraphicsPipelineCreateInfo = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
         ComputePipelineCreateInfo = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
         PipelineLayoutCreateInfo = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
@@ -1311,9 +1314,9 @@ namespace Graphics {
 
     enum class ImageType : uint32_t
     {
-        Image1D = VK_IMAGE_TYPE_1D,
-        Image2D = VK_IMAGE_TYPE_2D,
-        Image3D = VK_IMAGE_TYPE_3D
+        T1D = VK_IMAGE_TYPE_1D,
+        T2D = VK_IMAGE_TYPE_2D,
+        T3D = VK_IMAGE_TYPE_3D
     };
 
     template<>

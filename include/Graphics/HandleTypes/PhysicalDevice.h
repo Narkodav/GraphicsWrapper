@@ -227,7 +227,7 @@ namespace Graphics
         std::vector<PresentMode> getSurfacePresentModes(const InstanceFunctionTable& functions,
             SurfaceRef surface) const;
 
-        FormatProperties getFormatProperties(const InstanceFunctionTable& functions, PixelFormat format) const;
+        FormatProperties getFormatProperties(const InstanceFunctionTable& functions, Format format) const;
 
         std::vector<ExtensionProperties> getExtensions(const InstanceFunctionTable& functions) const;
 

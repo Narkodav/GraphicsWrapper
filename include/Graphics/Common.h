@@ -43,8 +43,6 @@
 
 #include "StructTraits.h"
 
-#include "Utilities/TemplateUnion.h"
-
 #define GRAPHICS_API_ATTR VKAPI_ATTR
 #define GRAPHICS_API_CALL VKAPI_CALL
 #define GRAPHICS_API_PTR  VKAPI_PTR

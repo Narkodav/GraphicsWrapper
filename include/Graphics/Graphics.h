@@ -24,10 +24,6 @@
 
 #include "Graphics/MemoryManagement/MemoryPool.h"
 
-#include "Graphics/PlatformManagement/IOEvents.h"
-#include "Graphics/PlatformManagement/Window.h"
-#include "Graphics/PlatformManagement/WindowEvents.h"
-
 #include "Graphics/Utility/Utility.h"
 #include "Graphics/Utility/PixelData2D.h"
 #include "Graphics/Utility/BufferDataBuilders.h"

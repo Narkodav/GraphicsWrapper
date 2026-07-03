@@ -5,7 +5,7 @@
 #include "TaskTables/PropertyEnum.h"
 #include "TaskTables/QueuePropertyEnum.h"
 #include "Common.h"
-#include "PlatformManagement/Window.h"
+#include "PlatformKit/Window.h"
 #include "FunctionPointers.h"
 
 namespace Graphics {
@@ -103,7 +103,7 @@ namespace Graphics {
             this->height = h;
         }
 
-        Extent2D(Platform::Extent extent) : Base() {
+        Extent2D(PlatformKit::Extent extent) : Base() {
             this->width = extent.width;
             this->height = extent.height;
         }

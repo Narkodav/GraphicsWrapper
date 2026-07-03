@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/PlatformManagement/WindowWin32.h"
+#include "PlatformKit/WindowWin32.h"
 #include <vulkan/vulkan.h>
 
 #include "Graphics/Enums.h"
@@ -18,8 +18,8 @@ namespace Graphics::Win32 {
         StructureType                   sType;
         const void* pNext;
         Graphics::Flags::SurfaceCreate  flags;
-        Platform::Win32::InstanceHandle hinstance;
-        Platform::Win32::WindowHandle   hwnd;
+        PlatformKit::Win32::InstanceHandle hinstance;
+        PlatformKit::Win32::WindowHandle   hwnd;
     };
     
     using PFN_CreateSurface = Result(VKAPI_PTR*)(InstanceRef instance, const SurfaceCreateInfo* pCreateInfo, const AllocationCallbacks* pAllocator, Surface* pSurface);

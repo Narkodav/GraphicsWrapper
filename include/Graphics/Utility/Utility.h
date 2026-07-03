@@ -35,12 +35,12 @@ namespace Graphics::Utility
         std::function<int(Flags::MemoryProperty flags)> sorter);
 
     //returns a supported format based on tiling and features requirements
-    PixelFormat findSupportedFormat(const InstanceFunctionTable& functions,
-        const PhysicalDevice& device, const std::vector<PixelFormat>& candidates,
+    Format findSupportedFormat(const InstanceFunctionTable& functions,
+        const PhysicalDevice& device, const std::vector<Format>& candidates,
         ImageTiling tiling, Flags::FormatFeature features);
 
 	//finds a commonly used depth format
-    PixelFormat findDepthFormat(const InstanceFunctionTable& functions,
+    Format findDepthFormat(const InstanceFunctionTable& functions,
         const PhysicalDevice& device);
 
 	//calculates the number of mip levels for a given extent
@@ -50,7 +50,7 @@ namespace Graphics::Utility
 	Extent2D chooseExtent(const SurfaceCapabilities& capabilities, const Extent2D& frameBufferExtent);
 
     RenderPassData createColorDepthRenderPass(const DeviceFunctionTable& deviceFunctions, const DeviceRef& device,
-        std::span<SurfaceFormat> formats, std::span<PresentMode> presentModes, PixelFormat depthFormat);
+        std::span<SurfaceFormat> formats, std::span<PresentMode> presentModes, Format depthFormat);
 
 	//creates a basic swap chain with image views and frame buffers, optionally with depth buffer
     SwapChainData createBasicSwapChain(
@@ -61,8 +61,8 @@ namespace Graphics::Utility
         const SurfaceRef& surface,
         const RenderPassRef& renderPass,
         const Extent2D& preferredExtent,
-        PixelFormat preferredFormat = PixelFormat::B8G8R8A8Srgb,
-        PixelFormat preferredDepthFormat = PixelFormat::D32Sfloat,
+        Format preferredFormat = Format::B8G8R8A8Srgb,
+        Format preferredDepthFormat = Format::D32Sfloat,
         ColorSpace preferredColorSpace = ColorSpace::SrgbNonlinear,
         Flags::ImageUsage preferredImageUsage = Flags::ImageUsage::Bits::ColorAttachment,
         PresentMode preferredPresentMode = PresentMode::Mailbox,

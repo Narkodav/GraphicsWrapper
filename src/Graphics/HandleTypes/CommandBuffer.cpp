@@ -30,6 +30,16 @@ namespace Graphics {
 			dynamicOffsets.size(), dynamicOffsets.data());
 	}
 
+	void CommandBuffer::bindDescriptorSets(const DeviceFunctionTable& functions, PipelineBindPoint pipelineBindPoint,
+		PipelineLayoutRef pipelineLayout, DescriptorSet descriptorSet, std::span<const uint32_t> dynamicOffsets /*= {}*/)
+	{
+		GRAPHICS_VERIFY(isSet(), "Trying to record an invalid command buffer");
+		functions.execute<DeviceFunction::CmdBindDescriptorSets>(getHandle(),
+			convertCEnum(pipelineBindPoint), pipelineLayout.getHandle(), 0,
+			1, DescriptorSet::underlyingCast(&descriptorSet),
+			dynamicOffsets.size(), dynamicOffsets.data());
+	}
+
 	void CommandBuffer::setPipelineBarrier(const DeviceFunctionTable& functions, Flags::PipelineStage srcStage,
 		Flags::PipelineStage dstStage, Flags::Dependency dependencyFlags,
 		std::span<const MemoryBarrier> memoryBarriers,

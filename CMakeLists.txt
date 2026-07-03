@@ -58,9 +58,11 @@ target_link_libraries(GraphicsWrapper PRIVATE GraphicsWrapper_stb_image)
 if(PROJECT_IS_TOP_LEVEL)
     find_package(CommonApi REQUIRED CONFIG)
     find_package(Containers REQUIRED CONFIG)
+    find_package(PlatformKit REQUIRED CONFIG)
 endif()
 target_link_libraries(GraphicsWrapper PUBLIC CommonApi::CommonApi)
 target_link_libraries(GraphicsWrapper PUBLIC Containers::Containers)
+target_link_libraries(GraphicsWrapper PUBLIC PlatformKit::PlatformKit)
 
 # =========================
 # Test executable
@@ -114,7 +116,7 @@ install(EXPORT GraphicsWrapperTargets
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/install/GraphicsWrapperConfig.cmake.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/GraphicsWrapperConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/GraphicsWrapperConfig.cmake
     INSTALL_DESTINATION lib/cmake/GraphicsWrapper
 )
